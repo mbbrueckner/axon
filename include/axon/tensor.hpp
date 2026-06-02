@@ -21,6 +21,8 @@ private:
 
      size_t offset_;
 
+     void calculate_strides();
+
 public:
      Tensor(const std::vector<size_t> &shape, const std::vector<float> &data);
 
