@@ -9,15 +9,17 @@ add_library(axon STATIC
 target_include_directories(axon PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
-
 target_compile_features(axon PUBLIC cxx_std_20)
 
+target_compile_options(axon PRIVATE
+        -Wall -Wextra -Wpedantic
+)
 # Catch2
 include(FetchContent)
 FetchContent_Declare(
         Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG        v3.4.0
+        GIT_TAG v3.4.0
 )
 FetchContent_MakeAvailable(Catch2)
 
