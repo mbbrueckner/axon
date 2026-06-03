@@ -38,7 +38,6 @@ public:
           return std::accumulate(shape_.begin(), shape_.end(), 1, std::multiplies<size_t>());
      };
 
-     template<typename... Idx>
-     [[nodiscard]] float at(Idx... indices) const;
+     [[nodiscard]] float at(std::initializer_list<size_t> indices) const;
 };
 
