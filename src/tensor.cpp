@@ -1,4 +1,6 @@
 #include "axon/tensor.hpp"
+#include <stdexcept>
+#include <format>
 
 
 axon::Tensor::Tensor(const std::vector<size_t> &shape, const std::vector<float> &data)
@@ -19,4 +21,27 @@ void axon::Tensor::calculate_strides() {
   }
 }
 
+float axon::Tensor::at(std::initializer_list<size_t> indices) const {
+  const size_t num_dim = shape_.size();
+  const size_t num_indices = indices.size();
 
+  if (num_indices != num_dim) {
+    throw std::out_of_range(
+      std::format("Number of indices does not match dimensions: got {} indices for a {}-dimensional tensor",
+                  num_indices,
+                  num_dim));
+  }
+
+  size_t dim = 0;
+  size_t flat = offset_;
+  for (size_t idx: indices) {
+    if (idx >= shape_[dim]) {
+      throw std::out_of_range(
+        std::format("Index {} out of range for dimension {} with size {}", idx, dim, shape_[dim]));
+    }
+
+    flat += idx * stride_[dim];
+    dim++;
+  }
+  return (*data_)[flat];
+}
