@@ -1,0 +1,41 @@
+name: axon
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: 0 0 * * *
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y valgrind
+          sudo apt-get install -y cppcheck
+
+      - name: Static Code Analysis
+        run:
+          cppcheck src/ --template=gcc --force --error-exitcode=1
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          make
+
+      - name: Test
+        run: cd build && ctest --output-on-failure
+
+      - name: Valgrind
+        run: |
+          valgrind ./build/tests/axon_tests
+           
+
