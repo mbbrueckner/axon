@@ -3,13 +3,6 @@
 #include <format>
 
 
-axon::Tensor::Tensor(const std::vector<size_t> &shape, const std::vector<float> &data)
-  : shape_(shape),
-    offset_(0),
-    data_(std::make_shared<std::vector<float> >(data)) {
-  calculate_strides();
-}
-
 void axon::Tensor::calculate_strides() {
   const size_t dim = shape_.size();
   stride_.resize(dim, 1);
@@ -19,6 +12,21 @@ void axon::Tensor::calculate_strides() {
   for (int i = dim - 2; i >= 0; i--) {
     stride_[i] = shape_[i + 1] * stride_[i + 1]; // stride[i] = shape[i+1] * stride[i+1]; stride[dim-1] = 1
   }
+}
+
+axon::Tensor::Tensor(const std::vector<size_t> &shape, const std::vector<float> &data)
+  : shape_(shape),
+    offset_(0),
+    data_(std::make_shared<std::vector<float> >(data)) {
+  calculate_strides();
+}
+
+axon::Tensor::Tensor(const std::vector<size_t> &shape)
+  : shape_(shape),
+    offset_(0),
+    data_(std::make_shared<std::vector<float> >(
+      std::accumulate(shape_.begin(), shape_.end(), 1, std::multiplies<size_t>()))) {
+  calculate_strides();
 }
 
 float axon::Tensor::at(std::initializer_list<size_t> indices) const {
