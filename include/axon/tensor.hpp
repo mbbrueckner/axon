@@ -15,16 +15,18 @@ namespace axon {
 
 class axon::Tensor {
 private:
-     std::shared_ptr<std::vector<float> > data_;
      std::vector<size_t> shape_;
      std::vector<int64_t> stride_;
-
      size_t offset_;
+     std::shared_ptr<std::vector<float> > data_;
+
 
      void calculate_strides();
 
 public:
      Tensor(const std::vector<size_t> &shape, const std::vector<float> &data);
+
+     explicit Tensor(const std::vector<size_t> &shape);
 
      //TODO [] operator
 
