@@ -1,1 +1,4 @@
 BasedOnStyle: Google
+AlignAfterOpenBracket: Align
+BinPackArguments: false
+BinPackParameters: false
