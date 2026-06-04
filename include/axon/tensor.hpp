@@ -55,4 +55,5 @@ class axon::Tensor {
 
   [[nodiscard]] Tensor flatten() const;
 
+  friend Tensor operator+(const Tensor& lhs, const Tensor& rhs);
 };
