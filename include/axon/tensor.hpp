@@ -45,4 +45,6 @@ class axon::Tensor {
   };
 
   [[nodiscard]] float at(std::initializer_list<int64_t> indices) const;
+
+  [[nodiscard]] Tensor transpose() const;
 };

@@ -69,3 +69,12 @@ float axon::Tensor::at(std::initializer_list<int64_t> indices) const {
   }
   return (*data_)[flat];
 }
+
+axon::Tensor axon::Tensor::transpose() const {
+  std::vector shape_t(shape_);
+  std::ranges::reverse(shape_t);
+  std::vector stride_t(stride_);
+  std::ranges::reverse(stride_t);
+
+  return {data_, shape_t, stride_t, offset_};
+}
