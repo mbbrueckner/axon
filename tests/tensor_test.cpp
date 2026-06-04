@@ -162,3 +162,38 @@ TEST_CASE("Reshape Tensor with non-matching size", "[TensorRsNMS]") {
   const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
   REQUIRE_THROWS_AS(t.reshape({7}), std::out_of_range);
 }
+
+TEST_CASE("Elementwise Tensor addition", "[TensorAdd]") {
+  const axon::Tensor t_l({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_r({6, 5, 4, 3, 2, 1}, {2, 3});
+
+  const axon::Tensor t = t_l + t_r;
+
+  SECTION("size") {
+    REQUIRE(t.num_elements() == 6);
+    REQUIRE(t.num_dim() == 2);
+  }
+  SECTION("shape") {
+    REQUIRE(t.shape().at(0) == 2);
+    REQUIRE(t.shape().at(1) == 3);
+  }
+
+  SECTION("stride") {
+    REQUIRE(t.stride().size() == 2);
+    REQUIRE(t.stride().at(0) == 3);
+    REQUIRE(t.stride().at(1) == 1);
+  }
+
+  SECTION("at") {
+    REQUIRE(t.at({0, 0}) == 7.0f);
+    REQUIRE(t.at({0, 1}) == 7.0f);
+    REQUIRE(t.at({0, 2}) == 7.0f);
+    REQUIRE(t.at({1, 0}) == 7.0f);
+    REQUIRE(t.at({1, 1}) == 7.0f);
+    REQUIRE(t.at({1, 2}) == 7.0f);
+  }
+  SECTION("at out of range ") {
+    REQUIRE_THROWS_AS(t.at({5, 0}), std::out_of_range);
+    REQUIRE_THROWS_AS(t.at({0}), std::out_of_range);
+  }
+}
