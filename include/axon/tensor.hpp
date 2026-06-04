@@ -24,10 +24,13 @@ class axon::Tensor {
          std::vector<int64_t> stride,
          size_t offset);
 
-  void calculate_strides();
+  static std::vector<int64_t> calculate_strides(
+      const std::vector<int64_t>& shape);
+
+  [[nodiscard]] bool is_contiguous() const;
 
  public:
-  Tensor(const std::vector<int64_t>& shape, const std::vector<float>& data);
+  Tensor(const std::vector<float>& data, const std::vector<int64_t>& shape);
 
   explicit Tensor(const std::vector<int64_t>& shape);
 
@@ -47,4 +50,9 @@ class axon::Tensor {
   [[nodiscard]] float at(std::initializer_list<int64_t> indices) const;
 
   [[nodiscard]] Tensor transpose() const;
+
+  [[nodiscard]] Tensor reshape(const std::vector<int64_t>& new_shape) const;
+
+  [[nodiscard]] Tensor flatten() const;
+
 };
