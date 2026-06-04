@@ -1,5 +1,6 @@
 #include "axon/tensor.hpp"
 
+#include <algorithm>
 #include <format>
 #include <stdexcept>
 #include <utility>
