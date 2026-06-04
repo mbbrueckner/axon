@@ -4,6 +4,8 @@ project(axon VERSION 0.1.0 LANGUAGES CXX)
 # Library
 add_library(axon STATIC
         src/tensor.cpp
+        include/axon/utils.h
+        src/utils.cpp
 )
 
 target_include_directories(axon PUBLIC
