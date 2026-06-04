@@ -5,25 +5,26 @@
 #include <stdexcept>
 #include <utility>
 
-#include "axon/utils.h"
+#include "axon/utils.hpp"
 
-axon::Tensor::Tensor(std::shared_ptr<std::vector<float>> data,
-                     std::vector<int64_t> shape,
-                     std::vector<int64_t> stride,
-                     size_t offset)
+namespace axon {
+Tensor::Tensor(std::shared_ptr<std::vector<float>> data,
+               std::vector<int64_t> shape,
+               std::vector<int64_t> stride,
+               size_t offset)
     : shape_(std::move(shape)),
       stride_(std::move(stride)),
       offset_(offset),
       data_(std::move(data)) {}
 
-axon::Tensor::Tensor(const std::vector<float>& data,
-                     const std::vector<int64_t>& shape)
+Tensor::Tensor(const std::vector<float>& data,
+               const std::vector<int64_t>& shape)
     : shape_(shape),
       stride_(calculate_strides(shape)),
       offset_(0),
       data_(std::make_shared<std::vector<float>>(data)) {}
 
-axon::Tensor::Tensor(const std::vector<int64_t>& shape)
+Tensor::Tensor(const std::vector<int64_t>& shape)
     : shape_(shape),
       stride_(calculate_strides(shape)),
       offset_(0),
@@ -32,7 +33,7 @@ axon::Tensor::Tensor(const std::vector<int64_t>& shape)
   ;
 }
 
-std::vector<int64_t> axon::Tensor::calculate_strides(
+std::vector<int64_t> Tensor::calculate_strides(
     const std::vector<int64_t>& shape) {
   const size_t dim = shape.size();
   std::vector<int64_t> stride;
@@ -49,7 +50,7 @@ std::vector<int64_t> axon::Tensor::calculate_strides(
   return stride;
 }
 
-bool axon::Tensor::is_contiguous() const {
+bool Tensor::is_contiguous() const {
   const size_t dim = shape_.size();
 
   if (dim == 0) return true;
@@ -62,7 +63,7 @@ bool axon::Tensor::is_contiguous() const {
   return true;
 }
 
-float axon::Tensor::at(std::initializer_list<int64_t> indices) const {
+float Tensor::at(std::initializer_list<int64_t> indices) const {
   const size_t num_dim = shape_.size();
   const size_t num_indices = indices.size();
 
@@ -91,7 +92,7 @@ float axon::Tensor::at(std::initializer_list<int64_t> indices) const {
   return (*data_)[flat];
 }
 
-axon::Tensor axon::Tensor::transpose() const {
+Tensor Tensor::transpose() const {
   std::vector shape_t(shape_);
   std::ranges::reverse(shape_t);
   std::vector stride_t(stride_);
@@ -100,8 +101,7 @@ axon::Tensor axon::Tensor::transpose() const {
   return {data_, shape_t, stride_t, offset_};
 }
 
-axon::Tensor axon::Tensor::reshape(
-    const std::vector<int64_t>& new_shape) const {
+Tensor Tensor::reshape(const std::vector<int64_t>& new_shape) const {
   if (!is_contiguous()) {
     throw std::logic_error("Non-contiguous Tensor can not be reshaped");
   }
@@ -122,7 +122,7 @@ axon::Tensor axon::Tensor::reshape(
   return {data_, new_shape, new_stride, offset_};
 }
 
-axon::Tensor axon::Tensor::flatten() const {
+Tensor Tensor::flatten() const {
   const std::vector<int64_t> flat_shape = {
       static_cast<int64_t>(num_elements())};
   return reshape(flat_shape);
