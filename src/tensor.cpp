@@ -4,9 +4,14 @@
 #include <stdexcept>
 #include <utility>
 
-void axon::Tensor::calculate_strides() {
-  const size_t dim = shape_.size();
-  stride_.resize(dim, 1);
+axon::Tensor::Tensor(std::shared_ptr<std::vector<float>> data,
+                     std::vector<int64_t> shape,
+                     std::vector<int64_t> stride,
+                     size_t offset)
+    : shape_(std::move(shape)),
+      stride_(std::move(stride)),
+      offset_(offset),
+      data_(std::move(data)) {}
 
 axon::Tensor::Tensor(const std::vector<int64_t>& shape,
                      const std::vector<float>& data)

@@ -19,6 +19,10 @@ class axon::Tensor {
   size_t offset_;
   std::shared_ptr<std::vector<float>> data_;
 
+  Tensor(std::shared_ptr<std::vector<float>> data,
+         std::vector<int64_t> shape,
+         std::vector<int64_t> stride,
+         size_t offset);
 
   void calculate_strides();
 
