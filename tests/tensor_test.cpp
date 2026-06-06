@@ -34,6 +34,10 @@ TEST_CASE("Tensor with given data", "[TensorData]") {
   }
 }
 
+TEST_CASE("Tensor with no metching data and shape size", "[TensorSize]") {
+  REQUIRE_THROWS_AS(axon::Tensor({1, 2, 3, 4}, {1, 5}), std::out_of_range);
+}
+
 TEST_CASE("Tensor without given data", "[TensorZeros]") {
   const axon::Tensor t({2, 3});
   SECTION("size") {

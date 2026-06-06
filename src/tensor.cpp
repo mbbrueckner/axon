@@ -22,7 +22,16 @@ Tensor::Tensor(const std::vector<float>& data,
     : shape_(shape),
       stride_(calculate_strides(shape)),
       offset_(0),
-      data_(std::make_shared<std::vector<float>>(data)) {}
+      data_(std::make_shared<std::vector<float>>(data)) {
+  if (num_elements() != data.size()) {
+    throw std::out_of_range(
+        std::format("Number of elements does not match shape: got {} "
+                    "expected {} for shape {}",
+                    data.size(),
+                    num_elements(),
+                    axon::utils::vector_to_string(shape)));
+  }
+}
 
 Tensor::Tensor(const std::vector<int64_t>& shape)
     : shape_(shape),
