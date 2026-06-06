@@ -56,4 +56,26 @@ class axon::Tensor {
   [[nodiscard]] Tensor flatten() const;
 
   friend Tensor operator+(const Tensor& lhs, const Tensor& rhs);
+  friend Tensor operator+(const float sclr, const Tensor& tnsr);
+  friend Tensor operator+(const Tensor& tnsr, const float sclr) {
+    return sclr + tnsr;
+  }
+
+  friend Tensor operator-(const Tensor& lhs, const Tensor& rhs);
+  friend Tensor operator-(const float sclr, const Tensor& tnsr);
+  friend Tensor operator-(const Tensor& tnsr, const float sclr) {
+    return -sclr + tnsr;
+  }
+
+  friend Tensor operator*(const Tensor& lhs, const Tensor& rhs);
+  friend Tensor operator*(const float sclr, const Tensor& tnsr);
+  friend Tensor operator*(const Tensor& tnsr, const float sclr) {
+    return sclr * tnsr;
+  }
+
+  friend Tensor operator/(const Tensor& lhs, const Tensor& rhs);
+  friend Tensor operator/(const float sclr, const Tensor& tnsr);
+  friend Tensor operator/(const Tensor& tnsr, const float sclr) {
+    return tnsr * (1.0f / sclr);
+  }
 };

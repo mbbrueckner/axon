@@ -150,4 +150,104 @@ Tensor operator+(const Tensor& lhs, const Tensor& rhs) {
   }
   return {new_data, lhs_shape};
 }
+
+Tensor operator+(const float sclr, const Tensor& tnsr) {
+  std::vector<float> new_data((*tnsr.data_));
+  std::ranges::transform(
+      new_data, new_data.begin(), [sclr](float x) { return x + sclr; });
+  return {new_data, tnsr.shape_};
+}
+
+Tensor operator-(const Tensor& lhs, const Tensor& rhs) {
+  const std::vector<int64_t>& lhs_shape = lhs.shape();
+  const std::vector<int64_t>& rhs_shape = rhs.shape();
+  if (lhs_shape != rhs_shape) {
+    throw std::out_of_range(
+        std::format("Cannot perform elementwise addition for tensors with "
+                    "different shapes: {}; {}",
+                    utils::vector_to_string(lhs_shape),
+                    utils::vector_to_string(rhs_shape)));
+  }
+
+  const size_t num_elements = std::accumulate(
+      lhs_shape.begin(), lhs_shape.end(), 1, std::multiplies<>());
+
+  std::vector<float> new_data = (*lhs.data_);
+  std::vector<float> rhs_data = (*rhs.data_);
+
+  for (size_t i = 0; i < num_elements; i++) {
+    new_data[i] -= rhs_data[i];
+  }
+  return {new_data, lhs_shape};
+}
+
+Tensor operator-(const float sclr, const Tensor& tnsr) {
+  std::vector<float> new_data((*tnsr.data_));
+  std::ranges::transform(
+      new_data, new_data.begin(), [sclr](float x) { return x - sclr; });
+  return {new_data, tnsr.shape_};
+}
+
+Tensor operator*(const Tensor& lhs, const Tensor& rhs) {
+  const std::vector<int64_t>& lhs_shape = lhs.shape();
+  const std::vector<int64_t>& rhs_shape = rhs.shape();
+  if (lhs_shape != rhs_shape) {
+    throw std::out_of_range(
+        std::format("Cannot perform elementwise addition for tensors with "
+                    "different shapes: {}; {}",
+                    utils::vector_to_string(lhs_shape),
+                    utils::vector_to_string(rhs_shape)));
+  }
+
+  const size_t num_elements = std::accumulate(
+      lhs_shape.begin(), lhs_shape.end(), 1, std::multiplies<>());
+
+  std::vector<float> new_data = (*lhs.data_);
+  std::vector<float> rhs_data = (*rhs.data_);
+
+  for (size_t i = 0; i < num_elements; i++) {
+    new_data[i] *= rhs_data[i];
+  }
+  return {new_data, lhs_shape};
+}
+
+Tensor operator*(const float sclr, const Tensor& tnsr) {
+  std::vector<float> new_data((*tnsr.data_));
+  std::ranges::transform(
+      new_data, new_data.begin(), [sclr](float x) { return x * sclr; });
+  return {new_data, tnsr.shape_};
+}
+
+Tensor operator/(const Tensor& lhs, const Tensor& rhs) {
+  const std::vector<int64_t>& lhs_shape = lhs.shape();
+  const std::vector<int64_t>& rhs_shape = rhs.shape();
+  if (lhs_shape != rhs_shape) {
+    throw std::out_of_range(
+        std::format("Cannot perform elementwise addition for tensors with "
+                    "different shapes: {}; {}",
+                    utils::vector_to_string(lhs_shape),
+                    utils::vector_to_string(rhs_shape)));
+  }
+
+  const size_t num_elements = std::accumulate(
+      lhs_shape.begin(), lhs_shape.end(), 1, std::multiplies<>());
+
+  std::vector<float> new_data = (*lhs.data_);
+  std::vector<float> rhs_data = (*rhs.data_);
+
+  for (size_t i = 0; i < num_elements; i++) {
+    new_data[i] /= rhs_data[i];
+  }
+  return {new_data, lhs_shape};
+}
+
+Tensor operator/(const float sclr, const Tensor& tnsr) {
+  std::vector<float> new_data((*tnsr.data_));
+  std::ranges::transform(
+      new_data.begin(), new_data.end(), new_data.begin(), [sclr](float x) {
+        return x / sclr;
+      });
+  return {new_data, tnsr.shape_};
+}
+
 }  // namespace axon
