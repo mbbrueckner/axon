@@ -192,7 +192,7 @@ TEST_CASE("Elementwise Tensor addition with no matching shapes",
 
 TEST_CASE("Scalar Tensor addition", "[TensorAddSc]") {
   const axon::Tensor t_tensor({1, 2, 3, 4, 5, 6}, {2, 3});
-  const float scalar = 1.0f;
+  constexpr float scalar = 1.0f;
 
   const axon::Tensor t = t_tensor + scalar;
 
@@ -228,7 +228,7 @@ TEST_CASE("Elementwise Tensor substraction with no matching shapes",
 
 TEST_CASE("Scalar Tensor substraction", "[TensorSubSc]") {
   const axon::Tensor t_tensor({1, 2, 3, 4, 5, 6}, {2, 3});
-  const float scalar = 1.0f;
+  constexpr float scalar = 1.0f;
 
   const axon::Tensor t = t_tensor - scalar;
 
@@ -264,7 +264,7 @@ TEST_CASE("Elementwise Tensor multiplication with no matching shapes",
 
 TEST_CASE("Scalar Tensor multiplication", "[TensorMulSc]") {
   const axon::Tensor t_tensor({1, 2, 3, 4, 5, 6}, {2, 3});
-  const float scalar = 2.0f;
+  constexpr float scalar = 2.0f;
 
   const axon::Tensor t = t_tensor * scalar;
 
@@ -300,7 +300,7 @@ TEST_CASE("Elementwise Tensor division with no matching shapes",
 
 TEST_CASE("Scalar Tensor division", "[TensorDivSc]") {
   const axon::Tensor t_tensor({2, 4, 6, 8, 10, 12}, {2, 3});
-  const float scalar = 2.0f;
+  constexpr float scalar = 2.0f;
 
   const axon::Tensor t = t_tensor / scalar;
 
