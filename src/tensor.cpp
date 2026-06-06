@@ -137,6 +137,36 @@ Tensor Tensor::flatten() const {
   return reshape(flat_shape);
 }
 
+Tensor Tensor::matmul(const Tensor& other) const {
+  if (num_dim() != 2 && other.num_dim() != 2) {
+    throw std::out_of_range(std::format(
+        "Cannot perform matrix multiplication on tensor with degree ≠ 2,"
+        "got dimensions: {}; {}",
+        num_dim(),
+        other.num_dim()));
+  }
+  if (shape_[1] != other.shape()[0]) {
+    throw std::out_of_range(
+        std::format("Cannot perform matrix multiplication on matrices with "
+                    "unmatching row x column sizes:"
+                    "got rows left: {}; columns right {}",
+                    shape_[1],
+                    other.shape()[0]));
+  }
+  const int64_t rows = shape_[0];
+  const int64_t inner = shape_[1];
+  const int64_t cols = other.shape()[1];
+  Tensor result({rows, cols});
+  for (int64_t i = 0; i < rows; i++) {
+    for (int64_t j = 0; j < cols; j++) {
+      for (int64_t k = 0; k < inner; k++) {
+        (*result.data_)[i * cols + j] += at({i, k}) * other.at({k, j});
+      }
+    }
+  }
+  return result;
+}
+
 Tensor operator+(const Tensor& lhs, const Tensor& rhs) {
   const std::vector<int64_t>& lhs_shape = lhs.shape();
   const std::vector<int64_t>& rhs_shape = rhs.shape();
