@@ -311,3 +311,31 @@ TEST_CASE("Scalar Tensor division", "[TensorDivSc]") {
   REQUIRE(t.at({1, 1}) == Catch::Approx(5.0f));
   REQUIRE(t.at({1, 2}) == Catch::Approx(6.0f));
 }
+
+TEST_CASE("Tensor matrix multiplication", "[TensorMatmul]") {
+  const axon::Tensor t_l({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_r({7, 8, 9, 10, 11, 12}, {3, 2});
+
+  const axon::Tensor t = t_l.matmul(t_r);
+
+  SECTION("shape") {
+    REQUIRE(t.num_dim() == 2);
+    REQUIRE(t.shape().at(0) == 2);
+    REQUIRE(t.shape().at(1) == 2);
+  }
+
+  SECTION("at") {
+    REQUIRE(t.at({0, 0}) == Catch::Approx(58.0f));
+    REQUIRE(t.at({0, 1}) == Catch::Approx(64.0f));
+    REQUIRE(t.at({1, 0}) == Catch::Approx(139.0f));
+    REQUIRE(t.at({1, 1}) == Catch::Approx(154.0f));
+  }
+}
+
+TEST_CASE("Tensor matrix multiplication with non-matching inner dimensions",
+          "[TensorMatmulNMS]") {
+  const axon::Tensor t_l({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_r({1, 2, 3, 4, 5, 6}, {2, 3});
+
+  REQUIRE_THROWS_AS(t_l.matmul(t_r), std::out_of_range);
+}
