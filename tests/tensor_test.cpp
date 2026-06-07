@@ -2,6 +2,7 @@
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
+#include <cmath>
 
 TEST_CASE("Tensor with given data", "[TensorData]") {
   const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
@@ -338,4 +339,79 @@ TEST_CASE("Tensor matrix multiplication with non-matching inner dimensions",
   const axon::Tensor t_r({1, 2, 3, 4, 5, 6}, {2, 3});
 
   REQUIRE_THROWS_AS(t_l.matmul(t_r), std::out_of_range);
+}
+
+TEST_CASE("Tensor log", "[TensorLog]") {
+  const axon::Tensor t_tensor({1, 2, 3, 4, 5, 6}, {2, 3});
+
+  const axon::Tensor t = t_tensor.log();
+
+  SECTION("shape") {
+    REQUIRE(t.num_dim() == 2);
+    REQUIRE(t.shape().at(0) == 2);
+    REQUIRE(t.shape().at(1) == 3);
+  }
+
+  SECTION("at") {
+    REQUIRE(t.at({0, 0}) == Catch::Approx(std::log(1.0f)));
+    REQUIRE(t.at({0, 1}) == Catch::Approx(std::log(2.0f)));
+    REQUIRE(t.at({0, 2}) == Catch::Approx(std::log(3.0f)));
+    REQUIRE(t.at({1, 0}) == Catch::Approx(std::log(4.0f)));
+    REQUIRE(t.at({1, 1}) == Catch::Approx(std::log(5.0f)));
+    REQUIRE(t.at({1, 2}) == Catch::Approx(std::log(6.0f)));
+  }
+}
+
+TEST_CASE("Tensor exp", "[TensorExp]") {
+  const axon::Tensor t_tensor({1, 2, 3, 4, 5, 6}, {2, 3});
+
+  const axon::Tensor t = t_tensor.exp();
+
+  SECTION("shape") {
+    REQUIRE(t.num_dim() == 2);
+    REQUIRE(t.shape().at(0) == 2);
+    REQUIRE(t.shape().at(1) == 3);
+  }
+
+  SECTION("at") {
+    REQUIRE(t.at({0, 0}) == Catch::Approx(std::exp(1.0f)));
+    REQUIRE(t.at({0, 1}) == Catch::Approx(std::exp(2.0f)));
+    REQUIRE(t.at({0, 2}) == Catch::Approx(std::exp(3.0f)));
+    REQUIRE(t.at({1, 0}) == Catch::Approx(std::exp(4.0f)));
+    REQUIRE(t.at({1, 1}) == Catch::Approx(std::exp(5.0f)));
+    REQUIRE(t.at({1, 2}) == Catch::Approx(std::exp(6.0f)));
+  }
+}
+
+TEST_CASE("Tensor log and exp are inverse", "[TensorLogExp]") {
+  const axon::Tensor t_tensor({1, 2, 3, 4, 5, 6}, {2, 3});
+
+  const axon::Tensor t = t_tensor.log().exp();
+
+  REQUIRE(t.at({0, 0}) == Catch::Approx(1.0f));
+  REQUIRE(t.at({0, 1}) == Catch::Approx(2.0f));
+  REQUIRE(t.at({0, 2}) == Catch::Approx(3.0f));
+  REQUIRE(t.at({1, 0}) == Catch::Approx(4.0f));
+  REQUIRE(t.at({1, 1}) == Catch::Approx(5.0f));
+  REQUIRE(t.at({1, 2}) == Catch::Approx(6.0f));
+}
+
+TEST_CASE("Tensor min", "[TensorMin]") {
+  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  REQUIRE(t.min() == 1.0f);
+}
+
+TEST_CASE("Tensor max", "[TensorMax]") {
+  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  REQUIRE(t.max() == 6.0f);
+}
+
+TEST_CASE("Tensor sum", "[TensorSum]") {
+  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  REQUIRE(t.sum() == 21.0f);
+}
+
+TEST_CASE("Tensor mean", "[TensorMean]") {
+  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  REQUIRE(t.mean() == 3.5f);
 }
