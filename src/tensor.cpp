@@ -74,6 +74,10 @@ bool Tensor::is_contiguous() const {
 }
 
 Tensor Tensor::operator[](size_t idx) const {
+  if (shape_.empty()) {
+    throw std::out_of_range(
+        "Cannot subscript a 0-dimensional tensor (too many subscripts)");
+  }
   if (idx >= static_cast<size_t>(shape_[0])) {
     throw std::out_of_range(
         std::format("Index out of bounds: expected index to be < {}, got{}",
