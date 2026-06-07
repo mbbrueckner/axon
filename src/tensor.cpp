@@ -1,3 +1,10 @@
+/**
+ * @file tensor.cpp
+ * @brief Implementation of the axon::Tensor class.
+ * @author Mika Brückner
+ * @date 2026-06-02
+ */
+
 #include "axon/tensor.hpp"
 
 #include <algorithm>
