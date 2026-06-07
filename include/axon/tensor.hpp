@@ -57,6 +57,15 @@ class axon::Tensor {
 
   [[nodiscard]] Tensor matmul(const Tensor& other) const;
 
+  [[nodiscard]] Tensor log() const;
+  [[nodiscard]] Tensor exp() const;
+
+  [[nodiscard]] float min() const;
+  [[nodiscard]] float max() const;
+
+  [[nodiscard]] float sum() const;
+  [[nodiscard]] float mean() const;
+
   friend Tensor operator+(const Tensor& lhs, const Tensor& rhs);
   friend Tensor operator+(const float sclr, const Tensor& tnsr);
   friend Tensor operator+(const Tensor& tnsr, const float sclr) {

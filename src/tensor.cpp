@@ -1,6 +1,7 @@
 #include "axon/tensor.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <format>
 #include <stdexcept>
 #include <utility>
@@ -165,6 +166,34 @@ Tensor Tensor::matmul(const Tensor& other) const {
     }
   }
   return result;
+}
+
+Tensor Tensor::log() const {
+  std::vector<float> new_data = (*data_);
+
+  std::ranges::transform(
+      new_data, new_data.begin(), [](float x) { return std::log(x); });
+  return {new_data, shape_};
+}
+
+Tensor Tensor::exp() const {
+  std::vector<float> new_data = (*data_);
+
+  std::ranges::transform(
+      new_data, new_data.begin(), [](float x) { return std::exp(x); });
+  return {new_data, shape_};
+}
+
+float Tensor::min() const { return *std::ranges::min_element(*data_); }
+
+float Tensor::max() const { return *std::ranges::max_element(*data_); }
+
+float Tensor::sum() const {
+  return std::accumulate(data_->begin(), data_->end(), 0.0f);
+}
+
+float Tensor::mean() const {
+  return sum() / static_cast<float>(num_elements());
 }
 
 Tensor operator+(const Tensor& lhs, const Tensor& rhs) {
