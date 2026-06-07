@@ -73,6 +73,20 @@ bool Tensor::is_contiguous() const {
   return true;
 }
 
+Tensor Tensor::operator[](size_t idx) const {
+  if (idx >= static_cast<size_t>(shape_[0])) {
+    throw std::out_of_range(
+        std::format("Index out of bounds: expected index to be < {}, got{}",
+                    shape_[0],
+                    idx));
+  }
+
+  const size_t new_offset = idx * (stride_[0]);
+  const std::vector<int64_t> new_shape(shape_.begin() + 1, shape_.end());
+  const std::vector<int64_t> new_stride(stride_.begin() + 1, stride_.end());
+  return {data_, new_shape, new_stride, new_offset};
+}
+
 float Tensor::at(std::initializer_list<int64_t> indices) const {
   const size_t num_dim = shape_.size();
   const size_t num_indices = indices.size();
