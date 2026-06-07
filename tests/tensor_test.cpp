@@ -415,3 +415,25 @@ TEST_CASE("Tensor mean", "[TensorMean]") {
   const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
   REQUIRE(t.mean() == 3.5f);
 }
+
+TEST_CASE("Tensor subscript operator", "[TensorSubscript]") {
+  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+
+  SECTION("Matrix slice") {
+    const axon::Tensor t_0 = t[0];
+    REQUIRE(t_0.at({0}) == 1.0f);
+    REQUIRE(t_0.at({1}) == 2.0f);
+    REQUIRE(t_0.at({2}) == 3.0f);
+  }
+
+  SECTION("Multiple subscripts") {
+    const axon::Tensor t_0_0 = t[0][0];
+    REQUIRE(t_0_0.at({}) == 1.0f);
+  }
+
+  SECTION("Index out of Bounds") { REQUIRE_THROWS_AS(t[2], std::out_of_range); }
+
+  SECTION("Too many subscripts") {
+    REQUIRE_THROWS_AS(t[0][0][0], std::out_of_range);
+  }
+}
