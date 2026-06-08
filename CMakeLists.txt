@@ -5,6 +5,7 @@ project(axon VERSION 0.1.0 LANGUAGES CXX)
 add_library(axon STATIC
         src/tensor.cpp
         src/utils.cpp
+        include/axon/constants.hpp
 )
 
 target_include_directories(axon PUBLIC
