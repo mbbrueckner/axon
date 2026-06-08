@@ -165,7 +165,7 @@ Tensor Tensor::flatten() const {
 }
 
 Tensor Tensor::matmul(const Tensor& other) const {
-  if (num_dim() != 2 && other.num_dim() != 2) {
+  if (num_dim() != 2 || other.num_dim() != 2) {
     throw std::out_of_range(std::format(
         "Cannot perform matrix multiplication on tensor with degree ≠ 2,"
         "got dimensions: {}; {}",
