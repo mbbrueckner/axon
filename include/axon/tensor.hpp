@@ -12,6 +12,8 @@
 #include <numeric>
 #include <vector>
 
+#include "axon/constants.hpp"
+
 namespace axon {
 class Tensor;
 }
@@ -31,11 +33,11 @@ class Tensor;
 class axon::Tensor {
  private:
   /// Size of the tensor along each dimension.
-  std::vector<int64_t> shape_;
+  std::vector<idx_t> shape_;
   /// Number of flat elements to step over per index in each dimension.
-  std::vector<int64_t> stride_;
+  std::vector<idx_t> stride_;
   /// Flat index of the first element within the shared data buffer.
-  size_t offset_;
+  idx_t offset_;
   /// Reference-counted backing storage shared between views.
   std::shared_ptr<std::vector<float>> data_;
 
@@ -51,17 +53,17 @@ class axon::Tensor {
    * @param offset Flat index of the first element within @p data.
    */
   Tensor(std::shared_ptr<std::vector<float>> data,
-         std::vector<int64_t> shape,
-         std::vector<int64_t> stride,
-         size_t offset);
+         std::vector<idx_t> shape,
+         std::vector<idx_t> stride,
+         idx_t offset);
 
   /**
    * @brief Computes the row-major (contiguous) strides for a given shape.
    * @param shape Size along each dimension.
    * @return The stride for each dimension.
    */
-  static std::vector<int64_t> calculate_strides(
-      const std::vector<int64_t>& shape);
+  static std::vector<idx_t> calculate_strides(
+      const std::vector<idx_t>& shape);
 
   /**
    * @brief Checks whether the tensor's elements are laid out contiguously.
@@ -77,28 +79,28 @@ class axon::Tensor {
    * @throws std::out_of_range if @p data.size() does not equal the product of
    *         @p shape.
    */
-  Tensor(const std::vector<float>& data, const std::vector<int64_t>& shape);
+  Tensor(const std::vector<float>& data, const std::vector<idx_t>& shape);
 
   /**
    * @brief Constructs a zero-initialized tensor of the given shape.
    * @param shape Size along each dimension.
    */
-  explicit Tensor(const std::vector<int64_t>& shape);
+  explicit Tensor(const std::vector<idx_t>& shape);
 
   /// @return The size of the tensor along each dimension.
-  [[nodiscard]] const std::vector<int64_t>& shape() const { return shape_; };
+  [[nodiscard]] const std::vector<idx_t>& shape() const { return shape_; };
   /// @return The stride of the tensor along each dimension.
-  [[nodiscard]] const std::vector<int64_t>& stride() const { return stride_; };
+  [[nodiscard]] const std::vector<idx_t>& stride() const { return stride_; };
   /// @return The flat offset of the first element within the data buffer.
-  [[nodiscard]] size_t offset() const { return offset_; };
+  [[nodiscard]] idx_t offset() const { return offset_; };
 
   /// @return The number of dimensions (rank) of the tensor.
-  [[nodiscard]] size_t num_dim() const { return shape_.size(); };
+  [[nodiscard]] idx_t num_dim() const { return shape_.size(); };
 
   /// @return The total number of elements (product of the shape).
-  [[nodiscard]] size_t num_elements() const {
+  [[nodiscard]] idx_t num_elements() const {
     return std::accumulate(
-        shape_.begin(), shape_.end(), 1, std::multiplies<>());
+        shape_.begin(), shape_.end(), idx_t{1}, std::multiplies<>());
   };
 
   /**
@@ -112,7 +114,7 @@ class axon::Tensor {
    * @throws std::out_of_range if the tensor is 0-dimensional or @p idx is out
    *         of bounds.
    */
-  [[nodiscard]] Tensor operator[](size_t idx) const;
+  [[nodiscard]] Tensor operator[](idx_t idx) const;
 
   /**
    * @brief Returns the scalar value at the given multi-dimensional index.
@@ -121,7 +123,7 @@ class axon::Tensor {
    * @throws std::out_of_range if the number of indices does not match the rank
    *         or any index is out of bounds.
    */
-  [[nodiscard]] float at(std::initializer_list<int64_t> indices) const;
+  [[nodiscard]] float at(std::initializer_list<idx_t> indices) const;
 
   /**
    * @brief Returns a view with all dimensions reversed.
@@ -140,7 +142,7 @@ class axon::Tensor {
    * @throws std::logic_error if the tensor is not contiguous.
    * @throws std::out_of_range if @p new_shape has a different element count.
    */
-  [[nodiscard]] Tensor reshape(const std::vector<int64_t>& new_shape) const;
+  [[nodiscard]] Tensor reshape(const std::vector<idx_t>& new_shape) const;
 
   /**
    * @brief Returns a one-dimensional view of all elements.
