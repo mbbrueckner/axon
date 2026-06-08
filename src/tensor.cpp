@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <utility>
 
+#include "axon/constants.hpp"
 #include "axon/utils.hpp"
 
 namespace axon {
@@ -58,7 +59,7 @@ std::vector<int64_t> Tensor::calculate_strides(
 
   if (dim >= 2) {
     // check if tensor or is 0D/1D -> no stride needed
-    for (int64_t i = static_cast<int64_t>(dim) - 2; i >= 0; i--) {
+    for (idx_t i = static_cast<int64_t>(dim) - 2; i >= 0; i--) {
       // stride[i] = shape[i+1] * stride[i+1]; stride[dim-1] = 1
       stride[i] = shape[i + 1] * stride[i + 1];
     }
@@ -74,7 +75,7 @@ bool Tensor::is_contiguous() const {
 
   if (stride_.back() != 1) return false;
 
-  for (size_t i = 0; i < dim - 1; i++) {
+  for (idx_t i{}; i < dim - 1; i++) {
     if (stride_[i] != shape_[i + 1] * stride_[i + 1]) return false;
   }
   return true;
@@ -183,9 +184,9 @@ Tensor Tensor::matmul(const Tensor& other) const {
   const int64_t inner = shape_[1];
   const int64_t cols = other.shape()[1];
   Tensor result({rows, cols});
-  for (int64_t i = 0; i < rows; i++) {
-    for (int64_t j = 0; j < cols; j++) {
-      for (int64_t k = 0; k < inner; k++) {
+  for (idx_t i{}; i < rows; i++) {
+    for (idx_t j{}; j < cols; j++) {
+      for (idx_t k{}; k < inner; k++) {
         (*result.data_)[i * cols + j] += at({i, k}) * other.at({k, j});
       }
     }
@@ -238,7 +239,7 @@ Tensor operator+(const Tensor& lhs, const Tensor& rhs) {
   std::vector<float> new_data = (*lhs.data_);
   std::vector<float> rhs_data = (*rhs.data_);
 
-  for (size_t i = 0; i < num_elements; i++) {
+  for (idx_t i{}; i < num_elements; i++) {
     new_data[i] += rhs_data[i];
   }
   return {new_data, lhs_shape};
@@ -268,7 +269,7 @@ Tensor operator-(const Tensor& lhs, const Tensor& rhs) {
   std::vector<float> new_data = (*lhs.data_);
   std::vector<float> rhs_data = (*rhs.data_);
 
-  for (size_t i = 0; i < num_elements; i++) {
+  for (idx_t i{}; i < num_elements; i++) {
     new_data[i] -= rhs_data[i];
   }
   return {new_data, lhs_shape};
@@ -298,7 +299,7 @@ Tensor operator*(const Tensor& lhs, const Tensor& rhs) {
   std::vector<float> new_data = (*lhs.data_);
   std::vector<float> rhs_data = (*rhs.data_);
 
-  for (size_t i = 0; i < num_elements; i++) {
+  for (idx_t i{}; i < num_elements; i++) {
     new_data[i] *= rhs_data[i];
   }
   return {new_data, lhs_shape};
@@ -328,7 +329,7 @@ Tensor operator/(const Tensor& lhs, const Tensor& rhs) {
   std::vector<float> new_data = (*lhs.data_);
   std::vector<float> rhs_data = (*rhs.data_);
 
-  for (size_t i = 0; i < num_elements; i++) {
+  for (idx_t i{}; i < num_elements; i++) {
     new_data[i] /= rhs_data[i];
   }
   return {new_data, lhs_shape};
