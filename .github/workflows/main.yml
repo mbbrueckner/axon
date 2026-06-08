@@ -17,25 +17,24 @@ jobs:
       - name: Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y valgrind
-          sudo apt-get install -y cppcheck
+          sudo apt-get install -y valgrind cppcheck
 
       - name: Static Code Analysis
-        run:
-          cppcheck src/ --template=gcc --force --error-exitcode=1
+        run: cppcheck src/ --template=gcc --force --error-exitcode=1
 
-      - name: Build
-        run: |
-          mkdir build
-          cd build
-          cmake ..
-          make
+      - name: Build (Debug)
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Debug && cmake --build build
 
-      - name: Test
+      - name: Test (ASan/UBSan)
         run: cd build && ctest --output-on-failure
+
+      - name: Build (Release)
+        run: cmake -B build-release -DCMAKE_BUILD_TYPE=Release && cmake --build build-release
 
       - name: Valgrind
         run: |
-          valgrind ./build/tests/axon_tests
-           
-
+          valgrind \
+            --leak-check=full \
+            --error-exitcode=1 \
+            --track-origins=yes \
+            ./build-release/tests/axon_tests
