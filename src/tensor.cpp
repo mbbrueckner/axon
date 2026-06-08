@@ -26,8 +26,7 @@ Tensor::Tensor(std::shared_ptr<std::vector<float>> data,
       offset_(offset),
       data_(std::move(data)) {}
 
-Tensor::Tensor(const std::vector<float>& data,
-               const std::vector<idx_t>& shape)
+Tensor::Tensor(const std::vector<float>& data, const std::vector<idx_t>& shape)
     : shape_(shape),
       stride_(calculate_strides(shape)),
       offset_(0),
@@ -51,8 +50,7 @@ Tensor::Tensor(const std::vector<idx_t>& shape)
   ;
 }
 
-std::vector<idx_t> Tensor::calculate_strides(
-    const std::vector<idx_t>& shape) {
+std::vector<idx_t> Tensor::calculate_strides(const std::vector<idx_t>& shape) {
   const idx_t dim = static_cast<idx_t>(shape.size());
   std::vector<idx_t> stride;
   stride.resize(dim, 1);

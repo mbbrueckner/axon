@@ -62,8 +62,7 @@ class axon::Tensor {
    * @param shape Size along each dimension.
    * @return The stride for each dimension.
    */
-  static std::vector<idx_t> calculate_strides(
-      const std::vector<idx_t>& shape);
+  static std::vector<idx_t> calculate_strides(const std::vector<idx_t>& shape);
 
   /**
    * @brief Checks whether the tensor's elements are laid out contiguously.
