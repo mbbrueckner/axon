@@ -52,6 +52,10 @@ Tensor::Tensor(const std::vector<idx_t>& shape)
 }
 Tensor::~Tensor() = default;
 
+Tensor::Tensor(Tensor&&) noexcept = default;
+
+Tensor& Tensor::operator=(Tensor&&) noexcept = default;
+
 std::vector<idx_t> Tensor::calculate_strides(const std::vector<idx_t>& shape) {
   const idx_t dim = shape.size();
   std::vector<idx_t> stride;

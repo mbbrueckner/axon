@@ -90,10 +90,14 @@ class axon::Tensor {
    */
   explicit Tensor(const std::vector<idx_t>& shape);
 
-  /**
-   * @brief  Deconstructs a Tensor.
-   */
+  /// @brief Destroys the Tensor and releases its resources.
   ~Tensor();
+
+  /// @brief Move-constructs a Tensor, transferring ownership of all resources.
+  Tensor(Tensor&&) noexcept;
+
+  /// @brief Move-assigns a Tensor, transferring ownership of all resources.
+  Tensor& operator=(Tensor&&) noexcept;
 
   /// @return The size of the tensor along each dimension.
   [[nodiscard]] const std::vector<idx_t>& shape() const { return shape_; };
