@@ -51,7 +51,7 @@ Tensor::Tensor(const std::vector<idx_t>& shape)
 }
 
 std::vector<idx_t> Tensor::calculate_strides(const std::vector<idx_t>& shape) {
-  const idx_t dim = static_cast<idx_t>(shape.size());
+  const idx_t dim = shape.size();
   std::vector<idx_t> stride;
   stride.resize(dim, 1);
 
@@ -67,7 +67,7 @@ std::vector<idx_t> Tensor::calculate_strides(const std::vector<idx_t>& shape) {
 }
 
 bool Tensor::is_contiguous() const {
-  const idx_t dim = static_cast<idx_t>(shape_.size());
+  const idx_t dim = shape_.size();
 
   if (dim == 0) return true;
 
@@ -98,8 +98,8 @@ Tensor Tensor::operator[](idx_t idx) const {
 }
 
 float Tensor::at(std::initializer_list<idx_t> indices) const {
-  const idx_t num_dim = static_cast<idx_t>(shape_.size());
-  const idx_t num_indices = static_cast<idx_t>(indices.size());
+  const idx_t num_dim = shape_.size();
+  const idx_t num_indices = indices.size();
 
   if (num_indices != num_dim) {
     throw std::out_of_range(
