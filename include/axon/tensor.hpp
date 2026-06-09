@@ -16,7 +16,7 @@
 
 namespace axon {
 class Tensor;
-}
+}  // namespace axon
 
 /**
  * @class axon::Tensor
@@ -85,6 +85,11 @@ class axon::Tensor {
    * @param shape Size along each dimension.
    */
   explicit Tensor(const std::vector<idx_t>& shape);
+
+  /**
+   * @brief  Deconstructs a Tensor.
+   */
+  ~Tensor();
 
   /// @return The size of the tensor along each dimension.
   [[nodiscard]] const std::vector<idx_t>& shape() const { return shape_; };

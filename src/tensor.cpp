@@ -49,6 +49,7 @@ Tensor::Tensor(const std::vector<idx_t>& shape)
           shape_.begin(), shape_.end(), 1, std::multiplies<>()))) {
   ;
 }
+Tensor::~Tensor() = default;
 
 std::vector<idx_t> Tensor::calculate_strides(const std::vector<idx_t>& shape) {
   const idx_t dim = shape.size();
