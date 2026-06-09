@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <utility>
 
+#include "autograd.hpp"
 #include "axon/constants.hpp"
 #include "axon/utils.hpp"
 
