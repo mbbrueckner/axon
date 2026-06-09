@@ -15,6 +15,9 @@
 #include "axon/constants.hpp"
 
 namespace axon {
+
+struct AutogradMeta;
+
 class Tensor;
 }  // namespace axon
 
@@ -40,7 +43,8 @@ class axon::Tensor {
   idx_t offset_;
   /// Reference-counted backing storage shared between views.
   std::shared_ptr<std::vector<float>> data_;
-
+  /// Autograd meta data.
+  std::unique_ptr<AutogradMeta> autograd_meta_;
   /**
    * @brief Constructs a tensor view from explicit storage parameters.
    *
