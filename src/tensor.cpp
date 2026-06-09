@@ -56,6 +56,24 @@ Tensor::Tensor(Tensor&&) noexcept = default;
 
 Tensor& Tensor::operator=(Tensor&&) noexcept = default;
 
+Tensor::Tensor(const Tensor& other)
+    : shape_(other.shape_),
+      stride_(other.stride_),
+      offset_(other.offset_),
+      data_(other.data_),
+      autograd_meta_(nullptr) {}
+
+Tensor& Tensor::operator=(const Tensor& other) {
+  if (this != &other) {
+    shape_ = other.shape_;
+    stride_ = other.stride_;
+    offset_ = other.offset_;
+    data_ = other.data_;
+    autograd_meta_ = nullptr;
+  }
+  return *this;
+}
+
 std::vector<idx_t> Tensor::calculate_strides(const std::vector<idx_t>& shape) {
   const idx_t dim = shape.size();
   std::vector<idx_t> stride;

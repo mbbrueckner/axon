@@ -99,6 +99,14 @@ class axon::Tensor {
   /// @brief Move-assigns a Tensor, transferring ownership of all resources.
   Tensor& operator=(Tensor&&) noexcept;
 
+  /// @brief Copy-constructs a Tensor, sharing the underlying storage.
+  /// @note The new Tensor has no autograd history.
+  Tensor(const Tensor&);
+
+  /// @brief Copy-assigns a Tensor, sharing the underlying storage.
+  /// @note The new Tensor has no autograd history.
+  Tensor& operator=(const Tensor&);
+
   /// @return The size of the tensor along each dimension.
   [[nodiscard]] const std::vector<idx_t>& shape() const { return shape_; };
   /// @return The stride of the tensor along each dimension.
