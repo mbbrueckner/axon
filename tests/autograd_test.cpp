@@ -5,7 +5,7 @@
 #include "../include/axon/tensor.hpp"
 #include "catch2/catch_all.hpp"
 
-TEST_CASE("Autograd mul backward", "[AutoGMul") {
+TEST_CASE("Autograd mul backward", "[AutoGMul]") {
   axon::Tensor x(std::vector<float>{2.0f}, std::vector<axon::idx_t>{1});
   axon::Tensor y(std::vector<float>{3.0f}, std::vector<axon::idx_t>{1});
 
