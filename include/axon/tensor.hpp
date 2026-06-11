@@ -90,6 +90,8 @@ class axon::Tensor {
    */
   explicit Tensor(const std::vector<idx_t>& shape);
 
+  explicit Tensor(const std::vector<idx_t>& shape, float fill_value);
+
   /// @brief Destroys the Tensor and releases its resources.
   ~Tensor();
 

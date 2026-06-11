@@ -47,9 +47,17 @@ Tensor::Tensor(const std::vector<idx_t>& shape)
       stride_(calculate_strides(shape)),
       offset_(0),
       data_(std::make_shared<std::vector<float>>(std::accumulate(
+          shape_.begin(), shape_.end(), 1, std::multiplies<>()))) {}
+
+Tensor::Tensor(const std::vector<idx_t>& shape, float fill_value)
+    : shape_(shape),
+      stride_(calculate_strides(shape)),
+      offset_(0),
+      data_(std::make_shared<std::vector<float>>(std::accumulate(
           shape_.begin(), shape_.end(), 1, std::multiplies<>()))) {
-  ;
+  std::ranges::fill(*data_, fill_value);
 }
+
 Tensor::~Tensor() = default;
 
 Tensor::Tensor(Tensor&&) noexcept = default;
