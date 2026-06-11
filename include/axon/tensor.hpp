@@ -88,6 +88,12 @@ class axon::Tensor {
    */
   explicit Tensor(const std::vector<idx_t>& shape);
 
+  /**
+   * @brief Constructs a tensor of the given shape with every element set to a
+   *        constant value.
+   * @param shape      Size along each dimension.
+   * @param fill_value Value assigned to every element.
+   */
   explicit Tensor(const std::vector<idx_t>& shape, float fill_value);
 
   /// @brief Destroys the Tensor and releases its resources.
@@ -123,12 +129,34 @@ class axon::Tensor {
         shape_.begin(), shape_.end(), idx_t{1}, std::multiplies<>());
   };
 
+  /**
+   * @brief Enables or disables gradient tracking for this tensor.
+   *
+   * When enabled, fresh autograd metadata with a zero-initialized gradient is
+   * attached; when disabled, any existing autograd history is dropped.
+   *
+   * @param requires_grad @c true to start tracking gradients, @c false to stop.
+   */
   void requires_grad_(bool requires_grad);
 
-  [[nodiscard]] Tensor grad() const;
-
+  /// @return @c true if this tensor tracks gradients for autograd.
   [[nodiscard]] bool requires_grad() const { return autograd_meta_ != nullptr; }
 
+  /**
+   * @brief Returns the gradient accumulated for this tensor.
+   * @return The gradient tensor, matching this tensor's shape.
+   * @throws std::runtime_error if this tensor does not track gradients.
+   */
+  [[nodiscard]] Tensor grad() const;
+
+  /**
+   * @brief Runs the reverse-mode backward pass starting from this tensor.
+   *
+   * Seeds this tensor's gradient with ones, builds a topological ordering of
+   * the computation graph reachable through its autograd history, and invokes
+   * each node's GradFn in reverse order to accumulate gradients into the leaf
+   * tensors.
+   */
   void backward();
 
   /**
@@ -220,6 +248,12 @@ class axon::Tensor {
   friend Tensor operator+(const Tensor& tnsr, const float sclr) {
     return sclr + tnsr;
   }
+  /**
+   * @brief Elementwise in-place addition of another tensor of identical shape.
+   * @param other The tensor to add to this one.
+   * @return Reference to this tensor after the addition.
+   * @throws std::out_of_range if the shapes differ.
+   */
   Tensor& operator+=(const Tensor& other) {
     *this = *this + other;
     return *this;
