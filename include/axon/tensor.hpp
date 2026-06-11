@@ -44,7 +44,7 @@ class axon::Tensor {
   /// Reference-counted backing storage shared between views.
   std::shared_ptr<std::vector<float>> data_;
   /// Autograd meta data.
-  std::unique_ptr<AutogradMeta> autograd_meta_;
+  std::shared_ptr<AutogradMeta> autograd_meta_;
   /**
    * @brief Constructs a tensor view from explicit storage parameters.
    *
@@ -211,6 +211,10 @@ class axon::Tensor {
   /// @brief Adds a scalar to every element of a tensor.
   friend Tensor operator+(const Tensor& tnsr, const float sclr) {
     return sclr + tnsr;
+  }
+  Tensor& operator+=(const Tensor& other) {
+    *this = *this + other;
+    return *this;
   }
 
   /**

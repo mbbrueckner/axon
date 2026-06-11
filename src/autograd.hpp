@@ -15,6 +15,9 @@ struct GradFn {
 };
 
 struct AutogradMeta {
+  explicit AutogradMeta(const std::vector<idx_t>& shape)
+      : grad(shape) {}
+
   Tensor grad;
   std::shared_ptr<GradFn> grad_fn_;
 };
