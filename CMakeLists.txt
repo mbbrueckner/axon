@@ -22,8 +22,8 @@ target_compile_features(axon PUBLIC cxx_std_20)
 
 target_compile_options(axon PRIVATE
         -Wall -Wextra -Wpedantic
-        $<$<CONFIG:Debug>: -g -O0 -fsanitize=address,undefined>
-        $<$<CONFIG:Release>:-O3 -march=native -DNDEBUG>
+        $<$<CONFIG:Debug>:-g -O0 -fsanitize=address,undefined>
+        $<$<CONFIG:Release>:-O3 -DNDEBUG>
 )
 
 target_link_options(axon PUBLIC
