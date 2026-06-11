@@ -4,4 +4,10 @@
 
 #include "autograd.hpp"
 
-namespace axon {}  // namespace axon
+#include "axon/tensor.hpp"
+
+namespace axon {
+
+AutogradMeta::AutogradMeta(const std::vector<idx_t>& shape)
+    : grad(std::make_shared<Tensor>(shape)) {}
+}  // namespace axon

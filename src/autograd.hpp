@@ -5,21 +5,24 @@
 #pragma once
 #include <functional>
 #include <memory>
+#include <vector>
 
-#include "axon/tensor.hpp"
+#include "../include/axon/constants.hpp"
 
 namespace axon {
-
-struct GradFn {
-  std::function<void(const Tensor&)> backward;
-};
-
-struct AutogradMeta {
-  explicit AutogradMeta(const std::vector<idx_t>& shape)
-      : grad(shape) {}
-
-  Tensor grad;
-  std::shared_ptr<GradFn> grad_fn_;
-};
+class Tensor;
+struct AutogradMeta;
+struct GradFn;
 
 }  // namespace axon
+
+struct axon::GradFn {
+  std::function<void(const axon::Tensor&)> backward;
+  std::vector<std::shared_ptr<axon::AutogradMeta>> inputs;
+};
+
+struct axon::AutogradMeta {
+  explicit AutogradMeta(const std::vector<idx_t>& shape);
+  std::shared_ptr<axon::Tensor> grad;  // Pointer, nicht direkter Wert
+  std::shared_ptr<axon::GradFn> grad_fn_;
+};
