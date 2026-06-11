@@ -11,7 +11,7 @@
 #include <memory>
 #include <vector>
 
-#include "../include/axon/constants.hpp"
+#include "axon/constants.hpp"
 
 namespace axon {
 class Tensor;

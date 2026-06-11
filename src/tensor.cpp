@@ -14,9 +14,9 @@
 #include <unordered_set>
 #include <utility>
 
-#include "autograd.hpp"
+#include "autograd/autograd.hpp"
 #include "axon/constants.hpp"
-#include "axon/utils.hpp"
+#include "utils.hpp"
 
 namespace axon {
 Tensor::Tensor(std::shared_ptr<std::vector<float>> data,

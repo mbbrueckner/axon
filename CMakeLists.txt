@@ -10,12 +10,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Library
 add_library(axon STATIC
         src/tensor.cpp
-        src/utils.cpp
-        src/autograd.cpp
+        src/autograd/autograd.cpp
 )
 
-target_include_directories(axon PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+target_include_directories(axon
+        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_compile_features(axon PUBLIC cxx_std_20)
