@@ -15,9 +15,7 @@
 #include "axon/constants.hpp"
 
 namespace axon {
-
 struct AutogradMeta;
-
 class Tensor;
 }  // namespace axon
 
@@ -124,6 +122,14 @@ class axon::Tensor {
     return std::accumulate(
         shape_.begin(), shape_.end(), idx_t{1}, std::multiplies<>());
   };
+
+  void requires_grad_(bool requires_grad);
+
+  [[nodiscard]] Tensor grad() const;
+
+  [[nodiscard]] bool requires_grad() const { return autograd_meta_ != nullptr; }
+
+  void backward();
 
   /**
    * @brief Returns the sub-tensor obtained by indexing the first dimension.

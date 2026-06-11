@@ -11,6 +11,7 @@
 #include <cmath>
 #include <format>
 #include <stdexcept>
+#include <unordered_set>
 #include <utility>
 
 #include "autograd.hpp"
@@ -109,6 +110,46 @@ bool Tensor::is_contiguous() const {
     if (stride_[i] != shape_[i + 1] * stride_[i + 1]) return false;
   }
   return true;
+}
+
+void Tensor::requires_grad_(bool requires_grad) {
+  if (requires_grad) {
+    autograd_meta_ = std::make_shared<AutogradMeta>(shape_);
+  } else {
+    autograd_meta_ = nullptr;
+  }
+}
+Tensor Tensor::grad() const {
+  if (!autograd_meta_) throw std::runtime_error("Tensor has no gradient");
+  return *autograd_meta_->grad;
+}
+
+void Tensor::backward() {
+  autograd_meta_->grad = std::make_shared<Tensor>(shape_, 1.0f);
+
+  std::vector<AutogradMeta*> topo;
+  std::unordered_set<AutogradMeta*> visited;
+
+  std::function<void(AutogradMeta*)> build_topo = [&](AutogradMeta* node) {
+    if (visited.count(node)) return;
+    visited.insert(node);
+
+    if (node->grad_fn_) {
+      for (auto& input_meta : node->grad_fn_->inputs) {
+        build_topo(input_meta.get());
+      }
+    }
+
+    topo.push_back(node);
+  };
+
+  build_topo(autograd_meta_.get());
+
+  for (auto it = topo.rbegin(); it != topo.rend(); ++it) {
+    if ((*it)->grad_fn_) {
+      (*it)->grad_fn_->backward(*(*it)->grad);
+    }
+  }
 }
 
 Tensor Tensor::operator[](idx_t idx) const {
@@ -340,9 +381,10 @@ Tensor operator*(const Tensor& lhs, const Tensor& rhs) {
     meta->grad_fn_ = std::make_shared<GradFn>();
     meta->grad_fn_->backward =
         [lhs_meta, rhs_meta, lhs, rhs](const Tensor& grad_output) {
-          if (lhs_meta) lhs_meta->grad += rhs * grad_output;
-          if (rhs_meta) rhs_meta->grad += lhs * grad_output;
+          if (lhs_meta) *lhs_meta->grad += rhs * grad_output;
+          if (rhs_meta) *rhs_meta->grad += lhs * grad_output;
         };
+    meta->grad_fn_->inputs = {lhs_meta, rhs_meta};
     result.autograd_meta_ = meta;
   }
   return result;
