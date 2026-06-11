@@ -11,4 +11,8 @@ A neural network library from scratch in C++.
 - [ ] Optimizers
 - [ ] Training loop
 - [ ] Benchmarks
-- [ ] Code optimization 
+- [ ] Code optimization
+
+## known issues
+
+- [ ] Tensor constructor uniqness -> factory methods
