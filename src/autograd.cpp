@@ -1,6 +1,9 @@
-//
-// Created by Mika Brückner on 09.06.26.
-//
+/**
+ * @file autograd.cpp
+ * @brief Implementation of the axon::AutogradMeta struct.
+ * @author Mika Brückner
+ * @date 2026-06-09
+ */
 
 #include "autograd.hpp"
 

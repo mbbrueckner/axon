@@ -1,6 +1,9 @@
-//
-// Created by Mika Brückner on 11.06.26.
-//
+/**
+ * @file autograd_test.cpp
+ * @brief Unit tests for the axon autograd computation graph and backward pass.
+ * @author Mika Brückner
+ * @date 2026-06-11
+ */
 
 #include "../include/axon/tensor.hpp"
 #include "catch2/catch_all.hpp"
