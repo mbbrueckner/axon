@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cmath>
 #include <format>
+#include <ranges>
 #include <stdexcept>
 #include <unordered_set>
 #include <utility>
@@ -131,7 +132,7 @@ void Tensor::backward() {
   std::unordered_set<AutogradMeta*> visited;
 
   std::function<void(AutogradMeta*)> build_topo = [&](AutogradMeta* node) {
-    if (visited.count(node)) return;
+    if (visited.contains(node)) return;
     visited.insert(node);
 
     if (node->grad_fn_) {
@@ -145,9 +146,9 @@ void Tensor::backward() {
 
   build_topo(autograd_meta_.get());
 
-  for (auto it = topo.rbegin(); it != topo.rend(); ++it) {
-    if ((*it)->grad_fn_) {
-      (*it)->grad_fn_->backward(*(*it)->grad);
+  for (const auto& it : std::views::reverse(topo)) {
+    if (it->grad_fn_) {
+      it->grad_fn_->backward(*it->grad);
     }
   }
 }
