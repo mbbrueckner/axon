@@ -36,7 +36,7 @@ TEST_CASE("Autograd add backward", "[AutoGradAdd]") {
   REQUIRE(y.grad().at({0}) == 1.0f);
 }
 
-TEST_CASE("Autograd substract backward", "[AutoGradSub]") {
+TEST_CASE("Autograd subtract backward", "[AutoGradSub]") {
   axon::Tensor x(std::vector<float>{2.0f}, std::vector<axon::idx_t>{1});
   axon::Tensor y(std::vector<float>{3.0f}, std::vector<axon::idx_t>{1});
 
