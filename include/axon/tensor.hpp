@@ -248,6 +248,7 @@ class axon::Tensor {
   friend Tensor operator+(const Tensor& tnsr, const float sclr) {
     return sclr + tnsr;
   }
+
   /**
    * @brief Elementwise in-place addition of another tensor of identical shape.
    * @param other The tensor to add to this one.
@@ -269,6 +270,18 @@ class axon::Tensor {
   /// @brief Subtracts a scalar from every element of a tensor.
   friend Tensor operator-(const Tensor& tnsr, const float sclr) {
     return -sclr + tnsr;
+  }
+
+  /**
+   * @brief Elementwise in-place substraction of another tensor of identical
+   * shape.
+   * @param other The tensor to subtract to this one.
+   * @return Reference to this tensor after the substraction.
+   * @throws std::out_of_range if the shapes differ.
+   */
+  Tensor& operator-=(const Tensor& other) {
+    *this = *this - other;
+    return *this;
   }
 
   /**
