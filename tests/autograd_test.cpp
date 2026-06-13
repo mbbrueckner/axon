@@ -8,7 +8,7 @@
 #include "../include/axon/tensor.hpp"
 #include "catch2/catch_all.hpp"
 
-TEST_CASE("Autograd mul backward", "[AutoGMul]") {
+TEST_CASE("Autograd mul backward", "[AutoGradMul]") {
   axon::Tensor x(std::vector<float>{2.0f}, std::vector<axon::idx_t>{1});
   axon::Tensor y(std::vector<float>{3.0f}, std::vector<axon::idx_t>{1});
 
@@ -22,7 +22,7 @@ TEST_CASE("Autograd mul backward", "[AutoGMul]") {
   REQUIRE(y.grad().at({0}) == 2.0f);
 }
 
-TEST_CASE("Autograd add backward", "[AutoGAdd]") {
+TEST_CASE("Autograd add backward", "[AutoGradAdd]") {
   axon::Tensor x(std::vector<float>{2.0f}, std::vector<axon::idx_t>{1});
   axon::Tensor y(std::vector<float>{3.0f}, std::vector<axon::idx_t>{1});
 
@@ -34,4 +34,18 @@ TEST_CASE("Autograd add backward", "[AutoGAdd]") {
 
   REQUIRE(x.grad().at({0}) == 1.0f);
   REQUIRE(y.grad().at({0}) == 1.0f);
+}
+
+TEST_CASE("Autograd substract backward", "[AutoGradSub]") {
+  axon::Tensor x(std::vector<float>{2.0f}, std::vector<axon::idx_t>{1});
+  axon::Tensor y(std::vector<float>{3.0f}, std::vector<axon::idx_t>{1});
+
+  x.requires_grad_(true);
+  y.requires_grad_(true);
+
+  axon::Tensor z = x - y;
+  z.backward();
+
+  REQUIRE(x.grad().at({0}) == -1.0f);
+  REQUIRE(y.grad().at({0}) == -1.0f);
 }
