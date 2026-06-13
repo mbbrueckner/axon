@@ -319,7 +319,8 @@ Tensor Tensor::sum() const {
     meta->grad_fn_ = std::make_shared<GradFn>();
     meta->grad_fn_->backward =
         [input_meta, input_shape = shape_](const Tensor& grad_output) {
-          if (input_meta) *input_meta->grad += Tensor(input_shape, 1.0f);
+          if (input_meta)
+            *input_meta->grad += Tensor(input_shape, grad_output.item());
         };
     meta->grad_fn_->inputs = {input_meta};
     result.autograd_meta_ = meta;
