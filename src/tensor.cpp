@@ -284,7 +284,19 @@ Tensor Tensor::log() const {
 
   std::ranges::transform(
       new_data, new_data.begin(), [](float x) { return std::log(x); });
-  return {new_data, shape_};
+  Tensor result{new_data, shape_};
+  auto input_meta = autograd_meta_;
+  if (input_meta != nullptr) {
+    auto meta = std::make_shared<AutogradMeta>(result.shape());
+    meta->grad_fn_ = std::make_shared<GradFn>();
+    meta->grad_fn_->backward = [input_meta,
+                                input = *this](const Tensor& grad_output) {
+      if (input_meta) *input_meta->grad += grad_output / input;
+    };
+    meta->grad_fn_->inputs = {input_meta};
+    result.autograd_meta_ = meta;
+  }
+  return result;
 }
 
 Tensor Tensor::exp() const {
