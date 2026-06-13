@@ -294,6 +294,12 @@ Tensor Tensor::mean() const {
   return sum() / static_cast<float>(num_elements());
 }
 
+float Tensor::item() const {
+  if (num_elements() != 1)
+    throw std::runtime_error("item() only works on single-element tensors");
+  return (*data_)[offset_];
+}
+
 Tensor operator+(const Tensor& lhs, const Tensor& rhs) {
   const std::vector<idx_t>& lhs_shape = lhs.shape();
   const std::vector<idx_t>& rhs_shape = rhs.shape();

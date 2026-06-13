@@ -231,11 +231,12 @@ class axon::Tensor {
   [[nodiscard]] float min() const;
   /// @return The largest element value in the tensor.
   [[nodiscard]] float max() const;
-
   /// @return The sum of all element values.
   [[nodiscard]] Tensor sum() const;
   /// @return The arithmetic mean of all element values.
   [[nodiscard]] Tensor mean() const;
+  /// @return The float-value of zero-dimensional Tensor.
+  [[nodiscard]] float item() const;
 
   /**
    * @brief Elementwise addition of two tensors of identical shape.
