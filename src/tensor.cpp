@@ -358,7 +358,21 @@ Tensor operator-(const Tensor& lhs, const Tensor& rhs) {
   for (idx_t i{}; i < num_elements; i++) {
     new_data[i] -= rhs_data[i];
   }
-  return {new_data, lhs_shape};
+  Tensor result{new_data, lhs_shape};
+  auto lhs_meta = lhs.autograd_meta_;
+  auto rhs_meta = rhs.autograd_meta_;
+  if (lhs_meta != nullptr || rhs_meta != nullptr) {
+    auto meta = std::make_shared<AutogradMeta>(result.shape());
+    meta->grad_fn_ = std::make_shared<GradFn>();
+    meta->grad_fn_->backward =
+        [lhs_meta, rhs_meta, lhs, rhs](const Tensor& grad_output) {
+          if (lhs_meta) *lhs_meta->grad -= grad_output;
+          if (rhs_meta) *rhs_meta->grad -= grad_output;
+        };
+    meta->grad_fn_->inputs = {lhs_meta, rhs_meta};
+    result.autograd_meta_ = meta;
+  }
+  return result;
 }
 
 Tensor operator-(const float sclr, const Tensor& tnsr) {
