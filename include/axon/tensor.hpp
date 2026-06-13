@@ -271,6 +271,8 @@ class axon::Tensor {
   friend Tensor operator-(const Tensor& tnsr, const float sclr) {
     return -sclr + tnsr;
   }
+  /// @brief negates all data elements of a tensor.
+  Tensor operator-() const { return -1.0f * (*this); }
 
   /**
    * @brief Elementwise in-place substraction of another tensor of identical
