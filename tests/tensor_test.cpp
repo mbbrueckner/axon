@@ -444,3 +444,14 @@ TEST_CASE("Tensor subscript operator", "[TensorSubscript]") {
     REQUIRE_THROWS_AS(t[0][0][0], std::out_of_range);
   }
 }
+
+TEST_CASE("Tensor item method", "[TensorItem]") {
+  SECTION(".item() on 0D Tensor") {
+    const axon::Tensor t(std::vector<float>{1.0f}, {1});
+    REQUIRE(t.item() == 1.0f);
+  }
+  SECTION(".item() on >0D Tensor") {
+    const axon::Tensor t(std::vector<float>{1.0f, 2.0f}, {2, 1});
+    REQUIRE_THROWS_AS(t.item(), std::runtime_error);
+  }
+}
