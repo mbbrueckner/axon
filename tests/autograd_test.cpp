@@ -90,6 +90,19 @@ TEST_CASE("Autograd exp backward", "[AutoGradExp]") {
   REQUIRE(t.grad().at({1, 1}) == Catch::Approx(std::exp(4.0f)));
 }
 
+TEST_CASE("Autograd log backward", "[AutoGradLog]") {
+  axon::Tensor t({1.0f, 2.0f, 3.0f, 4.0f}, {2, 2});
+  t.requires_grad_(true);
+
+  axon::Tensor z = t.log();
+  z.backward();
+
+  REQUIRE(t.grad().at({0, 0}) == Catch::Approx(1.0f / 1.0f));
+  REQUIRE(t.grad().at({0, 1}) == Catch::Approx(1.0f / 2.0f));
+  REQUIRE(t.grad().at({1, 0}) == Catch::Approx(1.0f / 3.0f));
+  REQUIRE(t.grad().at({1, 1}) == Catch::Approx(1.0f / 4.0f));
+}
+
 TEST_CASE("Autograd matmul backward", "[AutoGradMatMul]") {
   axon::Tensor x({1.0f, 2.0f, 3.0f, 4.0f}, {2, 2});
   axon::Tensor y({4.0f, 3.0f, 2.0f, 1.0f}, {2, 2});
