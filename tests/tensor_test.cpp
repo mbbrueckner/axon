@@ -415,12 +415,12 @@ TEST_CASE("Tensor max", "[TensorMax]") {
 
 TEST_CASE("Tensor sum", "[TensorSum]") {
   const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
-  REQUIRE(t.sum() == 21.0f);
+  REQUIRE(t.sum().at({0}) == 21.0f);
 }
 
 TEST_CASE("Tensor mean", "[TensorMean]") {
   const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
-  REQUIRE(t.mean() == 3.5f);
+  REQUIRE(t.mean().at({0}) == 3.5f);
 }
 
 TEST_CASE("Tensor subscript operator", "[TensorSubscript]") {
