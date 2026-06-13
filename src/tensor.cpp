@@ -262,6 +262,20 @@ Tensor Tensor::matmul(const Tensor& other) const {
       }
     }
   }
+
+  auto lhs_meta = autograd_meta_;
+  auto rhs_meta = other.autograd_meta_;
+  if (lhs_meta != nullptr || rhs_meta != nullptr) {
+    auto meta = std::make_shared<AutogradMeta>(result.shape());
+    meta->grad_fn_ = std::make_shared<GradFn>();
+    meta->grad_fn_->backward = [lhs_meta, rhs_meta, lhs = *this, rhs = other](
+                                   const Tensor& grad_output) {
+      if (lhs_meta) *lhs_meta->grad += grad_output.matmul(rhs.transpose());
+      if (rhs_meta) *rhs_meta->grad += lhs.transpose().matmul(grad_output);
+    };
+    meta->grad_fn_->inputs = {lhs_meta, rhs_meta};
+    result.autograd_meta_ = meta;
+  }
   return result;
 }
 
