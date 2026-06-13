@@ -285,11 +285,12 @@ float Tensor::min() const { return *std::ranges::min_element(*data_); }
 
 float Tensor::max() const { return *std::ranges::max_element(*data_); }
 
-float Tensor::sum() const {
-  return std::accumulate(data_->begin(), data_->end(), 0.0f);
+Tensor Tensor::sum() const {
+  const float total = std::accumulate(data_->begin(), data_->end(), 0.0f);
+  return Tensor(std::vector<float>{total}, {1});
 }
 
-float Tensor::mean() const {
+Tensor Tensor::mean() const {
   return sum() / static_cast<float>(num_elements());
 }
 

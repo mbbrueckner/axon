@@ -233,9 +233,9 @@ class axon::Tensor {
   [[nodiscard]] float max() const;
 
   /// @return The sum of all element values.
-  [[nodiscard]] float sum() const;
+  [[nodiscard]] Tensor sum() const;
   /// @return The arithmetic mean of all element values.
-  [[nodiscard]] float mean() const;
+  [[nodiscard]] Tensor mean() const;
 
   /**
    * @brief Elementwise addition of two tensors of identical shape.
