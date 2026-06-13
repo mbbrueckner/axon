@@ -287,7 +287,19 @@ float Tensor::max() const { return *std::ranges::max_element(*data_); }
 
 Tensor Tensor::sum() const {
   const float total = std::accumulate(data_->begin(), data_->end(), 0.0f);
-  return Tensor(std::vector<float>{total}, {1});
+  Tensor result{std::vector<float>{total}, {1}};
+  auto input_meta = autograd_meta_;
+  if (input_meta != nullptr) {
+    auto meta = std::make_shared<AutogradMeta>(result.shape());
+    meta->grad_fn_ = std::make_shared<GradFn>();
+    meta->grad_fn_->backward =
+        [input_meta, input_shape = shape_](const Tensor& grad_output) {
+          if (input_meta) *input_meta->grad += Tensor(input_shape, 1.0f);
+        };
+    meta->grad_fn_->inputs = {input_meta};
+    result.autograd_meta_ = meta;
+  }
+  return result;
 }
 
 Tensor Tensor::mean() const {
