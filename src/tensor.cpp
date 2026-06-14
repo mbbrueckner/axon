@@ -338,6 +338,10 @@ Tensor Tensor::abs() const {
   return {new_data, shape_};
 }
 
+float Tensor::min() const { return *std::ranges::min_element(*data_); }
+
+float Tensor::max() const { return *std::ranges::max_element(*data_); }
+
 Tensor Tensor::sum() const {
   const float total = std::accumulate(data_->begin(), data_->end(), 0.0f);
   Tensor result{std::vector<float>{total}, {1}};

@@ -237,9 +237,9 @@ class axon::Tensor {
   [[nodiscard]] Tensor abs() const;
 
   /// @return The smallest element value in the tensor.
-  [[nodiscard]] float min() const { return *std::ranges::min_element(*data_); }
+  [[nodiscard]] float min() const;
   /// @return The largest element value in the tensor.
-  [[nodiscard]] float max() const { return *std::ranges::max_element(*data_); }
+  [[nodiscard]] float max() const;
   /// @return The sum of all element values.
   [[nodiscard]] Tensor sum() const;
   /// @return The arithmetic mean of all element values.
