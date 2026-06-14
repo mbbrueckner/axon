@@ -445,6 +445,101 @@ TEST_CASE("Tensor subscript operator", "[TensorSubscript]") {
   }
 }
 
+TEST_CASE("Tensor abs", "[TensorAbs]") {
+  const axon::Tensor t_tensor({-1, 2, -3, 4, -5, 6}, {2, 3});
+
+  const axon::Tensor t = t_tensor.abs();
+
+  SECTION("shape") {
+    REQUIRE(t.num_dim() == 2);
+    REQUIRE(t.shape().at(0) == 2);
+    REQUIRE(t.shape().at(1) == 3);
+  }
+
+  SECTION("at") {
+    REQUIRE(t.at({0, 0}) == Catch::Approx(1.0f));
+    REQUIRE(t.at({0, 1}) == Catch::Approx(2.0f));
+    REQUIRE(t.at({0, 2}) == Catch::Approx(3.0f));
+    REQUIRE(t.at({1, 0}) == Catch::Approx(4.0f));
+    REQUIRE(t.at({1, 1}) == Catch::Approx(5.0f));
+    REQUIRE(t.at({1, 2}) == Catch::Approx(6.0f));
+  }
+}
+
+TEST_CASE("Tensor less-than comparison", "[TensorLt]") {
+  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_greater({2, 3, 4, 5, 6, 7}, {2, 3});
+  const axon::Tensor t_mixed({2, 3, 3, 5, 6, 7}, {2, 3});
+
+  SECTION("all elements strictly less") { REQUIRE(t < t_greater); }
+  SECTION("an equal element is not strictly less") {
+    REQUIRE_FALSE(t < t_mixed);
+  }
+  SECTION("equal tensors are not strictly less") { REQUIRE_FALSE(t < t); }
+}
+
+TEST_CASE("Tensor less-than-or-equal comparison", "[TensorLe]") {
+  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_greater_eq({1, 3, 3, 5, 5, 7}, {2, 3});
+  const axon::Tensor t_smaller({1, 2, 3, 4, 5, 5}, {2, 3});
+
+  SECTION("equal tensors compare less-or-equal") { REQUIRE(t <= t); }
+  SECTION("greater-or-equal elements compare less-or-equal") {
+    REQUIRE(t <= t_greater_eq);
+  }
+  SECTION("a single greater element breaks less-or-equal") {
+    REQUIRE_FALSE(t <= t_smaller);
+  }
+}
+
+TEST_CASE("Tensor greater-than comparison", "[TensorGt]") {
+  const axon::Tensor t({2, 3, 4, 5, 6, 7}, {2, 3});
+  const axon::Tensor t_smaller({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_mixed({1, 3, 3, 4, 5, 6}, {2, 3});
+
+  SECTION("all elements strictly greater") { REQUIRE(t > t_smaller); }
+  SECTION("an equal element is not strictly greater") {
+    REQUIRE_FALSE(t > t_mixed);
+  }
+  SECTION("equal tensors are not strictly greater") { REQUIRE_FALSE(t > t); }
+}
+
+TEST_CASE("Tensor greater-than-or-equal comparison", "[TensorGe]") {
+  const axon::Tensor t({2, 3, 4, 5, 6, 7}, {2, 3});
+  const axon::Tensor t_smaller_eq({2, 2, 4, 4, 6, 6}, {2, 3});
+  const axon::Tensor t_greater({2, 3, 4, 5, 6, 8}, {2, 3});
+
+  SECTION("equal tensors compare greater-or-equal") { REQUIRE(t >= t); }
+  SECTION("smaller-or-equal elements compare greater-or-equal") {
+    REQUIRE(t >= t_smaller_eq);
+  }
+  SECTION("a single smaller element breaks greater-or-equal") {
+    REQUIRE_FALSE(t >= t_greater);
+  }
+}
+
+TEST_CASE("Tensor equality comparison", "[TensorEq]") {
+  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_equal({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_different({1, 2, 3, 4, 5, 7}, {2, 3});
+
+  SECTION("identical data compares equal") { REQUIRE(t == t_equal); }
+  SECTION("a single differing element breaks equality") {
+    REQUIRE_FALSE(t == t_different);
+  }
+}
+
+TEST_CASE("Tensor comparison with non-matching shapes", "[TensorCmpNMS]") {
+  const axon::Tensor t_l({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_r({1, 2, 3, 4, 5, 6}, {3, 2});
+
+  REQUIRE_THROWS_AS(t_l < t_r, std::out_of_range);
+  REQUIRE_THROWS_AS(t_l <= t_r, std::out_of_range);
+  REQUIRE_THROWS_AS(t_l > t_r, std::out_of_range);
+  REQUIRE_THROWS_AS(t_l >= t_r, std::out_of_range);
+  REQUIRE_THROWS_AS(t_l == t_r, std::out_of_range);
+}
+
 TEST_CASE("Tensor item method", "[TensorItem]") {
   SECTION(".item() on 0D Tensor") {
     const axon::Tensor t(std::vector<float>{1.0f}, {1});
