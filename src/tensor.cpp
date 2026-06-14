@@ -282,7 +282,10 @@ Tensor Tensor::matmul(const Tensor& other) const {
       if (lhs_meta) *lhs_meta->grad += grad_output.matmul(rhs.transpose());
       if (rhs_meta) *rhs_meta->grad += lhs.transpose().matmul(grad_output);
     };
-    meta->grad_fn_->inputs = {lhs_meta, rhs_meta};
+    std::vector<std::shared_ptr<AutogradMeta>> inputs;
+    if (lhs_meta) inputs.push_back(lhs_meta);
+    if (rhs_meta) inputs.push_back(rhs_meta);
+    meta->grad_fn_->inputs = inputs;
     result.autograd_meta_ = meta;
   }
   return result;
@@ -474,7 +477,10 @@ Tensor operator+(const Tensor& lhs, const Tensor& rhs) {
           if (lhs_meta) *lhs_meta->grad += grad_output;
           if (rhs_meta) *rhs_meta->grad += grad_output;
         };
-    meta->grad_fn_->inputs = {lhs_meta, rhs_meta};
+    std::vector<std::shared_ptr<AutogradMeta>> inputs;
+    if (lhs_meta) inputs.push_back(lhs_meta);
+    if (rhs_meta) inputs.push_back(rhs_meta);
+    meta->grad_fn_->inputs = inputs;
     result.autograd_meta_ = meta;
   }
   return result;
@@ -518,7 +524,10 @@ Tensor operator-(const Tensor& lhs, const Tensor& rhs) {
           if (lhs_meta) *lhs_meta->grad -= grad_output;
           if (rhs_meta) *rhs_meta->grad -= grad_output;
         };
-    meta->grad_fn_->inputs = {lhs_meta, rhs_meta};
+    std::vector<std::shared_ptr<AutogradMeta>> inputs;
+    if (lhs_meta) inputs.push_back(lhs_meta);
+    if (rhs_meta) inputs.push_back(rhs_meta);
+    meta->grad_fn_->inputs = inputs;
     result.autograd_meta_ = meta;
   }
   return result;
@@ -563,7 +572,10 @@ Tensor operator*(const Tensor& lhs, const Tensor& rhs) {
           if (lhs_meta) *lhs_meta->grad += rhs * grad_output;
           if (rhs_meta) *rhs_meta->grad += lhs * grad_output;
         };
-    meta->grad_fn_->inputs = {lhs_meta, rhs_meta};
+    std::vector<std::shared_ptr<AutogradMeta>> inputs;
+    if (lhs_meta) inputs.push_back(lhs_meta);
+    if (rhs_meta) inputs.push_back(rhs_meta);
+    meta->grad_fn_->inputs = inputs;
     result.autograd_meta_ = meta;
   }
   return result;
@@ -607,7 +619,10 @@ Tensor operator/(const Tensor& lhs, const Tensor& rhs) {
           if (lhs_meta) *lhs_meta->grad += grad_output / rhs;
           if (rhs_meta) *rhs_meta->grad += -lhs / (rhs * rhs) * grad_output;
         };
-    meta->grad_fn_->inputs = {lhs_meta, rhs_meta};
+    std::vector<std::shared_ptr<AutogradMeta>> inputs;
+    if (lhs_meta) inputs.push_back(lhs_meta);
+    if (rhs_meta) inputs.push_back(rhs_meta);
+    meta->grad_fn_->inputs = inputs;
     result.autograd_meta_ = meta;
   }
   return result;
