@@ -40,15 +40,27 @@ bool grad_check(std::function<axon::Tensor(axon::Tensor)> f,
   const axon::Tensor difference = (numeric_solution - analytic_solution).abs();
   const axon::Tensor tolerance_tensor{difference.shape(), tolerance};
 
-  std::cout << "numeric: " << numeric_solution.item() << "\n";
-  std::cout << "analytic: " << analytic_solution.item() << "\n";
   return difference <= tolerance_tensor;
 }
 
-TEST_CASE("Gradient check mul", "[GradCheck]") {
-  axon::Tensor x(std::vector<float>{2.0f}, std::vector<axon::idx_t>{1});
-
-  auto f = [](axon::Tensor x) { return x * x; };
-
-  REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+TEST_CASE("Gradient check", "[GradCheck]") {
+  axon::Tensor x(std::vector<float>{1.0f, 2.0f}, std::vector<axon::idx_t>{2});
+  axon::Tensor y(x);
+  SECTION("mul") {
+    auto f = [](axon::Tensor x) { return x * x; };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
+  SECTION("add") {
+    auto f = [](axon::Tensor x) { return x + x; };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
+  SECTION("log") {
+    auto f = [](axon::Tensor x) { return x.log(); };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
+  SECTION("exp") {
+    auto f = [](axon::Tensor x) { return x.exp(); };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
+  // TODO matmul
 }
