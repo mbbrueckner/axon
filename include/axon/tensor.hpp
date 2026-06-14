@@ -226,11 +226,16 @@ class axon::Tensor {
    * @return The elementwise base-e exponential.
    */
   [[nodiscard]] Tensor exp() const;
+  /**
+   * @brief Returns a new tensor with the absolut applied elementwise.
+   * @return The elementwise absolut.
+   */
+  [[nodiscard]] Tensor abs() const;
 
   /// @return The smallest element value in the tensor.
-  [[nodiscard]] float min() const;
+  [[nodiscard]] float min() const { return *std::ranges::min_element(*data_); }
   /// @return The largest element value in the tensor.
-  [[nodiscard]] float max() const;
+  [[nodiscard]] float max() const { return *std::ranges::max_element(*data_); }
   /// @return The sum of all element values.
   [[nodiscard]] Tensor sum() const;
   /// @return The arithmetic mean of all element values.
