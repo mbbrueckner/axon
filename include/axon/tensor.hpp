@@ -227,8 +227,8 @@ class axon::Tensor {
    */
   [[nodiscard]] Tensor exp() const;
   /**
-   * @brief Returns a new tensor with the absolut applied elementwise.
-   * @return The elementwise absolut.
+   * @brief Returns a new tensor with the absolute value applied elementwise.
+   * @return The elementwise absolute value.
    */
   [[nodiscard]] Tensor abs() const;
 
@@ -242,6 +242,53 @@ class axon::Tensor {
   [[nodiscard]] Tensor mean() const;
   /// @return The float-value of zero-dimensional Tensor.
   [[nodiscard]] float item() const;
+
+  /**
+   * @brief Tests whether @p lhs is elementwise strictly less than @p rhs.
+   * @param lhs The left-hand operand.
+   * @param rhs The right-hand operand.
+   * @return @c true if @c lhs[i] < @c rhs[i] holds for every element, otherwise
+   *         @c false.
+   * @throws std::out_of_range if the shapes differ.
+   */
+  friend bool operator<(const Tensor& lhs, const Tensor& rhs);
+  /**
+   * @brief Tests whether @p lhs is elementwise less than or equal to @p rhs.
+   * @param lhs The left-hand operand.
+   * @param rhs The right-hand operand.
+   * @return @c true if @c lhs[i] <= @c rhs[i] holds for every element,
+   *         otherwise @c false.
+   * @throws std::out_of_range if the shapes differ.
+   */
+  friend bool operator<=(const Tensor& lhs, const Tensor& rhs);
+  /**
+   * @brief Tests whether @p lhs is elementwise strictly greater than @p rhs.
+   * @param lhs The left-hand operand.
+   * @param rhs The right-hand operand.
+   * @return @c true if @c lhs[i] > @c rhs[i] holds for every element, otherwise
+   *         @c false.
+   * @throws std::out_of_range if the shapes differ.
+   */
+  friend bool operator>(const Tensor& lhs, const Tensor& rhs);
+  /**
+   * @brief Tests whether @p lhs is elementwise greater than or equal to
+   *        @p rhs.
+   * @param lhs The left-hand operand.
+   * @param rhs The right-hand operand.
+   * @return @c true if @c lhs[i] >= @c rhs[i] holds for every element,
+   *         otherwise @c false.
+   * @throws std::out_of_range if the shapes differ.
+   */
+  friend bool operator>=(const Tensor& lhs, const Tensor& rhs);
+  /**
+   * @brief Tests whether two tensors are elementwise equal.
+   * @param lhs The left-hand operand.
+   * @param rhs The right-hand operand.
+   * @return @c true if @c lhs[i] == @c rhs[i] holds for every element,
+   *         otherwise @c false.
+   * @throws std::out_of_range if the shapes differ.
+   */
+  friend bool operator==(const Tensor& lhs, const Tensor& rhs);
 
   /**
    * @brief Elementwise addition of two tensors of identical shape.

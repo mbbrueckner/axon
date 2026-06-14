@@ -354,6 +354,85 @@ float Tensor::item() const {
   return (*data_)[offset_];
 }
 
+bool operator<(const Tensor& lhs, const Tensor& rhs) {
+  if (lhs.shape() != rhs.shape()) {
+    throw std::out_of_range(
+        std::format("Cannot compare for tensors with "
+                    "different shapes: {}; {}",
+                    utils::vector_to_string(lhs.shape()),
+                    utils::vector_to_string(rhs.shape())));
+  }
+  std::vector<float> lhs_data = (*lhs.data_);
+  std::vector<float> rhs_data = (*rhs.data_);
+  for (idx_t i = 0; i < lhs.num_elements(); i++) {
+    if (lhs_data[i] >= rhs_data[i]) return false;
+  }
+  return true;
+}
+bool operator<=(const Tensor& lhs, const Tensor& rhs) {
+  if (lhs.shape() != rhs.shape()) {
+    throw std::out_of_range(
+        std::format("Cannot compare for tensors with "
+                    "different shapes: {}; {}",
+                    utils::vector_to_string(lhs.shape()),
+                    utils::vector_to_string(rhs.shape())));
+  }
+  std::vector<float> lhs_data = (*lhs.data_);
+  std::vector<float> rhs_data = (*rhs.data_);
+  for (idx_t i = 0; i < lhs.num_elements(); i++) {
+    if (lhs_data[i] > rhs_data[i]) return false;
+  }
+  return true;
+}
+bool operator>(const Tensor& lhs, const Tensor& rhs) {
+  if (lhs.shape() != rhs.shape()) {
+    throw std::out_of_range(
+        std::format("Cannot compare for tensors with "
+                    "different shapes: {}; {}",
+                    utils::vector_to_string(lhs.shape()),
+                    utils::vector_to_string(rhs.shape())));
+  }
+  std::vector<float> lhs_data = (*lhs.data_);
+  std::vector<float> rhs_data = (*rhs.data_);
+  for (idx_t i = 0; i < lhs.num_elements(); i++) {
+    if (lhs_data[i] <= rhs_data[i]) return false;
+  }
+  return true;
+}
+
+bool operator>=(const Tensor& lhs, const Tensor& rhs) {
+  if (lhs.shape() != rhs.shape()) {
+    throw std::out_of_range(
+        std::format("Cannot compare for tensors with "
+                    "different shapes: {}; {}",
+                    utils::vector_to_string(lhs.shape()),
+                    utils::vector_to_string(rhs.shape())));
+  }
+
+  std::vector<float> lhs_data = (*lhs.data_);
+  std::vector<float> rhs_data = (*rhs.data_);
+  for (idx_t i = 0; i < lhs.num_elements(); i++) {
+    if (lhs_data[i] < rhs_data[i]) return false;
+  }
+  return true;
+}
+bool operator==(const Tensor& lhs, const Tensor& rhs) {
+  if (lhs.shape() != rhs.shape()) {
+    throw std::out_of_range(
+        std::format("Cannot compare for tensors with "
+                    "different shapes: {}; {}",
+                    utils::vector_to_string(lhs.shape()),
+                    utils::vector_to_string(rhs.shape())));
+  }
+
+  std::vector<float> lhs_data = (*lhs.data_);
+  std::vector<float> rhs_data = (*rhs.data_);
+  for (idx_t i = 0; i < lhs.num_elements(); i++) {
+    if (lhs_data[i] != rhs_data[i]) return false;
+  }
+  return true;
+}
+
 Tensor operator+(const Tensor& lhs, const Tensor& rhs) {
   const std::vector<idx_t>& lhs_shape = lhs.shape();
   const std::vector<idx_t>& rhs_shape = rhs.shape();
