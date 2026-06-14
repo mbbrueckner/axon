@@ -84,6 +84,12 @@ Tensor& Tensor::operator=(const Tensor& other) {
   return *this;
 }
 
+Tensor Tensor::shared_autograd_copy() const {
+  Tensor copy = *this;  // normaler Copy — autograd_meta_ = nullptr
+  copy.autograd_meta_ = autograd_meta_;  // aber teile das meta
+  return copy;
+}
+
 std::vector<idx_t> Tensor::calculate_strides(const std::vector<idx_t>& shape) {
   const idx_t dim = shape.size();
   std::vector<idx_t> stride;
@@ -126,6 +132,9 @@ Tensor Tensor::grad() const {
 }
 
 void Tensor::backward() {
+  if (!autograd_meta_)
+    throw std::runtime_error("backward() called on tensor without grad");
+
   autograd_meta_->grad = std::make_shared<Tensor>(shape_, 1.0f);
 
   std::vector<AutogradMeta*> topo;
