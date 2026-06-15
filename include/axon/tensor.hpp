@@ -60,6 +60,15 @@ class axon::Tensor {
          idx_t offset);
 
   /**
+   * @brief Constructs a tensor from a flat data buffer and a shape.
+   * @param data  Flat element values in row-major order.
+   * @param shape Size along each dimension.
+   * @throws std::out_of_range if @p data.size() does not equal the product of
+   *         @p shape.
+   */
+  Tensor(const std::vector<float>& data, const std::vector<idx_t>& shape);
+
+  /**
    * @brief Computes the row-major (contiguous) strides for a given shape.
    * @param shape Size along each dimension.
    * @return The stride for each dimension.
@@ -74,27 +83,23 @@ class axon::Tensor {
 
  public:
   /**
-   * @brief Constructs a tensor from a flat data buffer and a shape.
-   * @param data  Flat element values in row-major order.
-   * @param shape Size along each dimension.
-   * @throws std::out_of_range if @p data.size() does not equal the product of
-   *         @p shape.
-   */
-  Tensor(const std::vector<float>& data, const std::vector<idx_t>& shape);
-
-  /**
    * @brief Constructs a zero-initialized tensor of the given shape.
    * @param shape Size along each dimension.
    */
-  explicit Tensor(const std::vector<idx_t>& shape);
+  static Tensor zeros(std::vector<idx_t> shape);
 
   /**
-   * @brief Constructs a tensor of the given shape with every element set to a
-   *        constant value.
-   * @param shape      Size along each dimension.
-   * @param fill_value Value assigned to every element.
+   * @brief Constructs a one-initialized tensor of the given shape.
+   * @param shape Size along each dimension.
    */
-  explicit Tensor(const std::vector<idx_t>& shape, float fill_value);
+  static Tensor ones(std::vector<idx_t> shape);
+
+  /**
+   * @brief Constructs a zero-initialized tensor of the given shape.
+   * @param data Flat element values in row-major order.
+   * @param shape Size along each dimension.
+   */
+  static Tensor from_data(std::vector<float> data, std::vector<idx_t> shape);
 
   /// @brief Destroys the Tensor and releases its resources.
   ~Tensor();

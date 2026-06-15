@@ -44,52 +44,6 @@ Tensor::Tensor(const std::vector<float>& data, const std::vector<idx_t>& shape)
   }
 }
 
-Tensor::Tensor(const std::vector<idx_t>& shape)
-    : shape_(shape),
-      stride_(calculate_strides(shape)),
-      offset_(0),
-      data_(std::make_shared<std::vector<float>>(std::accumulate(
-          shape_.begin(), shape_.end(), 1, std::multiplies<>()))) {}
-
-Tensor::Tensor(const std::vector<idx_t>& shape, float fill_value)
-    : shape_(shape),
-      stride_(calculate_strides(shape)),
-      offset_(0),
-      data_(std::make_shared<std::vector<float>>(std::accumulate(
-          shape_.begin(), shape_.end(), 1, std::multiplies<>()))) {
-  std::ranges::fill(*data_, fill_value);
-}
-
-Tensor::~Tensor() = default;
-
-Tensor::Tensor(Tensor&&) noexcept = default;
-
-Tensor& Tensor::operator=(Tensor&&) noexcept = default;
-
-Tensor::Tensor(const Tensor& other)
-    : shape_(other.shape_),
-      stride_(other.stride_),
-      offset_(other.offset_),
-      data_(other.data_),
-      autograd_meta_(nullptr) {}
-
-Tensor& Tensor::operator=(const Tensor& other) {
-  if (this != &other) {
-    shape_ = other.shape_;
-    stride_ = other.stride_;
-    offset_ = other.offset_;
-    data_ = other.data_;
-    autograd_meta_ = nullptr;
-  }
-  return *this;
-}
-
-Tensor Tensor::shared_autograd_copy() const {
-  Tensor copy = *this;  // normaler Copy — autograd_meta_ = nullptr
-  copy.autograd_meta_ = autograd_meta_;  // aber teile das meta
-  return copy;
-}
-
 std::vector<idx_t> Tensor::calculate_strides(const std::vector<idx_t>& shape) {
   const idx_t dim = shape.size();
   std::vector<idx_t> stride;
@@ -119,6 +73,52 @@ bool Tensor::is_contiguous() const {
   return true;
 }
 
+Tensor Tensor::zeros(std::vector<idx_t> shape) {
+  return Tensor{std::vector<float>(std::accumulate(
+                    shape.begin(), shape.end(), 1, std::multiplies<>())),
+                shape};
+}
+
+Tensor Tensor::ones(std::vector<idx_t> shape) {
+  std::vector<float> data = std::vector<float>(
+      std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<>()));
+  std::ranges::fill(data, 1.0f);
+  return {data, shape};
+}
+Tensor Tensor::from_data(std::vector<float> data, std::vector<idx_t> shape) {
+  return {data, shape};
+}
+
+Tensor::~Tensor() = default;
+
+Tensor::Tensor(Tensor&&) noexcept = default;
+
+Tensor& Tensor::operator=(Tensor&&) noexcept = default;
+
+Tensor::Tensor(const Tensor& other)
+    : shape_(other.shape_),
+      stride_(other.stride_),
+      offset_(other.offset_),
+      data_(other.data_),
+      autograd_meta_(nullptr) {}
+
+Tensor& Tensor::operator=(const Tensor& other) {
+  if (this != &other) {
+    shape_ = other.shape_;
+    stride_ = other.stride_;
+    offset_ = other.offset_;
+    data_ = other.data_;
+    autograd_meta_ = nullptr;
+  }
+  return *this;
+}
+
+Tensor Tensor::shared_autograd_copy() const {
+  Tensor copy = *this;
+  copy.autograd_meta_ = autograd_meta_;
+  return copy;
+}
+
 void Tensor::requires_grad_(bool requires_grad) {
   if (requires_grad) {
     autograd_meta_ = std::make_shared<AutogradMeta>(shape_);
@@ -135,7 +135,7 @@ void Tensor::backward() {
   if (!autograd_meta_)
     throw std::runtime_error("backward() called on tensor without grad");
 
-  autograd_meta_->grad = std::make_shared<Tensor>(shape_, 1.0f);
+  autograd_meta_->grad = std::make_shared<Tensor>(ones(shape_));
 
   std::vector<AutogradMeta*> topo;
   std::unordered_set<AutogradMeta*> visited;
@@ -263,7 +263,7 @@ Tensor Tensor::matmul(const Tensor& other) const {
   const idx_t rows = shape_[0];
   const idx_t inner = shape_[1];
   const idx_t cols = other.shape()[1];
-  Tensor result({rows, cols});
+  Tensor result = zeros({rows, cols});
   for (idx_t i{}; i < rows; i++) {
     for (idx_t j{}; j < cols; j++) {
       for (idx_t k{}; k < inner; k++) {
@@ -352,7 +352,7 @@ Tensor Tensor::sum() const {
     meta->grad_fn_->backward =
         [input_meta, input_shape = shape_](const Tensor& grad_output) {
           if (input_meta)
-            *input_meta->grad += Tensor(input_shape, grad_output.item());
+            *input_meta->grad += ones(input_shape) * grad_output.item();
         };
     meta->grad_fn_->inputs = {input_meta};
     result.autograd_meta_ = meta;
