@@ -5,7 +5,7 @@ A neural network library from scratch in C++.
 ## roadmap
 
 - [X] Tensor class
-- [ ] Autograd
+- [X] Autograd
 - [ ] Layers
 - [ ] Model
 - [ ] Optimizers
@@ -15,4 +15,4 @@ A neural network library from scratch in C++.
 
 ## known issues
 
-- [ ] Tensor constructor uniqness -> factory methods
+- [X] Tensor constructor uniqness -> factory methods
