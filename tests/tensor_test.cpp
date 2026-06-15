@@ -567,13 +567,11 @@ TEST_CASE("Tensor comparison with non-matching shapes", "[TensorCmpNMS]") {
 
 TEST_CASE("Tensor item method", "[TensorItem]") {
   SECTION(".item() on 0D Tensor") {
-    const axon::Tensor t =
-        axon::Tensor::from_data({1.0f}, {1});
+    const axon::Tensor t = axon::Tensor::from_data({1.0f}, {1});
     REQUIRE(t.item() == 1.0f);
   }
   SECTION(".item() on >0D Tensor") {
-    const axon::Tensor t =
-        axon::Tensor::from_data({1.0f, 2.0f}, {2, 1});
+    const axon::Tensor t = axon::Tensor::from_data({1.0f, 2.0f}, {2, 1});
     REQUIRE_THROWS_AS(t.item(), std::runtime_error);
   }
 }
