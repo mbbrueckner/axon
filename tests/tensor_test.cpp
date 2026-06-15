@@ -12,7 +12,7 @@
 #include <cmath>
 
 TEST_CASE("Tensor with given data", "[TensorData]") {
-  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
 
   SECTION("size") {
     REQUIRE(t.num_elements() == 6);
@@ -44,11 +44,12 @@ TEST_CASE("Tensor with given data", "[TensorData]") {
 }
 
 TEST_CASE("Tensor with no metching data and shape size", "[TensorSize]") {
-  REQUIRE_THROWS_AS(axon::Tensor({1, 2, 3, 4}, {1, 5}), std::out_of_range);
+  REQUIRE_THROWS_AS(axon::Tensor::from_data({1, 2, 3, 4}, {1, 5}),
+                    std::out_of_range);
 }
 
 TEST_CASE("Tensor without given data", "[TensorZeros]") {
-  const axon::Tensor t({2, 3});
+  const axon::Tensor t = axon::Tensor::zeros({2, 3});
   SECTION("size") {
     REQUIRE(t.num_elements() == 6);
     REQUIRE(t.num_dim() == 2);
@@ -75,7 +76,7 @@ TEST_CASE("Tensor without given data", "[TensorZeros]") {
 }
 
 TEST_CASE("Transpose Tensor", "[TensorTranspose]") {
-  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   const axon::Tensor t_transposed = t.transpose();
   SECTION("size") {
     REQUIRE(t.num_elements() == t_transposed.num_elements());
@@ -105,7 +106,7 @@ TEST_CASE("Transpose Tensor", "[TensorTranspose]") {
 }
 
 TEST_CASE("Reshape a Tensor", "[TensorReshape]") {
-  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   const axon::Tensor t_reshaped = t.reshape({3, 2});
 
   SECTION("size") {
@@ -138,7 +139,7 @@ TEST_CASE("Reshape a Tensor", "[TensorReshape]") {
 }
 
 TEST_CASE("Flatten Tensor", "[TensorFlatten]") {
-  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   const axon::Tensor t_flat = t.flatten();
 
   SECTION("size") {
@@ -167,18 +168,18 @@ TEST_CASE("Flatten Tensor", "[TensorFlatten]") {
 }
 
 TEST_CASE("Reshape non-contiguous Tensor", "[TensorRsNC]") {
-  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   REQUIRE_THROWS_AS(t.transpose().reshape({6}), std::logic_error);
 }
 
 TEST_CASE("Reshape Tensor with non-matching size", "[TensorRsNMS]") {
-  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   REQUIRE_THROWS_AS(t.reshape({7}), std::out_of_range);
 }
 
 TEST_CASE("Elementwise Tensor addition", "[TensorAddEw]") {
-  const axon::Tensor t_l({1, 2, 3, 4, 5, 6}, {2, 3});
-  const axon::Tensor t_r({6, 5, 4, 3, 2, 1}, {2, 3});
+  const axon::Tensor t_l = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_r = axon::Tensor::from_data({6, 5, 4, 3, 2, 1}, {2, 3});
 
   const axon::Tensor t = t_l + t_r;
 
@@ -192,14 +193,16 @@ TEST_CASE("Elementwise Tensor addition", "[TensorAddEw]") {
 
 TEST_CASE("Elementwise Tensor addition with no matching shapes",
           "[TensorAddEwNMS]") {
-  const axon::Tensor t_l({1, 2, 3, 4, 5, 6}, {2, 3});
-  const axon::Tensor t_r({9, 8, 7, 6, 5, 4, 3, 2, 1}, {3, 3});
+  const axon::Tensor t_l = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_r =
+      axon::Tensor::from_data({9, 8, 7, 6, 5, 4, 3, 2, 1}, {3, 3});
 
   REQUIRE_THROWS_AS(t_l + t_r, std::out_of_range);
 }
 
 TEST_CASE("Scalar Tensor addition", "[TensorAddSc]") {
-  const axon::Tensor t_tensor({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_tensor =
+      axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   constexpr float scalar = 1.0f;
 
   const axon::Tensor t = t_tensor + scalar;
@@ -213,8 +216,8 @@ TEST_CASE("Scalar Tensor addition", "[TensorAddSc]") {
 }
 
 TEST_CASE("Elementwise Tensor substraction", "[TensorSubEw]") {
-  const axon::Tensor t_l({1, 2, 3, 4, 5, 6}, {2, 3});
-  const axon::Tensor t_r({6, 5, 4, 3, 2, 1}, {2, 3});
+  const axon::Tensor t_l = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_r = axon::Tensor::from_data({6, 5, 4, 3, 2, 1}, {2, 3});
 
   const axon::Tensor t = t_l - t_r;
 
@@ -228,14 +231,16 @@ TEST_CASE("Elementwise Tensor substraction", "[TensorSubEw]") {
 
 TEST_CASE("Elementwise Tensor substraction with no matching shapes",
           "[TensorSubEwNMS]") {
-  const axon::Tensor t_l({1, 2, 3, 4, 5, 6}, {2, 3});
-  const axon::Tensor t_r({9, 8, 7, 6, 5, 4, 3, 2, 1}, {3, 3});
+  const axon::Tensor t_l = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_r =
+      axon::Tensor::from_data({9, 8, 7, 6, 5, 4, 3, 2, 1}, {3, 3});
 
   REQUIRE_THROWS_AS(t_l - t_r, std::out_of_range);
 }
 
 TEST_CASE("Scalar Tensor substraction", "[TensorSubSc]") {
-  const axon::Tensor t_tensor({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_tensor =
+      axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   constexpr float scalar = 1.0f;
 
   const axon::Tensor t = t_tensor - scalar;
@@ -249,8 +254,8 @@ TEST_CASE("Scalar Tensor substraction", "[TensorSubSc]") {
 }
 
 TEST_CASE("Elementwise Tensor multiplication", "[TensorMulEw]") {
-  const axon::Tensor t_l({1, 2, 3, 4, 5, 6}, {2, 3});
-  const axon::Tensor t_r({6, 5, 4, 3, 2, 1}, {2, 3});
+  const axon::Tensor t_l = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_r = axon::Tensor::from_data({6, 5, 4, 3, 2, 1}, {2, 3});
 
   const axon::Tensor t = t_l * t_r;
 
@@ -264,14 +269,16 @@ TEST_CASE("Elementwise Tensor multiplication", "[TensorMulEw]") {
 
 TEST_CASE("Elementwise Tensor multiplication with no matching shapes",
           "[TensorMulEwNMS]") {
-  const axon::Tensor t_l({1, 2, 3, 4, 5, 6}, {2, 3});
-  const axon::Tensor t_r({9, 8, 7, 6, 5, 4, 3, 2, 1}, {3, 3});
+  const axon::Tensor t_l = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_r =
+      axon::Tensor::from_data({9, 8, 7, 6, 5, 4, 3, 2, 1}, {3, 3});
 
   REQUIRE_THROWS_AS(t_l * t_r, std::out_of_range);
 }
 
 TEST_CASE("Scalar Tensor multiplication", "[TensorMulSc]") {
-  const axon::Tensor t_tensor({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_tensor =
+      axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   constexpr float scalar = 2.0f;
 
   const axon::Tensor t = t_tensor * scalar;
@@ -285,8 +292,9 @@ TEST_CASE("Scalar Tensor multiplication", "[TensorMulSc]") {
 }
 
 TEST_CASE("Elementwise Tensor division", "[TensorDivEw]") {
-  const axon::Tensor t_l({6, 12, 9, 8, 10, 6}, {2, 3});
-  const axon::Tensor t_r({6, 6, 3, 4, 2, 1}, {2, 3});
+  const axon::Tensor t_l =
+      axon::Tensor::from_data({6, 12, 9, 8, 10, 6}, {2, 3});
+  const axon::Tensor t_r = axon::Tensor::from_data({6, 6, 3, 4, 2, 1}, {2, 3});
 
   const axon::Tensor t = t_l / t_r;
 
@@ -300,14 +308,16 @@ TEST_CASE("Elementwise Tensor division", "[TensorDivEw]") {
 
 TEST_CASE("Elementwise Tensor division with no matching shapes",
           "[TensorDivEwNMS]") {
-  const axon::Tensor t_l({1, 2, 3, 4, 5, 6}, {2, 3});
-  const axon::Tensor t_r({9, 8, 7, 6, 5, 4, 3, 2, 1}, {3, 3});
+  const axon::Tensor t_l = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_r =
+      axon::Tensor::from_data({9, 8, 7, 6, 5, 4, 3, 2, 1}, {3, 3});
 
   REQUIRE_THROWS_AS(t_l / t_r, std::out_of_range);
 }
 
 TEST_CASE("Scalar Tensor division", "[TensorDivSc]") {
-  const axon::Tensor t_tensor({2, 4, 6, 8, 10, 12}, {2, 3});
+  const axon::Tensor t_tensor =
+      axon::Tensor::from_data({2, 4, 6, 8, 10, 12}, {2, 3});
   constexpr float scalar = 2.0f;
 
   const axon::Tensor t = t_tensor / scalar;
@@ -321,8 +331,9 @@ TEST_CASE("Scalar Tensor division", "[TensorDivSc]") {
 }
 
 TEST_CASE("Tensor matrix multiplication", "[TensorMatmul]") {
-  const axon::Tensor t_l({1, 2, 3, 4, 5, 6}, {2, 3});
-  const axon::Tensor t_r({7, 8, 9, 10, 11, 12}, {3, 2});
+  const axon::Tensor t_l = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_r =
+      axon::Tensor::from_data({7, 8, 9, 10, 11, 12}, {3, 2});
 
   const axon::Tensor t = t_l.matmul(t_r);
 
@@ -342,14 +353,15 @@ TEST_CASE("Tensor matrix multiplication", "[TensorMatmul]") {
 
 TEST_CASE("Tensor matrix multiplication with non-matching inner dimensions",
           "[TensorMatmulNMS]") {
-  const axon::Tensor t_l({1, 2, 3, 4, 5, 6}, {2, 3});
-  const axon::Tensor t_r({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_l = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_r = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
 
   REQUIRE_THROWS_AS(t_l.matmul(t_r), std::out_of_range);
 }
 
 TEST_CASE("Tensor log", "[TensorLog]") {
-  const axon::Tensor t_tensor({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_tensor =
+      axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
 
   const axon::Tensor t = t_tensor.log();
 
@@ -370,7 +382,8 @@ TEST_CASE("Tensor log", "[TensorLog]") {
 }
 
 TEST_CASE("Tensor exp", "[TensorExp]") {
-  const axon::Tensor t_tensor({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_tensor =
+      axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
 
   const axon::Tensor t = t_tensor.exp();
 
@@ -391,7 +404,8 @@ TEST_CASE("Tensor exp", "[TensorExp]") {
 }
 
 TEST_CASE("Tensor log and exp are inverse", "[TensorLogExp]") {
-  const axon::Tensor t_tensor({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_tensor =
+      axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
 
   const axon::Tensor t = t_tensor.log().exp();
 
@@ -404,27 +418,27 @@ TEST_CASE("Tensor log and exp are inverse", "[TensorLogExp]") {
 }
 
 TEST_CASE("Tensor min", "[TensorMin]") {
-  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   REQUIRE(t.min() == 1.0f);
 }
 
 TEST_CASE("Tensor max", "[TensorMax]") {
-  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   REQUIRE(t.max() == 6.0f);
 }
 
 TEST_CASE("Tensor sum", "[TensorSum]") {
-  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   REQUIRE(t.sum().at({0}) == 21.0f);
 }
 
 TEST_CASE("Tensor mean", "[TensorMean]") {
-  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   REQUIRE(t.mean().at({0}) == 3.5f);
 }
 
 TEST_CASE("Tensor subscript operator", "[TensorSubscript]") {
-  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
 
   SECTION("Matrix slice") {
     const axon::Tensor t_0 = t[0];
@@ -446,7 +460,8 @@ TEST_CASE("Tensor subscript operator", "[TensorSubscript]") {
 }
 
 TEST_CASE("Tensor abs", "[TensorAbs]") {
-  const axon::Tensor t_tensor({-1, 2, -3, 4, -5, 6}, {2, 3});
+  const axon::Tensor t_tensor =
+      axon::Tensor::from_data({-1, 2, -3, 4, -5, 6}, {2, 3});
 
   const axon::Tensor t = t_tensor.abs();
 
@@ -467,9 +482,11 @@ TEST_CASE("Tensor abs", "[TensorAbs]") {
 }
 
 TEST_CASE("Tensor less-than comparison", "[TensorLt]") {
-  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
-  const axon::Tensor t_greater({2, 3, 4, 5, 6, 7}, {2, 3});
-  const axon::Tensor t_mixed({2, 3, 3, 5, 6, 7}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_greater =
+      axon::Tensor::from_data({2, 3, 4, 5, 6, 7}, {2, 3});
+  const axon::Tensor t_mixed =
+      axon::Tensor::from_data({2, 3, 3, 5, 6, 7}, {2, 3});
 
   SECTION("all elements strictly less") { REQUIRE(t < t_greater); }
   SECTION("an equal element is not strictly less") {
@@ -479,9 +496,11 @@ TEST_CASE("Tensor less-than comparison", "[TensorLt]") {
 }
 
 TEST_CASE("Tensor less-than-or-equal comparison", "[TensorLe]") {
-  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
-  const axon::Tensor t_greater_eq({1, 3, 3, 5, 5, 7}, {2, 3});
-  const axon::Tensor t_smaller({1, 2, 3, 4, 5, 5}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_greater_eq =
+      axon::Tensor::from_data({1, 3, 3, 5, 5, 7}, {2, 3});
+  const axon::Tensor t_smaller =
+      axon::Tensor::from_data({1, 2, 3, 4, 5, 5}, {2, 3});
 
   SECTION("equal tensors compare less-or-equal") { REQUIRE(t <= t); }
   SECTION("greater-or-equal elements compare less-or-equal") {
@@ -493,9 +512,11 @@ TEST_CASE("Tensor less-than-or-equal comparison", "[TensorLe]") {
 }
 
 TEST_CASE("Tensor greater-than comparison", "[TensorGt]") {
-  const axon::Tensor t({2, 3, 4, 5, 6, 7}, {2, 3});
-  const axon::Tensor t_smaller({1, 2, 3, 4, 5, 6}, {2, 3});
-  const axon::Tensor t_mixed({1, 3, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({2, 3, 4, 5, 6, 7}, {2, 3});
+  const axon::Tensor t_smaller =
+      axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_mixed =
+      axon::Tensor::from_data({1, 3, 3, 4, 5, 6}, {2, 3});
 
   SECTION("all elements strictly greater") { REQUIRE(t > t_smaller); }
   SECTION("an equal element is not strictly greater") {
@@ -505,9 +526,11 @@ TEST_CASE("Tensor greater-than comparison", "[TensorGt]") {
 }
 
 TEST_CASE("Tensor greater-than-or-equal comparison", "[TensorGe]") {
-  const axon::Tensor t({2, 3, 4, 5, 6, 7}, {2, 3});
-  const axon::Tensor t_smaller_eq({2, 2, 4, 4, 6, 6}, {2, 3});
-  const axon::Tensor t_greater({2, 3, 4, 5, 6, 8}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({2, 3, 4, 5, 6, 7}, {2, 3});
+  const axon::Tensor t_smaller_eq =
+      axon::Tensor::from_data({2, 2, 4, 4, 6, 6}, {2, 3});
+  const axon::Tensor t_greater =
+      axon::Tensor::from_data({2, 3, 4, 5, 6, 8}, {2, 3});
 
   SECTION("equal tensors compare greater-or-equal") { REQUIRE(t >= t); }
   SECTION("smaller-or-equal elements compare greater-or-equal") {
@@ -519,9 +542,11 @@ TEST_CASE("Tensor greater-than-or-equal comparison", "[TensorGe]") {
 }
 
 TEST_CASE("Tensor equality comparison", "[TensorEq]") {
-  const axon::Tensor t({1, 2, 3, 4, 5, 6}, {2, 3});
-  const axon::Tensor t_equal({1, 2, 3, 4, 5, 6}, {2, 3});
-  const axon::Tensor t_different({1, 2, 3, 4, 5, 7}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_equal =
+      axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_different =
+      axon::Tensor::from_data({1, 2, 3, 4, 5, 7}, {2, 3});
 
   SECTION("identical data compares equal") { REQUIRE(t == t_equal); }
   SECTION("a single differing element breaks equality") {
@@ -530,8 +555,8 @@ TEST_CASE("Tensor equality comparison", "[TensorEq]") {
 }
 
 TEST_CASE("Tensor comparison with non-matching shapes", "[TensorCmpNMS]") {
-  const axon::Tensor t_l({1, 2, 3, 4, 5, 6}, {2, 3});
-  const axon::Tensor t_r({1, 2, 3, 4, 5, 6}, {3, 2});
+  const axon::Tensor t_l = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_r = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {3, 2});
 
   REQUIRE_THROWS_AS(t_l < t_r, std::out_of_range);
   REQUIRE_THROWS_AS(t_l <= t_r, std::out_of_range);
@@ -542,11 +567,13 @@ TEST_CASE("Tensor comparison with non-matching shapes", "[TensorCmpNMS]") {
 
 TEST_CASE("Tensor item method", "[TensorItem]") {
   SECTION(".item() on 0D Tensor") {
-    const axon::Tensor t(std::vector<float>{1.0f}, {1});
+    const axon::Tensor t =
+        axon::Tensor::from_data({1.0f}, {1});
     REQUIRE(t.item() == 1.0f);
   }
   SECTION(".item() on >0D Tensor") {
-    const axon::Tensor t(std::vector<float>{1.0f, 2.0f}, {2, 1});
+    const axon::Tensor t =
+        axon::Tensor::from_data({1.0f, 2.0f}, {2, 1});
     REQUIRE_THROWS_AS(t.item(), std::runtime_error);
   }
 }

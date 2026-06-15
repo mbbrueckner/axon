@@ -38,13 +38,14 @@ bool grad_check(std::function<axon::Tensor(axon::Tensor)> f,
   const axon::Tensor analytic_solution = x.grad();
 
   const axon::Tensor difference = (numeric_solution - analytic_solution).abs();
-  const axon::Tensor tolerance_tensor{difference.shape(), tolerance};
+  const axon::Tensor tolerance_tensor =
+      axon::Tensor::ones(difference.shape()) * tolerance;
 
   return difference <= tolerance_tensor;
 }
 
 TEST_CASE("Gradient check", "[GradCheck]") {
-  axon::Tensor x(std::vector<float>{1.0f, 2.0f}, std::vector<axon::idx_t>{2});
+  axon::Tensor x = axon::Tensor::from_data({1.0f, 2.0f}, {2});
   axon::Tensor y(x);
   SECTION("mul") {
     auto f = [](axon::Tensor x) { return x * x; };

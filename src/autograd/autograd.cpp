@@ -12,5 +12,5 @@
 namespace axon {
 
 AutogradMeta::AutogradMeta(const std::vector<idx_t>& shape)
-    : grad(std::make_shared<Tensor>(shape)) {}
+    : grad(std::make_shared<Tensor>(Tensor::zeros(shape))) {}
 }  // namespace axon
