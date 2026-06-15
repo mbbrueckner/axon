@@ -16,3 +16,8 @@ A neural network library from scratch in C++.
 ## known issues
 
 - [X] Tensor constructor uniqness -> factory methods
+
+## future ideas 
+
+- einsum 
+
