@@ -48,7 +48,7 @@ TEST_CASE("Autograd subtract backward", "[AutoGradSub]") {
   axon::Tensor z = x - y;
   z.backward();
 
-  REQUIRE(x.grad().at({0}) == -1.0f);
+  REQUIRE(x.grad().at({0}) == 1.0f);
   REQUIRE(y.grad().at({0}) == -1.0f);
 }
 
