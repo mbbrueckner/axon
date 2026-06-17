@@ -6,7 +6,7 @@ A neural network library from scratch in C++.
 
 - [X] Tensor class
 - [X] Autograd
-- [ ] Layers
+- [ ] Modules
 - [ ] Model
 - [ ] Optimizers
 - [ ] Training loop
@@ -17,7 +17,7 @@ A neural network library from scratch in C++.
 
 - [X] Tensor constructor uniqness -> factory methods
 
-## future ideas 
+## future ideas
 
 - einsum 
 
