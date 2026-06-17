@@ -525,7 +525,7 @@ Tensor operator-(const Tensor& lhs, const Tensor& rhs) {
     meta->grad_fn_ = std::make_shared<GradFn>();
     meta->grad_fn_->backward =
         [lhs_meta, rhs_meta, lhs, rhs](const Tensor& grad_output) {
-          if (lhs_meta) *lhs_meta->grad -= grad_output;
+          if (lhs_meta) *lhs_meta->grad += grad_output;
           if (rhs_meta) *rhs_meta->grad -= grad_output;
         };
     std::vector<std::shared_ptr<AutogradMeta>> inputs;

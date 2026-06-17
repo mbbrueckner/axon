@@ -41,4 +41,5 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(Catch2)
 
 # Tests
+include(CTest)
 add_subdirectory(tests)
