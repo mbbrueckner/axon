@@ -2,6 +2,7 @@ add_executable(axon_tests
         tensor_test.cpp
         autograd_test.cpp
         grad_check.cpp
+        linear_test.cpp
 )
 
 target_link_libraries(axon_tests PRIVATE
