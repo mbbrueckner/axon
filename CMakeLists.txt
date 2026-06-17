@@ -11,6 +11,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_library(axon STATIC
         src/tensor.cpp
         src/autograd/autograd.cpp
+        include/axon/module.hpp
 )
 
 target_include_directories(axon
