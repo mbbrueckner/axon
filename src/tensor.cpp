@@ -514,27 +514,18 @@ std::pair<Tensor, Tensor> broadcast(const Tensor& a, const Tensor& b) {
 }
 
 Tensor operator+(const Tensor& lhs, const Tensor& rhs) {
-  const std::vector<idx_t>& lhs_shape = lhs.shape();
-  const std::vector<idx_t>& rhs_shape = rhs.shape();
-  if (lhs_shape != rhs_shape) {
-    throw std::out_of_range(
-        std::format("Cannot perform elementwise addition for tensors with "
-                    "different shapes: {}; {}",
-                    utils::vector_to_string(lhs_shape),
-                    utils::vector_to_string(rhs_shape)));
+  auto [a, b] = broadcast(lhs, rhs);
+
+  const idx_t num_elements = a.num_elements();
+  const std::vector<idx_t> out_shape = a.shape();
+  std::vector<float> new_data(num_elements);
+
+  for (idx_t i = 0; i < num_elements; i++) {
+    std::vector<idx_t> idx = utils::flat_to_indices(i, out_shape);
+    new_data[i] = a.at(idx) + b.at(idx);
   }
 
-  const idx_t num_elements = std::accumulate(
-      lhs_shape.begin(), lhs_shape.end(), idx_t{1}, std::multiplies<>());
-
-  std::vector<float> new_data = (*lhs.data_);
-  std::vector<float> rhs_data = (*rhs.data_);
-
-  for (idx_t i{}; i < num_elements; i++) {
-    new_data[i] += rhs_data[i];
-  }
-
-  Tensor result{new_data, lhs_shape};
+  Tensor result{new_data, out_shape};
   auto lhs_meta = lhs.autograd_meta_;
   auto rhs_meta = rhs.autograd_meta_;
   if (lhs_meta != nullptr || rhs_meta != nullptr) {
