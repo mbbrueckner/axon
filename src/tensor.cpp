@@ -209,6 +209,35 @@ float Tensor::at(std::initializer_list<idx_t> indices) const {
   return (*data_)[flat];
 }
 
+float Tensor::at(const std::vector<idx_t>& indices) const {
+  const idx_t num_dim = shape_.size();
+  const idx_t num_indices = indices.size();
+
+  if (num_indices != num_dim) {
+    throw std::out_of_range(
+        std::format("Number of indices does not match dimensions: got {} "
+                    "indices for a {}-dimensional tensor",
+                    num_indices,
+                    num_dim));
+  }
+
+  idx_t dim = 0;
+  idx_t flat = offset_;
+  for (idx_t idx : indices) {
+    if (idx >= shape_[dim]) {
+      throw std::out_of_range(
+          std::format("Index {} out of range for dimension {} with size {}",
+                      idx,
+                      dim,
+                      shape_[dim]));
+    }
+
+    flat += idx * stride_[dim];
+    dim++;
+  }
+  return (*data_)[flat];
+}
+
 Tensor Tensor::transpose() const {
   std::vector shape_t(shape_);
   std::ranges::reverse(shape_t);

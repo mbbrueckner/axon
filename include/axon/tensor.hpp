@@ -191,6 +191,15 @@ class axon::Tensor {
   [[nodiscard]] float at(std::initializer_list<idx_t> indices) const;
 
   /**
+   * @brief Returns the scalar value at the given multi-dimensional index.
+   * @param indices One index per dimension, in order.
+   * @return The element at @p indices.
+   * @throws std::out_of_range if the number of indices does not match the rank
+   *         or any index is out of bounds.
+   */
+  [[nodiscard]] float at(const std::vector<idx_t>& indices) const;
+
+  /**
    * @brief Returns a view with all dimensions reversed.
    *
    * Shares storage with this tensor; no data is copied. The result is generally
