@@ -35,7 +35,11 @@ Tensor Linear::forward(const Tensor& input) {
 }
 
 std::vector<Tensor> Linear::parameters() {
-  return {weights_.shared_autograd_copy(), bias_.shared_autograd_copy()};
+  std::vector<Tensor> params;
+  params.reserve(2);
+  params.push_back(weights_.shared_autograd_copy());
+  params.push_back(bias_.shared_autograd_copy());
+  return params;
 }
 
 }  // namespace axon
