@@ -9,9 +9,8 @@
 #include <string>
 #include <vector>
 
-namespace axon {
 /// @brief General-purpose helper utilities.
-namespace utils {
+namespace axon::utils {
 
 /**
  * @brief Formats a vector as a bracketed, comma-separated string.
@@ -35,5 +34,14 @@ std::string vector_to_string(const std::vector<T>& vec) {
   return vec_string;
 }
 
-}  // namespace utils
-}  // namespace axon
+inline std::vector<idx_t> flat_to_indices(idx_t flat,
+                                          const std::vector<idx_t>& shape) {
+  std::vector<idx_t> indices(shape.size());
+  for (idx_t i = shape.size() - 1; i >= 0; i--) {
+    indices[i] = flat % shape[i];
+    flat /= shape[i];
+  }
+  return indices;
+}
+
+}  // namespace axon::utils
