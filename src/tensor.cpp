@@ -449,6 +449,41 @@ bool operator==(const Tensor& lhs, const Tensor& rhs) {
   return true;
 }
 
+std::pair<Tensor, Tensor> broadcast(const Tensor& a, const Tensor& b) {
+  const idx_t ndim = std::max(a.num_dim(), b.num_dim());
+
+  std::vector<idx_t> shape_a(ndim, 1), shape_b(ndim, 1);
+  std::vector<idx_t> stride_a(ndim, 0), stride_b(ndim, 0);
+
+  for (idx_t i = 0; i < a.num_dim(); i++) {
+    shape_a[ndim - a.num_dim() + i] = a.shape()[i];
+    stride_a[ndim - a.num_dim() + i] = a.stride()[i];
+  }
+
+  for (idx_t i = 0; i < b.num_dim(); i++) {
+    shape_b[ndim - b.num_dim() + i] = b.shape()[i];
+    stride_b[ndim - b.num_dim() + i] = b.stride()[i];
+  }
+
+  std::vector<idx_t> out_shape(ndim);
+  for (idx_t i = 0; i < ndim; i++) {
+    if (shape_a[i] == shape_b[i]) {
+      out_shape[i] = shape_a[i];
+    } else if (shape_a[i] == 1) {
+      out_shape[i] = shape_b[i];
+      stride_a[i] = 0;
+    } else if (shape_b[i] == 1) {
+      out_shape[i] = shape_a[i];
+      stride_b[i] = 0;
+    } else {
+      throw std::out_of_range("Shapes are not broadcastable");
+    }
+  }
+
+  return {Tensor(a.data_, out_shape, stride_a, a.offset_),
+          Tensor(b.data_, out_shape, stride_b, b.offset_)};
+}
+
 Tensor operator+(const Tensor& lhs, const Tensor& rhs) {
   const std::vector<idx_t>& lhs_shape = lhs.shape();
   const std::vector<idx_t>& rhs_shape = rhs.shape();

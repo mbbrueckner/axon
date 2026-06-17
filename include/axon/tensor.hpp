@@ -299,6 +299,8 @@ class axon::Tensor {
    */
   friend bool operator==(const Tensor& lhs, const Tensor& rhs);
 
+  friend std::pair<Tensor, Tensor> broadcast(const Tensor& a, const Tensor& b);
+
   /**
    * @brief Elementwise addition of two tensors of identical shape.
    * @throws std::out_of_range if the shapes differ.
