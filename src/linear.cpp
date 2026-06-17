@@ -7,6 +7,7 @@
 
 #include "axon/linear.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <random>
 
