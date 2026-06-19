@@ -481,6 +481,28 @@ TEST_CASE("Tensor abs", "[TensorAbs]") {
   }
 }
 
+TEST_CASE("Tensor ReLU", "[TensorReLU]") {
+  const axon::Tensor t_tensor =
+      axon::Tensor::from_data({-1, 2, -3, 4, -5, 6}, {2, 3});
+
+  const axon::Tensor t = t_tensor.relu();
+
+  SECTION("shape") {
+    REQUIRE(t.num_dim() == 2);
+    REQUIRE(t.shape().at(0) == 2);
+    REQUIRE(t.shape().at(1) == 3);
+  }
+
+  SECTION("at") {
+    REQUIRE(t.at({0, 0}) == Catch::Approx(0.0f));
+    REQUIRE(t.at({0, 1}) == Catch::Approx(2.0f));
+    REQUIRE(t.at({0, 2}) == Catch::Approx(0.0f));
+    REQUIRE(t.at({1, 0}) == Catch::Approx(4.0f));
+    REQUIRE(t.at({1, 1}) == Catch::Approx(0.0f));
+    REQUIRE(t.at({1, 2}) == Catch::Approx(6.0f));
+  }
+}
+
 TEST_CASE("Tensor less-than comparison", "[TensorLt]") {
   const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   const axon::Tensor t_greater =
