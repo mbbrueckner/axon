@@ -63,5 +63,9 @@ TEST_CASE("Gradient check", "[GradCheck]") {
     auto f = [](axon::Tensor x) { return x.exp(); };
     REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
   }
+  SECTION("ReLU") {
+    auto f = [](axon::Tensor x) { return x.relu(); };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
   // TODO matmul
 }
