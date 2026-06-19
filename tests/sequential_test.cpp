@@ -87,8 +87,8 @@ TEST_CASE(
 
 TEST_CASE("Sequential backward propagates gradients through all modules",
           "[Sequential]") {
-  auto linear_first_owned = std::make_unique<axon::Linear>(2, 4);
-  auto linear_second_owned = std::make_unique<axon::Linear>(4, 1);
+  auto linear_first_owned = std::make_unique<axon::Linear>(2, 4, 42);
+  auto linear_second_owned = std::make_unique<axon::Linear>(4, 1, 42);
   axon::Linear* linear_first = linear_first_owned.get();
   axon::Linear* linear_second = linear_second_owned.get();
 
