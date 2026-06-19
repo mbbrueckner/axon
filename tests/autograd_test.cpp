@@ -8,7 +8,7 @@
 #include "../include/axon/tensor.hpp"
 #include "catch2/catch_all.hpp"
 
-TEST_CASE("Autograd mul backward", "[AutoGradMul]") {
+TEST_CASE("Autograd mul backward", "[AutoGrad]") {
   axon::Tensor x = axon::Tensor::from_data(std::vector<float>{2.0f},
                                            std::vector<axon::idx_t>{1});
   axon::Tensor y = axon::Tensor::from_data(std::vector<float>{3.0f},
@@ -24,7 +24,7 @@ TEST_CASE("Autograd mul backward", "[AutoGradMul]") {
   REQUIRE(y.grad().at({0}) == 2.0f);
 }
 
-TEST_CASE("Autograd add backward", "[AutoGradAdd]") {
+TEST_CASE("Autograd add backward", "[AutoGrad]") {
   axon::Tensor x = axon::Tensor::from_data({2.0f}, {1});
   axon::Tensor y = axon::Tensor::from_data({3.0f}, {1});
 
@@ -38,7 +38,7 @@ TEST_CASE("Autograd add backward", "[AutoGradAdd]") {
   REQUIRE(y.grad().at({0}) == 1.0f);
 }
 
-TEST_CASE("Autograd subtract backward", "[AutoGradSub]") {
+TEST_CASE("Autograd subtract backward", "[AutoGrad]") {
   axon::Tensor x = axon::Tensor::from_data({2.0f}, {1});
   axon::Tensor y = axon::Tensor::from_data({3.0f}, {1});
 
@@ -52,7 +52,7 @@ TEST_CASE("Autograd subtract backward", "[AutoGradSub]") {
   REQUIRE(y.grad().at({0}) == -1.0f);
 }
 
-TEST_CASE("Autograd divide backward", "[AutoGradDiv]") {
+TEST_CASE("Autograd divide backward", "[AutoGrad]") {
   axon::Tensor x = axon::Tensor::from_data({2.0f}, {1});
   axon::Tensor y = axon::Tensor::from_data({3.0f}, {1});
 
@@ -66,7 +66,7 @@ TEST_CASE("Autograd divide backward", "[AutoGradDiv]") {
   REQUIRE(y.grad().at({0}) == Catch::Approx(-2.0f / 9.0f));
 }
 
-TEST_CASE("Autograd sum backward", "[AutoGradSum]") {
+TEST_CASE("Autograd sum backward", "[AutoGrad]") {
   axon::Tensor t = axon::Tensor::from_data({1.0f, 2.0f, 3.0f, 4.0f}, {2, 2});
   t.requires_grad_(true);
 
@@ -79,7 +79,7 @@ TEST_CASE("Autograd sum backward", "[AutoGradSum]") {
   REQUIRE(t.grad().at({1, 1}) == 1.0f);
 }
 
-TEST_CASE("Autograd exp backward", "[AutoGradExp]") {
+TEST_CASE("Autograd exp backward", "[AutoGrad]") {
   axon::Tensor t = axon::Tensor::from_data({1.0f, 2.0f, 3.0f, 4.0f}, {2, 2});
   t.requires_grad_(true);
 
@@ -92,7 +92,7 @@ TEST_CASE("Autograd exp backward", "[AutoGradExp]") {
   REQUIRE(t.grad().at({1, 1}) == Catch::Approx(std::exp(4.0f)));
 }
 
-TEST_CASE("Autograd log backward", "[AutoGradLog]") {
+TEST_CASE("Autograd log backward", "[AutoGrad]") {
   axon::Tensor t = axon::Tensor::from_data({1.0f, 2.0f, 3.0f, 4.0f}, {2, 2});
   t.requires_grad_(true);
 
@@ -105,7 +105,7 @@ TEST_CASE("Autograd log backward", "[AutoGradLog]") {
   REQUIRE(t.grad().at({1, 1}) == Catch::Approx(1.0f / 4.0f));
 }
 
-TEST_CASE("Autograd ReLU backward", "[AutoGradReLU]") {
+TEST_CASE("Autograd ReLU backward", "[AutoGrad]") {
   axon::Tensor t = axon::Tensor::from_data({-1.0f, 2.0f, -3.0f, 4.0f}, {2, 2});
   t.requires_grad_(true);
 
@@ -118,7 +118,7 @@ TEST_CASE("Autograd ReLU backward", "[AutoGradReLU]") {
   REQUIRE(t.grad().at({1, 1}) == 1.0f);
 }
 
-TEST_CASE("Autograd matmul backward", "[AutoGradMatMul]") {
+TEST_CASE("Autograd matmul backward", "[AutoGrad]") {
   axon::Tensor x = axon::Tensor::from_data({1.0f, 2.0f, 3.0f, 4.0f}, {2, 2});
   axon::Tensor y = axon::Tensor::from_data({4.0f, 3.0f, 2.0f, 1.0f}, {2, 2});
 
