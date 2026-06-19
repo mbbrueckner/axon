@@ -17,6 +17,8 @@ add_library(axon STATIC
         include/axon/linear.hpp
         include/axon/relu.hpp
         src/relu.cpp
+        include/axon/sequential.hpp
+        src/sequential.cpp
 )
 
 target_include_directories(axon
