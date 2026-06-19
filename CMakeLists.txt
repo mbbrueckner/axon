@@ -15,6 +15,8 @@ add_library(axon STATIC
         src/autograd/autograd.hpp
         include/axon/module.hpp
         include/axon/linear.hpp
+        include/axon/relu.hpp
+        src/relu.cpp
 )
 
 target_include_directories(axon
