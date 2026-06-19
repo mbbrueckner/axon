@@ -249,6 +249,12 @@ class axon::Tensor {
    * @return The elementwise absolute value.
    */
   [[nodiscard]] Tensor abs() const;
+  /**
+   * @brief Returns a new tensor with the Rectified Linear Unit function (ReLU)
+   * applied elementwise.
+   * @return The elementwise ReLU value.
+   */
+  [[nodiscard]] Tensor relu() const;
 
   /// @return The smallest element value in the tensor.
   [[nodiscard]] float min() const;

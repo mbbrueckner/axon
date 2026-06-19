@@ -367,6 +367,32 @@ Tensor Tensor::abs() const {
   return {new_data, shape_};
 }
 
+Tensor Tensor::relu() const {
+  std::vector<float> new_data = (*data_);
+
+  std::ranges::transform(
+      new_data, new_data.begin(), [](float x) { return x > 0 ? x : 0; });
+  Tensor result{new_data, shape_};
+  auto input_meta = autograd_meta_;
+  if (input_meta != nullptr) {
+    auto meta = std::make_shared<AutogradMeta>(result.shape());
+    meta->grad_fn_ = std::make_shared<GradFn>();
+    meta->grad_fn_->backward = [input_meta,
+                                input = *this](const Tensor& grad_output) {
+      if (input_meta) {
+        std::vector<float> mask = (*input.data_);
+        std::ranges::transform(
+            mask, mask.begin(), [](float x) { return x > 0.0f ? 1.0f : 0.0f; });
+        Tensor mask_tensor{mask, input.shape_};
+        *input_meta->grad += mask_tensor * grad_output;
+      }
+    };
+    meta->grad_fn_->inputs = {input_meta};
+    result.autograd_meta_ = meta;
+  }
+  return result;
+}
+
 float Tensor::min() const { return *std::ranges::min_element(*data_); }
 
 float Tensor::max() const { return *std::ranges::max_element(*data_); }
