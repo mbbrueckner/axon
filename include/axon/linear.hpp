@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <random>
+
 #include "axon/constants.hpp"
 #include "axon/module.hpp"
 #include "axon/tensor.hpp"
@@ -29,8 +31,11 @@ class axon::Linear : public Module {
    *
    * @param in_features Size of each input sample.
    * @param out_features Size of each output sample.
+   * @param seed Optional randomness seed.
    */
-  Linear(idx_t in_features, idx_t out_features);
+  explicit Linear(idx_t in_features,
+                  idx_t out_features,
+                  unsigned seed = std::random_device{}());
 
   /**
    * @brief Applies the affine transformation to the input.
@@ -48,6 +53,7 @@ class axon::Linear : public Module {
   std::vector<Tensor> parameters() override;
 
  private:
-  Tensor weights_;  ///< Learnable weight matrix of shape [in_features, out_features].
+  Tensor weights_;  ///< Learnable weight matrix of shape [in_features,
+                    ///< out_features].
   Tensor bias_;     ///< Learnable bias vector of shape [out_features].
 };

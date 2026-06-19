@@ -12,12 +12,12 @@
 #include <random>
 
 namespace axon {
-Linear::Linear(idx_t in_features, idx_t out_features)
+Linear::Linear(idx_t in_features, idx_t out_features, unsigned seed)
     : weights_(Tensor::zeros({in_features, out_features})),
       bias_(Tensor::zeros({out_features})) {
   float bound = 1.0f / std::sqrt(static_cast<float>(in_features));
 
-  std::mt19937 rng(std::random_device{}());
+  std::mt19937 rng(seed);
   std::uniform_real_distribution<float> dist(-bound, bound);
 
   std::vector<float> w_data(in_features * out_features);
