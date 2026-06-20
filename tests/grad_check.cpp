@@ -12,12 +12,32 @@
 #include "axon/tensor.hpp"
 #include "catch2/catch_all.hpp"
 
+namespace {
+
+/// @brief Local helper: converts a flat index into multi-dimensional
+/// indices for a given shape. Duplicated here since axon::utils lives in a
+/// private header not exposed to tests.
+std::vector<axon::idx_t> flat_to_indices(
+    axon::idx_t flat, const std::vector<axon::idx_t>& shape) {
+  std::vector<axon::idx_t> indices(shape.size());
+  for (axon::idx_t i = static_cast<axon::idx_t>(shape.size()) - 1; i >= 0;
+       i--) {
+    indices[i] = flat % shape[i];
+    flat /= shape[i];
+  }
+  return indices;
+}
+
+}  // namespace
+
 /**
- * @brief Finite difference gradient check for a scalar function f.
+ * @brief Finite difference gradient check for a tensor-valued function f.
  *
- * Compares the analytically computed gradient (via backward()) against
- * a numerical approximation using the central difference formula:
- *   (f(x + \epsilon) - f(x - \epsilon)) / 2 \epsilon
+ * Perturbs each element of x individually by +/- epsilon, evaluates
+ * sum(f(x)) for each perturbation, and compares the resulting numeric
+ * gradient against the analytic gradient computed via backward(). This
+ * works for both elementwise functions and functions with cross-element
+ * dependencies (e.g. sum(dim), matmul).
  *
  * @param f         Function to check.
  * @param x         Input tensor (must have requires_grad_(true)).
@@ -29,15 +49,36 @@ bool grad_check(std::function<axon::Tensor(axon::Tensor)> f,
                 axon::Tensor& x,
                 float epsilon = 1e-4f,
                 float tolerance = 1e-3f) {
-  const axon::Tensor numeric_solution =
-      (f(x + epsilon) - f(x - epsilon)) / (2 * epsilon);
-
   x.requires_grad_(true);
   axon::Tensor y = f(x.shared_autograd_copy());
   y.backward();
-  const axon::Tensor analytic_solution = x.grad();
+  const axon::Tensor analytic = x.grad();
 
-  const axon::Tensor difference = (numeric_solution - analytic_solution).abs();
+  const axon::idx_t n = x.num_elements();
+  std::vector<float> original_data(n);
+  for (axon::idx_t i = 0; i < n; ++i) {
+    original_data[i] = x.at(flat_to_indices(i, x.shape()));
+  }
+
+  std::vector<float> numeric_data(n);
+  for (axon::idx_t i = 0; i < n; ++i) {
+    std::vector<float> plus_data = original_data;
+    std::vector<float> minus_data = original_data;
+    plus_data[i] += epsilon;
+    minus_data[i] -= epsilon;
+
+    axon::Tensor x_plus = axon::Tensor::from_data(plus_data, x.shape());
+    axon::Tensor x_minus = axon::Tensor::from_data(minus_data, x.shape());
+
+    const float loss_plus = f(x_plus).sum().item();
+    const float loss_minus = f(x_minus).sum().item();
+
+    numeric_data[i] = (loss_plus - loss_minus) / (2.0f * epsilon);
+  }
+
+  const axon::Tensor numeric_solution =
+      axon::Tensor::from_data(numeric_data, x.shape());
+  const axon::Tensor difference = (numeric_solution - analytic).abs();
   const axon::Tensor tolerance_tensor =
       axon::Tensor::ones(difference.shape()) * tolerance;
 
@@ -46,7 +87,7 @@ bool grad_check(std::function<axon::Tensor(axon::Tensor)> f,
 
 TEST_CASE("Gradient check", "[GradCheck]") {
   axon::Tensor x = axon::Tensor::from_data({1.0f, 2.0f}, {2});
-  axon::Tensor y(x);
+
   SECTION("mul") {
     auto f = [](axon::Tensor x) { return x * x; };
     REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
@@ -63,9 +104,18 @@ TEST_CASE("Gradient check", "[GradCheck]") {
     auto f = [](axon::Tensor x) { return x.exp(); };
     REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
   }
-  SECTION("ReLU") {
+  SECTION("relu") {
     auto f = [](axon::Tensor x) { return x.relu(); };
     REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
   }
-  // TODO matmul
+  SECTION("sum(dim)") {
+    axon::Tensor x2 = axon::Tensor::from_data({1.0f, 2.0f, 3.0f, 4.0f}, {2, 2});
+    auto f = [](axon::Tensor x) { return x.sum(1, true); };
+    REQUIRE(grad_check(f, x2, 1e-4f, 1e-2f));
+  }
+  SECTION("matmul") {
+    axon::Tensor x2 = axon::Tensor::from_data({1.0f, 2.0f, 3.0f, 4.0f}, {2, 2});
+    auto f = [](axon::Tensor x) { return x.matmul(x); };
+    REQUIRE(grad_check(f, x2, 1e-4f, 1e-2f));
+  }
 }
