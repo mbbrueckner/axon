@@ -226,6 +226,21 @@ class axon::Tensor {
   [[nodiscard]] Tensor flatten() const;
 
   /**
+   * @brief Returns a view with a new dimension of size 1 inserted at the
+   *        given position.
+   *
+   * Shares storage with this tensor; no data is copied. The inserted
+   * dimension's stride is chosen so that is_contiguous() still holds if this
+   * tensor was already contiguous.
+   *
+   * @param dim Position at which to insert the new dimension. Must satisfy
+   *        @c 0 <= dim <= num_dim() (insertion at the end is allowed).
+   * @return A view with rank @c num_dim() + 1.
+   * @throws std::out_of_range if @p dim is out of the valid range.
+   */
+  [[nodiscard]] Tensor unsqueeze(idx_t dim) const;
+
+  /**
    * @brief Computes the matrix product of two 2-D tensors.
    * @param other The right-hand matrix operand.
    * @return The resulting matrix product.

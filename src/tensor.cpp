@@ -273,6 +273,27 @@ Tensor Tensor::flatten() const {
   return reshape(flat_shape);
 }
 
+Tensor Tensor::unsqueeze(idx_t dim) const {
+  if (dim < 0 || dim > num_dim()) {
+    throw std::out_of_range(
+        std::format("Cannot unsqueeze: dimension {} out of range for tensor "
+                    "with {} dimensions (valid range: 0 to {})",
+                    dim,
+                    num_dim(),
+                    num_dim()));
+  }
+
+  std::vector<idx_t> new_shape = shape_;
+  std::vector<idx_t> new_stride = stride_;
+
+  new_shape.insert(new_shape.begin() + dim, 1);
+  const idx_t inserted_stride =
+      (dim < num_dim()) ? shape_[dim] * stride_[dim] : 1;
+  new_stride.insert(new_stride.begin() + dim, inserted_stride);
+
+  return {data_, new_shape, new_stride, offset_};
+}
+
 Tensor Tensor::matmul(const Tensor& other) const {
   if (num_dim() != 2 || other.num_dim() != 2) {
     throw std::out_of_range(std::format(
