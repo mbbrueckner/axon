@@ -469,10 +469,15 @@ Tensor Tensor::sum(idx_t dim, bool keep_dim) const {
   if (input_meta != nullptr) {
     auto meta = std::make_shared<AutogradMeta>(result.shape());
     meta->grad_fn_ = std::make_shared<GradFn>();
-    meta->grad_fn_->backward =
-        [input_meta, input_shape = shape_](const Tensor& grad_output) {
-          if (input_meta) *input_meta->grad += ones(input_shape) * grad_output;
-        };
+    meta->grad_fn_->backward = [input_meta,
+                                input_shape = shape_,
+                                dim,
+                                keep_dim](const Tensor& grad_output) {
+      if (input_meta) {
+        const Tensor grad = keep_dim ? grad_output : grad_output.unsqueeze(dim);
+        *input_meta->grad += ones(input_shape) * grad;
+      }
+    };
     meta->grad_fn_->inputs = {input_meta};
     result.autograd_meta_ = meta;
   }
