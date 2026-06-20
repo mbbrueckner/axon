@@ -6,6 +6,7 @@
  */
 
 #include "../include/axon/tensor.hpp"
+#include "../src/utils.hpp"
 #include "catch2/catch_all.hpp"
 
 TEST_CASE("Autograd mul backward", "[AutoGrad]") {
@@ -77,6 +78,39 @@ TEST_CASE("Autograd sum backward", "[AutoGrad]") {
   REQUIRE(t.grad().at({0, 1}) == 1.0f);
   REQUIRE(t.grad().at({1, 0}) == 1.0f);
   REQUIRE(t.grad().at({1, 1}) == 1.0f);
+}
+
+TEST_CASE("Autograd sum(dim, keep_dim) backward", "[AutoGradSumDim]") {
+  axon::Tensor t =
+      axon::Tensor::from_data({1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f}, {2, 3});
+  t.requires_grad_(true);
+
+  SECTION("keep_dim = true") {
+    axon::Tensor z = t.sum(1, true);
+    z.backward();
+
+    axon::Tensor grad = t.grad();
+    for (int i = 0; i < grad.num_elements(); ++i) {
+      std::vector<axon::idx_t> idx =
+          axon::utils::flat_to_indices(i, grad.shape());
+      REQUIRE(grad.at(idx) == 1.0f);
+    }
+  }
+
+  SECTION("keep_dim = false") {
+    axon::Tensor t2 =
+        axon::Tensor::from_data({1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f}, {2, 3});
+    t2.requires_grad_(true);
+    axon::Tensor z = t2.sum(1, false);
+    z.backward();
+
+    axon::Tensor grad = t2.grad();
+    for (int i = 0; i < grad.num_elements(); ++i) {
+      std::vector<axon::idx_t> idx =
+          axon::utils::flat_to_indices(i, grad.shape());
+      REQUIRE(grad.at(idx) == 1.0f);
+    }
+  }
 }
 
 TEST_CASE("Autograd exp backward", "[AutoGrad]") {
