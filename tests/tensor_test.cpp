@@ -43,7 +43,7 @@ TEST_CASE("Tensor with given data", "[Tensor]") {
   }
 }
 
-TEST_CASE("Tensor with no metching data and shape size", "[Tensor]") {
+TEST_CASE("Tensor with no matching data and shape size", "[Tensor]") {
   REQUIRE_THROWS_AS(axon::Tensor::from_data({1, 2, 3, 4}, {1, 5}),
                     std::out_of_range);
 }
@@ -428,6 +428,29 @@ TEST_CASE("Tensor max", "[Tensor]") {
 TEST_CASE("Tensor sum", "[Tensor]") {
   const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   REQUIRE(t.sum().at({0}) == 21.0f);
+}
+
+TEST_CASE("Tensor sum(dim, keep_dim) returns expected output", "[Tensor]") {
+  /*
+   * 1  2  3
+   * 4  5  6
+   *
+   */
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  SECTION("keep_dim = true") {
+    axon::Tensor result = t.sum(1, true);
+    std::vector<axon::idx_t> expected_shape{2, 1};
+    REQUIRE(result.shape() == expected_shape);
+    REQUIRE(result[0][0].item() == 6.0f);
+    REQUIRE(result[1][0].item() == 15.0f);
+  }
+  SECTION("keep_dim = false") {
+    axon::Tensor result = t.sum(1, false);
+    std::vector<axon::idx_t> expected_shape{2};
+    REQUIRE(result.shape() == expected_shape);
+    REQUIRE(result[0].item() == 6.0f);
+    REQUIRE(result[1].item() == 15.0f);
+  }
 }
 
 TEST_CASE("Tensor mean", "[Tensor]") {
