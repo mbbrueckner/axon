@@ -415,6 +415,49 @@ Tensor Tensor::sum() const {
   return result;
 }
 
+Tensor Tensor::sum(idx_t dim, bool keep_dim) const {
+  std::vector<idx_t> output_shape = shape_;
+
+  if (keep_dim)
+    output_shape[dim] = 1;
+  else
+    output_shape.erase(output_shape.begin() + dim);
+
+  const std::vector<idx_t> output_stride = calculate_strides(output_shape);
+  const idx_t output_elements = std::accumulate(
+      output_shape.begin(), output_shape.end(), idx_t{1}, std::multiplies<>());
+  std::vector<float> new_data(output_elements, 0.0f);
+
+  for (idx_t i = 0; i < num_elements(); i++) {
+    std::vector<idx_t> idx = utils::flat_to_indices(i, shape_);
+
+    std::vector<idx_t> output_idx = idx;
+    if (keep_dim) {
+      output_idx[dim] = 0;
+    } else {
+      output_idx.erase(output_idx.begin() + dim);
+    }
+
+    idx_t output_flat = std::inner_product(
+        output_idx.begin(), output_idx.end(), output_stride.begin(), 0.0);
+    new_data[output_flat] += at(idx);
+  }
+
+  Tensor result(new_data, output_shape);
+  auto input_meta = autograd_meta_;
+  if (input_meta != nullptr) {
+    auto meta = std::make_shared<AutogradMeta>(result.shape());
+    meta->grad_fn_ = std::make_shared<GradFn>();
+    meta->grad_fn_->backward =
+        [input_meta, input_shape = shape_](const Tensor& grad_output) {
+          if (input_meta) *input_meta->grad += ones(input_shape) * grad_output;
+        };
+    meta->grad_fn_->inputs = {input_meta};
+    result.autograd_meta_ = meta;
+  }
+  return result;
+}
+
 Tensor Tensor::mean() const {
   return sum() / static_cast<float>(num_elements());
 }

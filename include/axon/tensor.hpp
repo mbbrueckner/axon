@@ -262,6 +262,16 @@ class axon::Tensor {
   [[nodiscard]] float max() const;
   /// @return The sum of all element values.
   [[nodiscard]] Tensor sum() const;
+
+  /**
+   * @brief Sums elements along a single dimension.
+   * @param dim The dimension to reduce.
+   * @param keep_dim If true, the reduced dimension is kept with size 1;
+   *        otherwise it is removed from the result shape.
+   * @return A tensor with @p dim reduced, summing all elements along it.
+   * @throws std::out_of_range if @p dim is out of range for this tensor's rank.
+   */
+  [[nodiscard]] Tensor sum(idx_t dim, bool keep_dim = true) const;
   /// @return The arithmetic mean of all element values.
   [[nodiscard]] Tensor mean() const;
   /// @return The float-value of zero-dimensional Tensor.
