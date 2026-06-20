@@ -174,7 +174,7 @@ Tensor Tensor::operator[](idx_t idx) const {
                     idx));
   }
 
-  const idx_t new_offset = idx * (stride_[0]);
+  const idx_t new_offset = offset_ + idx * stride_[0];
   const std::vector<idx_t> new_shape(shape_.begin() + 1, shape_.end());
   const std::vector<idx_t> new_stride(stride_.begin() + 1, stride_.end());
   return {data_, new_shape, new_stride, new_offset};
