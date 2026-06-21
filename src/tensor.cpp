@@ -19,6 +19,24 @@
 #include "axon/constants.hpp"
 #include "utils.hpp"
 
+namespace {
+axon::Tensor reduce_grad_to_shape(
+    axon::Tensor grad, const std::vector<axon::idx_t>& target_shape) {
+  while (grad.num_dim() > static_cast<axon::idx_t>(target_shape.size())) {
+    grad = grad.sum(0, false);
+  }
+
+  for (axon::idx_t i = 0; i < static_cast<axon::idx_t>(target_shape.size());
+       i++) {
+    if (target_shape[i] == 1 && grad.shape()[i] != 1) {
+      grad = grad.sum(i, true);
+    }
+  }
+
+  return grad;
+}
+}  // namespace
+
 namespace axon {
 Tensor::Tensor(std::shared_ptr<std::vector<float>> data,
                std::vector<idx_t> shape,
@@ -707,8 +725,10 @@ Tensor operator+(const Tensor& lhs, const Tensor& rhs) {
     meta->grad_fn_ = std::make_shared<GradFn>();
     meta->grad_fn_->backward =
         [lhs_meta, rhs_meta, lhs, rhs](const Tensor& grad_output) {
-          if (lhs_meta) *lhs_meta->grad += grad_output;
-          if (rhs_meta) *rhs_meta->grad += grad_output;
+          if (lhs_meta)
+            *lhs_meta->grad += reduce_grad_to_shape(grad_output, lhs.shape());
+          if (rhs_meta)
+            *rhs_meta->grad += reduce_grad_to_shape(grad_output, rhs.shape());
         };
     std::vector<std::shared_ptr<AutogradMeta>> inputs;
     if (lhs_meta) inputs.push_back(lhs_meta);
@@ -757,8 +777,10 @@ Tensor operator-(const Tensor& lhs, const Tensor& rhs) {
     meta->grad_fn_ = std::make_shared<GradFn>();
     meta->grad_fn_->backward =
         [lhs_meta, rhs_meta, lhs, rhs](const Tensor& grad_output) {
-          if (lhs_meta) *lhs_meta->grad += grad_output;
-          if (rhs_meta) *rhs_meta->grad -= grad_output;
+          if (lhs_meta)
+            *lhs_meta->grad += reduce_grad_to_shape(grad_output, lhs.shape());
+          if (rhs_meta)
+            *rhs_meta->grad -= reduce_grad_to_shape(grad_output, rhs.shape());
         };
     std::vector<std::shared_ptr<AutogradMeta>> inputs;
     if (lhs_meta) inputs.push_back(lhs_meta);
@@ -805,11 +827,14 @@ Tensor operator*(const Tensor& lhs, const Tensor& rhs) {
   if (lhs_meta != nullptr || rhs_meta != nullptr) {
     auto meta = std::make_shared<AutogradMeta>(result.shape());
     meta->grad_fn_ = std::make_shared<GradFn>();
-    meta->grad_fn_->backward =
-        [lhs_meta, rhs_meta, lhs, rhs](const Tensor& grad_output) {
-          if (lhs_meta) *lhs_meta->grad += rhs * grad_output;
-          if (rhs_meta) *rhs_meta->grad += lhs * grad_output;
-        };
+    meta->grad_fn_->backward = [lhs_meta, rhs_meta, lhs, rhs](
+                                   const Tensor& grad_output) {
+      if (lhs_meta)
+        *lhs_meta->grad += reduce_grad_to_shape(rhs * grad_output, lhs.shape());
+      if (rhs_meta)
+        *rhs_meta->grad += reduce_grad_to_shape(lhs * grad_output, rhs.shape());
+    };
+
     std::vector<std::shared_ptr<AutogradMeta>> inputs;
     if (lhs_meta) inputs.push_back(lhs_meta);
     if (rhs_meta) inputs.push_back(rhs_meta);
@@ -855,11 +880,15 @@ Tensor operator/(const Tensor& lhs, const Tensor& rhs) {
   if (lhs_meta != nullptr || rhs_meta != nullptr) {
     auto meta = std::make_shared<AutogradMeta>(result.shape());
     meta->grad_fn_ = std::make_shared<GradFn>();
-    meta->grad_fn_->backward =
-        [lhs_meta, rhs_meta, lhs, rhs](const Tensor& grad_output) {
-          if (lhs_meta) *lhs_meta->grad += grad_output / rhs;
-          if (rhs_meta) *rhs_meta->grad += -lhs / (rhs * rhs) * grad_output;
-        };
+    meta->grad_fn_->backward = [lhs_meta, rhs_meta, lhs, rhs](
+                                   const Tensor& grad_output) {
+      if (lhs_meta)
+        *lhs_meta->grad += reduce_grad_to_shape(grad_output / rhs, lhs.shape());
+      if (rhs_meta)
+        *rhs_meta->grad +=
+            reduce_grad_to_shape(-lhs / (rhs * rhs) * grad_output, rhs.shape());
+    };
+    
     std::vector<std::shared_ptr<AutogradMeta>> inputs;
     if (lhs_meta) inputs.push_back(lhs_meta);
     if (rhs_meta) inputs.push_back(rhs_meta);
