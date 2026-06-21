@@ -10,6 +10,7 @@
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <cmath>
+#include <iostream>
 
 TEST_CASE("Tensor with given data", "[Tensor]") {
   const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
@@ -175,6 +176,30 @@ TEST_CASE("Reshape non-contiguous Tensor", "[Tensor]") {
 TEST_CASE("Reshape Tensor with non-matching size", "[Tensor]") {
   const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   REQUIRE_THROWS_AS(t.reshape({7}), std::out_of_range);
+}
+
+TEST_CASE("Unsqueeze produces expected output", "[Tensor]") {
+  const axon::Tensor t = axon::Tensor::from_data({1.0f, 2.0f, 3.0f}, {3});
+
+  const axon::Tensor t_unsqueezed_0 = t.unsqueeze(0);
+  std::vector<axon::idx_t> expected_shape = {1, 3};
+  REQUIRE(t_unsqueezed_0.shape() == expected_shape);
+  REQUIRE(t_unsqueezed_0[0][0].item() == 1.0f);
+  REQUIRE(t_unsqueezed_0[0][1].item() == 2.0f);
+  REQUIRE(t_unsqueezed_0[0][2].item() == 3.0f);
+
+  const axon::Tensor t_unsqueezed_1 = t.unsqueeze(1);
+  expected_shape = {3, 1};
+  REQUIRE(t_unsqueezed_1.shape() == expected_shape);
+  REQUIRE(t_unsqueezed_1[0][0].item() == 1.0f);
+  REQUIRE(t_unsqueezed_1[1][0].item() == 2.0f);
+  REQUIRE(t_unsqueezed_1[2][0].item() == 3.0f);
+}
+
+TEST_CASE("Unsqueeze out of range throws", "[Tensor]") {
+  const axon::Tensor t = axon::Tensor::from_data({1.0f, 2.0f, 3.0f}, {3});
+  REQUIRE_THROWS_AS(t.unsqueeze(-1), std::out_of_range);
+  REQUIRE_THROWS_AS(t.unsqueeze(2), std::out_of_range);
 }
 
 TEST_CASE("Elementwise Tensor addition", "[Tensor]") {
@@ -431,11 +456,6 @@ TEST_CASE("Tensor sum", "[Tensor]") {
 }
 
 TEST_CASE("Tensor sum(dim, keep_dim) returns expected output", "[Tensor]") {
-  /*
-   * 1  2  3
-   * 4  5  6
-   *
-   */
   const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   SECTION("keep_dim = true") {
     axon::Tensor result = t.sum(1, true);
