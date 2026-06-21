@@ -9,6 +9,7 @@
 #include <functional>
 #include <iostream>
 
+#include "axon/functional.hpp"
 #include "axon/tensor.hpp"
 #include "catch2/catch_all.hpp"
 
@@ -125,5 +126,11 @@ TEST_CASE("Gradient check", "[GradCheck]") {
     axon::Tensor x2 = axon::Tensor::from_data({1.0f, 2.0f, 3.0f, 4.0f}, {2, 2});
     auto f = [](axon::Tensor x) { return x.matmul(x); };
     REQUIRE(grad_check(f, x2, 1e-2f, 1e-2f));
+  }
+
+  SECTION("softmax") {
+    axon::Tensor x2 = axon::Tensor::from_data({1.0f, 2.0f, 3.0f}, {1, 3});
+    auto f = [](axon::Tensor x) { return axon::softmax(x); };
+    REQUIRE(grad_check(f, x2, 1e-3f, 1e-2f));
   }
 }
