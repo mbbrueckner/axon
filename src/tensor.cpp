@@ -342,10 +342,19 @@ Tensor Tensor::matmul(const Tensor& other) const {
 }
 
 Tensor Tensor::log() const {
-  std::vector<float> new_data = (*data_);
+  std::vector<float> new_data(num_elements());
 
-  std::ranges::transform(
-      new_data, new_data.begin(), [](float x) { return std::log(x); });
+  if (is_contiguous()) {
+    std::ranges::transform(data_->begin() + offset_,
+                           data_->begin() + offset_ + num_elements(),
+                           new_data.begin(),
+                           [](float x) { return std::log(x); });
+  } else {
+    for (idx_t i = 0; i < num_elements(); i++) {
+      new_data[i] = std::log(at(utils::flat_to_indices(i, shape_)));
+    }
+  }
+
   Tensor result{new_data, shape_};
   auto input_meta = autograd_meta_;
   if (input_meta != nullptr) {
@@ -362,10 +371,19 @@ Tensor Tensor::log() const {
 }
 
 Tensor Tensor::exp() const {
-  std::vector<float> new_data = (*data_);
+  std::vector<float> new_data(num_elements());
 
-  std::ranges::transform(
-      new_data, new_data.begin(), [](float x) { return std::exp(x); });
+  if (is_contiguous()) {
+    std::ranges::transform(data_->begin() + offset_,
+                           data_->begin() + offset_ + num_elements(),
+                           new_data.begin(),
+                           [](float x) { return std::exp(x); });
+  } else {
+    for (idx_t i = 0; i < num_elements(); i++) {
+      new_data[i] = std::exp(at(utils::flat_to_indices(i, shape_)));
+    }
+  }
+
   Tensor result{new_data, shape_};
   auto input_meta = autograd_meta_;
   if (input_meta != nullptr) {
@@ -381,18 +399,37 @@ Tensor Tensor::exp() const {
 }
 
 Tensor Tensor::abs() const {
-  std::vector<float> new_data = (*data_);
+  std::vector<float> new_data(num_elements());
 
-  std::ranges::transform(
-      new_data, new_data.begin(), [](float x) { return std::abs(x); });
+  if (is_contiguous()) {
+    std::ranges::transform(data_->begin() + offset_,
+                           data_->begin() + offset_ + num_elements(),
+                           new_data.begin(),
+                           [](float x) { return std::abs(x); });
+  } else {
+    for (idx_t i = 0; i < num_elements(); i++) {
+      new_data[i] = std::abs(at(utils::flat_to_indices(i, shape_)));
+    }
+  }
+
   return {new_data, shape_};
 }
 
 Tensor Tensor::relu() const {
-  std::vector<float> new_data = (*data_);
+  std::vector<float> new_data(num_elements());
 
-  std::ranges::transform(
-      new_data, new_data.begin(), [](float x) { return x > 0 ? x : 0; });
+  if (is_contiguous()) {
+    std::ranges::transform(data_->begin() + offset_,
+                           data_->begin() + offset_ + num_elements(),
+                           new_data.begin(),
+                           [](float x) { return x > 0 ? x : 0; });
+  } else {
+    for (idx_t i = 0; i < num_elements(); i++) {
+      const float element = at(utils::flat_to_indices(i, shape_));
+      new_data[i] = element > 0 ? element : 0;
+    }
+  }
+
   Tensor result{new_data, shape_};
   auto input_meta = autograd_meta_;
   if (input_meta != nullptr) {
@@ -401,9 +438,21 @@ Tensor Tensor::relu() const {
     meta->grad_fn_->backward = [input_meta,
                                 input = *this](const Tensor& grad_output) {
       if (input_meta) {
-        std::vector<float> mask = (*input.data_);
-        std::ranges::transform(
-            mask, mask.begin(), [](float x) { return x > 0.0f ? 1.0f : 0.0f; });
+        std::vector<float> mask(input.num_elements());
+
+        if (input.is_contiguous()) {
+          std::ranges::transform(
+              input.data_->begin() + input.offset_,
+              input.data_->begin() + input.offset_ + input.num_elements(),
+              mask.begin(),
+              [](float x) { return x > 0.0f ? 1.0f : 0.0f; });
+        } else {
+          for (idx_t i = 0; i < input.num_elements(); i++) {
+            const float val = input.at(utils::flat_to_indices(i, input.shape_));
+            mask[i] = val > 0.0f ? 1.0f : 0.0f;
+          }
+        }
+
         Tensor mask_tensor{mask, input.shape_};
         *input_meta->grad += mask_tensor * grad_output;
       }
