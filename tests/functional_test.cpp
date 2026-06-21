@@ -7,6 +7,7 @@ TEST_CASE("Softmax produces expected output", "[Functional]") {
   const axon::Tensor t =
       axon::Tensor::from_data({1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f}, {2, 3});
   const axon::Tensor t_softmax = axon::softmax(t);
+
   SECTION("Input shape equals output shape") {
     REQUIRE(t.shape() == t_softmax.shape());
   }
@@ -18,5 +19,12 @@ TEST_CASE("Softmax produces expected output", "[Functional]") {
     REQUIRE(t_softmax.at({1, 0}) == Catch::Approx(0.0900f).margin(0.001));
     REQUIRE(t_softmax.at({1, 1}) == Catch::Approx(0.2447f).margin(0.001));
     REQUIRE(t_softmax.at({1, 2}) == Catch::Approx(0.6652f).margin(0.001));
+  }
+
+  SECTION("Row-sum = 1") {
+    const axon::Tensor sum = t_softmax.sum(1, false);
+    for (axon::idx_t i = 0; i < sum.num_elements(); i++) {
+      REQUIRE(sum[i].item() == Catch::Approx(1.0f));
+    }
   }
 }
