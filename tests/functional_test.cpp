@@ -28,3 +28,17 @@ TEST_CASE("Softmax produces expected output", "[Functional]") {
     }
   }
 }
+
+TEST_CASE("Softmax remains numerically stable for large logits",
+          "[Functional]") {
+  const axon::Tensor t =
+      axon::Tensor::from_data({1000.0f, 1001.0f, 1002.0f}, {1, 3});
+  const axon::Tensor t_softmax = axon::softmax(t);
+
+  for (axon::idx_t i = 0; i < t_softmax.num_elements(); i++) {
+    float val = t_softmax.at({0, i});
+    REQUIRE(std::isfinite(val));
+    REQUIRE(val >= 0.0f);
+    REQUIRE(val <= 1.0f);
+  }
+}
