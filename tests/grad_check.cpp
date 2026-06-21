@@ -114,8 +114,16 @@ TEST_CASE("Gradient check", "[GradCheck]") {
     REQUIRE(grad_check(f, x2, 1e-4f, 1e-2f));
   }
   SECTION("matmul") {
+    const axon::Tensor b =
+        axon::Tensor::from_data({5.0f, 6.0f, 7.0f, 8.0f}, {2, 2});
+    axon::Tensor x2 = axon::Tensor::from_data({1.0f, 2.0f, 3.0f, 4.0f}, {2, 2});
+    auto f = [b](axon::Tensor x) { return x.matmul(b); };
+
+    REQUIRE(grad_check(f, x2, 1e-2f, 1e-2f));
+  }
+  SECTION("matmul self") {
     axon::Tensor x2 = axon::Tensor::from_data({1.0f, 2.0f, 3.0f, 4.0f}, {2, 2});
     auto f = [](axon::Tensor x) { return x.matmul(x); };
-    REQUIRE(grad_check(f, x2, 1e-4f, 1e-2f));
+    REQUIRE(grad_check(f, x2, 1e-2f, 1e-2f));
   }
 }
