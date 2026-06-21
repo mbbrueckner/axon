@@ -414,12 +414,42 @@ Tensor Tensor::relu() const {
   return result;
 }
 
-float Tensor::min() const { return *std::ranges::min_element(*data_); }
+float Tensor::min() const {
+  if (is_contiguous()) {
+    return *std::ranges::min_element(data_->begin() + offset_,
+                                     data_->begin() + offset_ + num_elements());
+  }
+  float result = at(utils::flat_to_indices(0, shape_));
+  for (idx_t i = 1; i < num_elements(); i++) {
+    result = std::min(result, at(utils::flat_to_indices(i, shape_)));
+  }
+  return result;
+}
 
-float Tensor::max() const { return *std::ranges::max_element(*data_); }
+float Tensor::max() const {
+  if (is_contiguous()) {
+    return *std::ranges::max_element(data_->begin() + offset_,
+                                     data_->begin() + offset_ + num_elements());
+  }
+  float result = at(utils::flat_to_indices(0, shape_));
+  for (idx_t i = 1; i < num_elements(); i++) {
+    result = std::max(result, at(utils::flat_to_indices(i, shape_)));
+  }
+  return result;
+}
 
 Tensor Tensor::sum() const {
-  const float total = std::accumulate(data_->begin(), data_->end(), 0.0f);
+  float total;
+  if (is_contiguous()) {
+    total = std::accumulate(data_->begin() + offset_,
+                            data_->begin() + offset_ + num_elements(),
+                            0.0f);
+  } else {
+    total = 0.0f;
+    for (idx_t i = 0; i < num_elements(); i++) {
+      total += at(utils::flat_to_indices(i, shape_));
+    }
+  }
   Tensor result{std::vector<float>{total}, {1}};
   auto input_meta = autograd_meta_;
   if (input_meta != nullptr) {
