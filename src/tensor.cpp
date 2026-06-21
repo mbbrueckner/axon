@@ -888,7 +888,7 @@ Tensor operator/(const Tensor& lhs, const Tensor& rhs) {
         *rhs_meta->grad +=
             reduce_grad_to_shape(-lhs / (rhs * rhs) * grad_output, rhs.shape());
     };
-    
+
     std::vector<std::shared_ptr<AutogradMeta>> inputs;
     if (lhs_meta) inputs.push_back(lhs_meta);
     if (rhs_meta) inputs.push_back(rhs_meta);
