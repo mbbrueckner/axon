@@ -133,4 +133,21 @@ TEST_CASE("Gradient check", "[GradCheck]") {
     auto f = [](axon::Tensor x) { return axon::softmax(x); };
     REQUIRE(grad_check(f, x2, 1e-3f, 1e-2f));
   }
+
+  SECTION("log_softmax") {
+    axon::Tensor x = axon::Tensor::from_data({1.0f, 2.0f, 3.0f}, {1, 3});
+    auto f = [](axon::Tensor x) { return axon::log_softmax(x); };
+    REQUIRE(grad_check(f, x, 1e-3f, 1e-2f));
+  }
+
+  SECTION("cross_entropy_loss") {
+    axon::Tensor logits =
+        axon::Tensor::from_data({2.0f, 1.0f, 0.1f, 0.5f, 2.0f, 0.3f}, {2, 3});
+    axon::Tensor targets =
+        axon::Tensor::from_data({1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f}, {2, 3});
+    auto f = [&targets](axon::Tensor x) {
+      return axon::cross_entropy_loss(x, targets);
+    };
+    REQUIRE(grad_check(f, logits, 1e-3f, 1e-2f));
+  }
 }
