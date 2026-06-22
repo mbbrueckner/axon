@@ -80,3 +80,30 @@ TEST_CASE("Log softmax remains numerically stable for large logits",
     REQUIRE(std::isfinite(val));
   }
 }
+
+TEST_CASE("Cross entropy loss", "[Functional]") {
+  SECTION("Output is scalar") {
+    axon::Tensor logits =
+        axon::Tensor::from_data({2.0f, 1.0f, 0.1f, 0.5f, 2.0f, 0.3f}, {2, 3});
+    axon::Tensor targets =
+        axon::Tensor::from_data({1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f}, {2, 3});
+    axon::Tensor loss = axon::cross_entropy_loss(logits, targets);
+    REQUIRE(loss.num_elements() == 1);
+  }
+
+  SECTION("Known value") {
+    // log_softmax([2, 1, 0.1]) ≈ [-0.4170, -1.4170, -2.3170]
+    // targets = [1, 0, 0] → loss = 0.4170
+    axon::Tensor logits = axon::Tensor::from_data({2.0f, 1.0f, 0.1f}, {1, 3});
+    axon::Tensor targets = axon::Tensor::from_data({1.0f, 0.0f, 0.0f}, {1, 3});
+    axon::Tensor loss = axon::cross_entropy_loss(logits, targets);
+    REQUIRE(loss.item() == Catch::Approx(0.4170f).margin(0.001f));
+  }
+
+  SECTION("Uniform logits → loss = log(num_classes)") {
+    axon::Tensor logits = axon::Tensor::from_data({0.0f, 0.0f, 0.0f}, {1, 3});
+    axon::Tensor targets = axon::Tensor::from_data({1.0f, 0.0f, 0.0f}, {1, 3});
+    axon::Tensor loss = axon::cross_entropy_loss(logits, targets);
+    REQUIRE(loss.item() == Catch::Approx(std::log(3.0f)).margin(0.001f));
+  }
+}
