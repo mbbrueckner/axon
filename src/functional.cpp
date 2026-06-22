@@ -34,4 +34,8 @@ Tensor log_softmax(const Tensor& logits) {
   return shifted - sum_tensor.log();
 }
 
+Tensor cross_entropy_loss(const Tensor& logits, const Tensor& targets) {
+  return -(targets * log_softmax(logits)).sum(1, false).mean();
+}
+
 }  // namespace axon
