@@ -6,7 +6,7 @@ A neural network library from scratch in C++.
 
 - [X] Tensor class
 - [X] Autograd
-- [ ] Modules
+- [X] basic Modules
 - [ ] Model
 - [ ] Optimizers
 - [ ] Training loop
