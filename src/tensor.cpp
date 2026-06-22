@@ -739,24 +739,6 @@ Tensor operator+(const Tensor& lhs, const Tensor& rhs) {
   return result;
 }
 
-Tensor operator+(const float sclr, const Tensor& tnsr) {
-  std::vector<float> new_data(tnsr.num_elements());
-  const idx_t tnsr_elements = tnsr.num_elements();
-
-  if (tnsr.is_contiguous()) {
-    std::ranges::transform(tnsr.data_->begin() + tnsr.offset_,
-                           tnsr.data_->begin() + tnsr.offset_ + tnsr_elements,
-                           new_data.begin(),
-                           [sclr](float x) { return sclr + x; });
-  } else {
-    for (idx_t i = 0; i < tnsr_elements; i++) {
-      new_data[i] = tnsr.at(utils::flat_to_indices(i, tnsr.shape_)) + sclr;
-    }
-  }
-
-  return {new_data, tnsr.shape_};
-}
-
 Tensor operator-(const Tensor& lhs, const Tensor& rhs) {
   auto [a, b] = broadcast(lhs, rhs);
 
@@ -791,22 +773,32 @@ Tensor operator-(const Tensor& lhs, const Tensor& rhs) {
   return result;
 }
 
-Tensor operator-(const float sclr, const Tensor& tnsr) {
-  std::vector<float> new_data(tnsr.num_elements());
-  const idx_t tnsr_elements = tnsr.num_elements();
+Tensor Tensor::operator-() const {
+  std::vector<float> new_data(num_elements());
 
-  if (tnsr.is_contiguous()) {
-    std::ranges::transform(tnsr.data_->begin() + tnsr.offset_,
-                           tnsr.data_->begin() + tnsr.offset_ + tnsr_elements,
+  if (is_contiguous()) {
+    std::ranges::transform(data_->begin() + offset_,
+                           data_->begin() + offset_ + num_elements(),
                            new_data.begin(),
-                           [sclr](float x) { return sclr - x; });
+                           [](float x) { return -x; });
   } else {
-    for (idx_t i = 0; i < tnsr_elements; i++) {
-      new_data[i] = sclr - tnsr.at(utils::flat_to_indices(i, tnsr.shape_));
+    for (idx_t i = 0; i < num_elements(); i++) {
+      new_data[i] = -at(utils::flat_to_indices(i, shape_));
     }
   }
 
-  return {new_data, tnsr.shape_};
+  Tensor result{new_data, shape_};
+  auto input_meta = autograd_meta_;
+  if (input_meta != nullptr) {
+    auto meta = std::make_shared<AutogradMeta>(result.shape());
+    meta->grad_fn_ = std::make_shared<GradFn>();
+    meta->grad_fn_->backward = [input_meta, result](const Tensor& grad_output) {
+      if (input_meta) *input_meta->grad -= grad_output;
+    };
+    meta->grad_fn_->inputs = {input_meta};
+    result.autograd_meta_ = meta;
+  }
+  return result;
 }
 
 Tensor operator*(const Tensor& lhs, const Tensor& rhs) {
@@ -844,24 +836,6 @@ Tensor operator*(const Tensor& lhs, const Tensor& rhs) {
   return result;
 }
 
-Tensor operator*(const float sclr, const Tensor& tnsr) {
-  std::vector<float> new_data(tnsr.num_elements());
-  const idx_t tnsr_elements = tnsr.num_elements();
-
-  if (tnsr.is_contiguous()) {
-    std::ranges::transform(tnsr.data_->begin() + tnsr.offset_,
-                           tnsr.data_->begin() + tnsr.offset_ + tnsr_elements,
-                           new_data.begin(),
-                           [sclr](float x) { return sclr * x; });
-  } else {
-    for (idx_t i = 0; i < tnsr_elements; i++) {
-      new_data[i] = sclr * tnsr.at(utils::flat_to_indices(i, tnsr.shape_));
-    }
-  }
-
-  return {new_data, tnsr.shape_};
-}
-
 Tensor operator/(const Tensor& lhs, const Tensor& rhs) {
   auto [a, b] = broadcast(lhs, rhs);
 
@@ -896,24 +870,6 @@ Tensor operator/(const Tensor& lhs, const Tensor& rhs) {
     result.autograd_meta_ = meta;
   }
   return result;
-}
-
-Tensor operator/(const float sclr, const Tensor& tnsr) {
-  std::vector<float> new_data(tnsr.num_elements());
-  const idx_t tnsr_elements = tnsr.num_elements();
-
-  if (tnsr.is_contiguous()) {
-    std::ranges::transform(tnsr.data_->begin() + tnsr.offset_,
-                           tnsr.data_->begin() + tnsr.offset_ + tnsr_elements,
-                           new_data.begin(),
-                           [sclr](float x) { return sclr / x; });
-  } else {
-    for (idx_t i = 0; i < tnsr_elements; i++) {
-      new_data[i] = sclr / tnsr.at(utils::flat_to_indices(i, tnsr.shape_));
-    }
-  }
-
-  return {new_data, tnsr.shape_};
 }
 
 }  // namespace axon

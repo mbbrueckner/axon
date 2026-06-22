@@ -347,10 +347,12 @@ class axon::Tensor {
    */
   friend Tensor operator+(const Tensor& lhs, const Tensor& rhs);
   /// @brief Adds a scalar to every element of a tensor.
-  friend Tensor operator+(const float sclr, const Tensor& tnsr);
+  friend Tensor operator+(const float sclr, const Tensor& tnsr) {
+    return tnsr + Tensor::from_data({sclr}, {1});
+  }
   /// @brief Adds a scalar to every element of a tensor.
   friend Tensor operator+(const Tensor& tnsr, const float sclr) {
-    return sclr + tnsr;
+    return Tensor::from_data({sclr}, {1}) + tnsr;
   }
 
   /**
@@ -370,13 +372,15 @@ class axon::Tensor {
    */
   friend Tensor operator-(const Tensor& lhs, const Tensor& rhs);
   /// @brief Subtracts a scalar from every element of a tensor.
-  friend Tensor operator-(const float sclr, const Tensor& tnsr);
+  friend Tensor operator-(const float sclr, const Tensor& tnsr) {
+    return Tensor::from_data({sclr}, {1}) - tnsr;
+  }
   /// @brief Subtracts a scalar from every element of a tensor.
   friend Tensor operator-(const Tensor& tnsr, const float sclr) {
-    return -sclr + tnsr;
+    return tnsr - Tensor::from_data({sclr}, {1});
   }
   /// @brief negates all data elements of a tensor.
-  Tensor operator-() const { return -1.0f * (*this); }
+  Tensor operator-() const;
 
   /**
    * @brief Elementwise in-place substraction of another tensor of identical
@@ -396,10 +400,12 @@ class axon::Tensor {
    */
   friend Tensor operator*(const Tensor& lhs, const Tensor& rhs);
   /// @brief Multiplies every element of a tensor by a scalar.
-  friend Tensor operator*(const float sclr, const Tensor& tnsr);
+  friend Tensor operator*(const float sclr, const Tensor& tnsr) {
+    return tnsr * Tensor::from_data({sclr}, {1});
+  }
   /// @brief Multiplies every element of a tensor by a scalar.
   friend Tensor operator*(const Tensor& tnsr, const float sclr) {
-    return sclr * tnsr;
+    return Tensor::from_data({sclr}, {1}) * tnsr;
   }
 
   /**
@@ -408,9 +414,11 @@ class axon::Tensor {
    */
   friend Tensor operator/(const Tensor& lhs, const Tensor& rhs);
   /// @brief Divides a scalar by every element of a tensor.
-  friend Tensor operator/(const float sclr, const Tensor& tnsr);
+  friend Tensor operator/(const float sclr, const Tensor& tnsr) {
+    return Tensor::from_data({sclr}, {1}) / tnsr;
+  }
   /// @brief Divides every element of a tensor by a scalar.
   friend Tensor operator/(const Tensor& tnsr, const float sclr) {
-    return tnsr * (1.0f / sclr);
+    return tnsr / Tensor::from_data({sclr}, {1});
   }
 };
