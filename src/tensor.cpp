@@ -136,6 +136,19 @@ Tensor Tensor::shared_autograd_copy() const {
   copy.autograd_meta_ = autograd_meta_;
   return copy;
 }
+std::vector<float> Tensor::data() const {
+  return {data_->begin() + offset_, data_->begin() + offset_ + num_elements()};
+}
+
+void Tensor::set_data(const std::vector<float>& new_data) const {
+  if (new_data.size() != num_elements()) {
+    throw std::out_of_range(
+        std::format("set_data: size mismatch: got {} elements, expected {}",
+                    new_data.size(),
+                    num_elements()));
+  }
+  std::ranges::copy(new_data, data_->begin() + offset_);
+}
 
 void Tensor::requires_grad_(bool requires_grad) {
   if (requires_grad) {

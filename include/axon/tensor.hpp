@@ -120,7 +120,7 @@ class axon::Tensor {
 
   ///@brief Copy-constructs a Tensor, sharing the underlying storage.
   /// @note The new Tensor shares the autograd history.
-  Tensor shared_autograd_copy() const;
+  [[nodiscard]] Tensor shared_autograd_copy() const;
 
   /// @return The size of the tensor along each dimension.
   [[nodiscard]] const std::vector<idx_t>& shape() const { return shape_; };
@@ -128,6 +128,29 @@ class axon::Tensor {
   [[nodiscard]] const std::vector<idx_t>& stride() const { return stride_; };
   /// @return The flat offset of the first element within the data buffer.
   [[nodiscard]] idx_t offset() const { return offset_; };
+
+  /**
+   * @brief Returns a copy of the tensor's elements as a flat vector.
+   *
+   * The returned vector contains exactly @c num_elements() values in
+   * row-major order, regardless of whether the tensor is contiguous.
+   *
+   * @return A flat copy of the tensor's data.
+   */
+  [[nodiscard]] std::vector<float> data() const;
+
+  /**
+   * @brief Overwrites the tensor's elements in-place without replacing
+   *        the underlying storage.
+   *
+   * Writes @p new_data directly into the shared data buffer, so all views
+   * and copies that share the same storage (e.g. optimizer parameter copies
+   * created via @c shared_autograd_copy()) see the updated values immediately.
+   *
+   * @param new_data Flat replacement values in row-major order.
+   * @throws std::out_of_range if @p new_data.size() != num_elements().
+   */
+  void set_data(const std::vector<float>& new_data) const;
 
   /// @return The number of dimensions (rank) of the tensor.
   [[nodiscard]] idx_t num_dim() const { return shape_.size(); };
