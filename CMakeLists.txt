@@ -16,6 +16,7 @@ add_library(axon STATIC
         src/modules/relu.cpp
         src/modules/sequential.cpp
         src/functional.cpp
+        src/optimizers/sgd.cpp
         include/axon/modules/module.hpp
         include/axon/modules/linear.hpp
         include/axon/modules/relu.hpp
