@@ -11,7 +11,7 @@
 
 #include "tensor.hpp"
 
-namespace axon {
+namespace axon::optimizer {
 class Optimizer;
 }
 
@@ -30,7 +30,7 @@ class Optimizer;
  * optimizer.step();
  * @endcode
  */
-class axon::Optimizer {
+class axon::optimizer::Optimizer {
  protected:
   /// @brief The trainable parameters managed by this optimizer.
   std::vector<Tensor> params_;
