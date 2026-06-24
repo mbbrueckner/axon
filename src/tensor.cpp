@@ -141,7 +141,7 @@ std::vector<float> Tensor::data() const {
 }
 
 void Tensor::set_data(const std::vector<float>& new_data) const {
-  if (new_data.size() != num_elements()) {
+  if (static_cast<idx_t>(new_data.size()) != num_elements()) {
     throw std::out_of_range(
         std::format("set_data: size mismatch: got {} elements, expected {}",
                     new_data.size(),
