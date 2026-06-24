@@ -21,7 +21,7 @@ add_library(axon STATIC
         include/axon/modules/relu.hpp
         include/axon/modules/sequential.hpp
         include/axon/functional.hpp
-        src/functional.cpp
+        include/axon/optimizers/sgd.hpp
 )
 
 target_include_directories(axon
