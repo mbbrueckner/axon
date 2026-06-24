@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+#include "axon/constants.hpp"
+
 /// @brief General-purpose helper utilities.
 namespace axon::utils {
 
