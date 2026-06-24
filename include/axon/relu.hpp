@@ -1,6 +1,6 @@
 /**
  * @file relu.hpp
- * @brief Declaration of the axon::ReLU module, an activation layer
+ * @brief Declaration of the axon::nn::ReLU module, an activation layer
  *        applying the Rectified Linear Unit (ReLU).
  * @author Mika Brückner
  * @date 2026-06-17
@@ -10,7 +10,7 @@
 
 #include "axon/module.hpp"
 
-namespace axon {
+namespace axon::nn {
 class ReLU;
 }
 
@@ -20,7 +20,7 @@ class ReLU;
  * Applies the Rectified Linear Unit elementwise: @c f(x) = max(0, x).
  * Has no learnable parameters.
  */
-class axon::ReLU : public Module {
+class axon::nn::ReLU : public Module {
  public:
   /**
    * @brief Applies ReLU elementwise to the input.

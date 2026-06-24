@@ -1,6 +1,6 @@
 /**
  * @file linear.hpp
- * @brief Declaration of the axon::Linear module, a fully connected layer
+ * @brief Declaration of the axon::nn::Linear module, a fully connected layer
  *        applying an affine transformation @c y = x * W + b.
  * @author Mika Brückner
  * @date 2026-06-17
@@ -14,7 +14,7 @@
 #include "axon/module.hpp"
 #include "axon/tensor.hpp"
 
-namespace axon {
+namespace axon::nn {
 class Linear;
 }
 
@@ -24,7 +24,7 @@ class Linear;
  * Applies an affine transformation to the input tensor: @c y = x * W + b,
  * where @c W is a learnable weight matrix and @c b a learnable bias vector.
  */
-class axon::Linear : public Module {
+class axon::nn::Linear : public Module {
  public:
   /**
    * @brief Constructs a linear layer with the given dimensions.

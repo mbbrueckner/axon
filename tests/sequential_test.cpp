@@ -1,6 +1,6 @@
 /**
  * @file sequential_test.cpp
- * @brief Unit tests for the axon::Sequential module container.
+ * @brief Unit tests for the axon::nn::Sequential module container.
  * @author Mika Brückner
  * @date 2026-06-19
  */
@@ -14,11 +14,11 @@
 
 TEST_CASE("Sequential forward produces the expected output shape",
           "[Sequential]") {
-  std::vector<std::unique_ptr<axon::Module>> modules;
-  modules.push_back(std::make_unique<axon::Linear>(2, 4));
-  modules.push_back(std::make_unique<axon::ReLU>());
-  modules.push_back(std::make_unique<axon::Linear>(4, 1));
-  axon::Sequential sequential(std::move(modules));
+  std::vector<std::unique_ptr<axon::nn::Module>> modules;
+  modules.push_back(std::make_unique<axon::nn::Linear>(2, 4));
+  modules.push_back(std::make_unique<axon::nn::ReLU>());
+  modules.push_back(std::make_unique<axon::nn::Linear>(4, 1));
+  axon::nn::Sequential sequential(std::move(modules));
 
   const std::vector<axon::idx_t> input_shape{2, 2};
   axon::Tensor input =
@@ -30,14 +30,14 @@ TEST_CASE("Sequential forward produces the expected output shape",
 }
 
 TEST_CASE("Sequential forward produces the expected output", "[Sequential]") {
-  axon::Linear linear_first{2, 4};
-  axon::Linear linear_second{4, 1};
-  axon::ReLU relu{};
-  std::vector<std::unique_ptr<axon::Module>> modules;
-  modules.push_back(std::make_unique<axon::Linear>(linear_first));
-  modules.push_back(std::make_unique<axon::ReLU>(relu));
-  modules.push_back(std::make_unique<axon::Linear>(linear_second));
-  axon::Sequential sequential(std::move(modules));
+  axon::nn::Linear linear_first{2, 4};
+  axon::nn::Linear linear_second{4, 1};
+  axon::nn::ReLU relu{};
+  std::vector<std::unique_ptr<axon::nn::Module>> modules;
+  modules.push_back(std::make_unique<axon::nn::Linear>(linear_first));
+  modules.push_back(std::make_unique<axon::nn::ReLU>(relu));
+  modules.push_back(std::make_unique<axon::nn::Linear>(linear_second));
+  axon::nn::Sequential sequential(std::move(modules));
 
   const std::vector<axon::idx_t> input_shape{2, 2};
   axon::Tensor input =
@@ -54,10 +54,10 @@ TEST_CASE("Sequential forward produces the expected output", "[Sequential]") {
 
 TEST_CASE("Sequential parameters produces the expected output size",
           "[Sequential]") {
-  std::vector<std::unique_ptr<axon::Module>> modules;
-  modules.push_back(std::make_unique<axon::Linear>(2, 4));
-  modules.push_back(std::make_unique<axon::Linear>(4, 1));
-  axon::Sequential sequential(std::move(modules));
+  std::vector<std::unique_ptr<axon::nn::Module>> modules;
+  modules.push_back(std::make_unique<axon::nn::Linear>(2, 4));
+  modules.push_back(std::make_unique<axon::nn::Linear>(4, 1));
+  axon::nn::Sequential sequential(std::move(modules));
 
   const std::vector<axon::idx_t> input_shape{2, 2};
   axon::Tensor input =
@@ -72,8 +72,8 @@ TEST_CASE(
     "Sequential without modules produces input on forward, empty vector on "
     "paramters",
     "[Sequential]") {
-  std::vector<std::unique_ptr<axon::Module>> modules;
-  axon::Sequential sequential(std::move(modules));
+  std::vector<std::unique_ptr<axon::nn::Module>> modules;
+  axon::nn::Sequential sequential(std::move(modules));
 
   const std::vector<axon::idx_t> input_shape{2, 2};
   axon::Tensor input =
@@ -87,16 +87,16 @@ TEST_CASE(
 
 TEST_CASE("Sequential backward propagates gradients through all modules",
           "[Sequential]") {
-  auto linear_first_owned = std::make_unique<axon::Linear>(2, 4, 42);
-  auto linear_second_owned = std::make_unique<axon::Linear>(4, 1, 42);
-  axon::Linear* linear_first = linear_first_owned.get();
-  axon::Linear* linear_second = linear_second_owned.get();
+  auto linear_first_owned = std::make_unique<axon::nn::Linear>(2, 4, 42);
+  auto linear_second_owned = std::make_unique<axon::nn::Linear>(4, 1, 42);
+  axon::nn::Linear* linear_first = linear_first_owned.get();
+  axon::nn::Linear* linear_second = linear_second_owned.get();
 
-  std::vector<std::unique_ptr<axon::Module>> modules;
+  std::vector<std::unique_ptr<axon::nn::Module>> modules;
   modules.push_back(std::move(linear_first_owned));
-  modules.push_back(std::make_unique<axon::ReLU>());
+  modules.push_back(std::make_unique<axon::nn::ReLU>());
   modules.push_back(std::move(linear_second_owned));
-  axon::Sequential sequential(std::move(modules));
+  axon::nn::Sequential sequential(std::move(modules));
 
   const std::vector<axon::idx_t> input_shape{2, 2};
   axon::Tensor input =

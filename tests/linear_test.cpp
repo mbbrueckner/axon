@@ -1,6 +1,6 @@
 /**
  * @file linear_test.cpp
- * @brief Unit tests for the axon::Linear fully connected module.
+ * @brief Unit tests for the axon::nn::Linear fully connected module.
  * @author Mika Brückner
  * @date 2026-06-17
  */
@@ -13,7 +13,7 @@
 #include "catch2/catch_all.hpp"
 
 TEST_CASE("Linear parameters have correct shapes", "[Linear]") {
-  axon::Linear layer(3, 2);
+  axon::nn::Linear layer(3, 2);
 
   std::vector<axon::Tensor> params = layer.parameters();
 
@@ -27,7 +27,7 @@ TEST_CASE("Linear parameters have correct shapes", "[Linear]") {
 }
 
 TEST_CASE("Linear parameters track gradients", "[Linear]") {
-  axon::Linear layer(4, 5);
+  axon::nn::Linear layer(4, 5);
 
   std::vector<axon::Tensor> params = layer.parameters();
 
@@ -36,7 +36,7 @@ TEST_CASE("Linear parameters track gradients", "[Linear]") {
 }
 
 TEST_CASE("Linear bias is zero-initialized", "[Linear]") {
-  axon::Linear layer(3, 4);
+  axon::nn::Linear layer(3, 4);
 
   axon::Tensor bias = layer.parameters()[1];
 
@@ -48,7 +48,7 @@ TEST_CASE("Linear bias is zero-initialized", "[Linear]") {
 TEST_CASE("Linear weights are within the init bound", "[Linear]") {
   constexpr axon::idx_t in_features = 4;
   constexpr axon::idx_t out_features = 6;
-  axon::Linear layer(in_features, out_features);
+  axon::nn::Linear layer(in_features, out_features);
 
   const float bound = 1.0f / std::sqrt(static_cast<float>(in_features));
 
@@ -58,7 +58,7 @@ TEST_CASE("Linear weights are within the init bound", "[Linear]") {
 }
 
 TEST_CASE("Linear weights are randomly initialized", "[Linear]") {
-  axon::Linear layer(8, 8);
+  axon::nn::Linear layer(8, 8);
 
   axon::Tensor weights = layer.parameters()[0];
 
@@ -69,7 +69,7 @@ TEST_CASE("Linear forward produces the expected output shape", "[Linear]") {
   constexpr axon::idx_t batch = 4;
   constexpr axon::idx_t in_features = 3;
   constexpr axon::idx_t out_features = 2;
-  axon::Linear layer(in_features, out_features);
+  axon::nn::Linear layer(in_features, out_features);
 
   axon::Tensor input = axon::Tensor::from_data({1.0f,
                                                 2.0f,
@@ -94,7 +94,7 @@ TEST_CASE("Linear forward applies the affine transformation", "[Linear]") {
   constexpr axon::idx_t batch = 2;
   constexpr axon::idx_t in_features = 3;
   constexpr axon::idx_t out_features = 2;
-  axon::Linear layer(in_features, out_features);
+  axon::nn::Linear layer(in_features, out_features);
 
   axon::Tensor weights = layer.parameters()[0];
   axon::Tensor bias = layer.parameters()[1];

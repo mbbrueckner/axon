@@ -1,6 +1,6 @@
 /**
  * @file module.hpp
- * @brief Declaration of the axon::Module abstract base class, the common
+ * @brief Declaration of the axon::nn::Module abstract base class, the common
  *        interface for composable neural network building blocks.
  * @author Mika Brückner
  * @date 2026-06-17
@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "tensor.hpp"
-namespace axon {
+namespace axon::nn {
 class Module;
 }
 
@@ -21,7 +21,7 @@ class Module;
  * a layer, an activation function, or an entire model. Derived classes
  * implement the forward pass and expose their trainable parameters.
  */
-class axon::Module {
+class axon::nn::Module {
  public:
   /**
    * @brief Computes the forward pass of the module.

@@ -1,6 +1,6 @@
 /**
  * @file relu_test.cpp
- * @brief Unit tests for the axon::ReLU activation layer module.
+ * @brief Unit tests for the axon::nn::ReLU activation layer module.
  * @author Mika Brückner
  * @date 2026-06-19
  */
@@ -14,7 +14,7 @@
 
 TEST_CASE("ReLU forward produces the expected output ", "[ReLU]") {
   const std::vector<axon::idx_t> input_shape{4};
-  axon::ReLU layer{};
+  axon::nn::ReLU layer{};
 
   const axon::Tensor input =
       axon::Tensor::from_data({-1.0f, 2.0f, -3.0f, 4.0f}, input_shape);

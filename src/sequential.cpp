@@ -1,7 +1,7 @@
 
 #include "axon/sequential.hpp"
 
-namespace axon {
+namespace axon::nn {
 
 Sequential::Sequential(std::vector<std::unique_ptr<Module>> modules)
     : modules_(std::move(modules)) {}
@@ -21,4 +21,4 @@ std::vector<Tensor> Sequential::parameters() {
   }
   return result;
 }
-}  // namespace axon
+}  // namespace axon::nn

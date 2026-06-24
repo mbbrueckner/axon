@@ -1,6 +1,6 @@
 /**
  * @file linear.cpp
- * @brief Implementation of the axon::Linear module.
+ * @brief Implementation of the axon::nn::Linear module.
  * @author Mika Brückner
  * @date 2026-06-17
  */
@@ -11,7 +11,7 @@
 #include <cmath>
 #include <random>
 
-namespace axon {
+namespace axon::nn {
 Linear::Linear(idx_t in_features, idx_t out_features, unsigned seed)
     : weights_(Tensor::zeros({in_features, out_features})),
       bias_(Tensor::zeros({out_features})) {
@@ -42,4 +42,4 @@ std::vector<Tensor> Linear::parameters() {
   return params;
 }
 
-}  // namespace axon
+}  // namespace axon::nn

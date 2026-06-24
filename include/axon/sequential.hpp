@@ -1,6 +1,6 @@
 /**
  * @file sequential.hpp
- * @brief Declaration of the axon::Sequential module, a container that chains
+* @brief Declaration of the axon::nn::Sequential module, a container that chains
  *        a sequence of sub-modules into a single forward pass.
  * @author Mika Brückner
  * @date 2026-06-19
@@ -14,7 +14,7 @@
 #include "axon/module.hpp"
 #include "axon/tensor.hpp"
 
-namespace axon {
+namespace axon::nn {
 class Sequential;
 }
 
@@ -26,7 +26,7 @@ class Sequential;
  * no parameters of its own; parameters() returns the concatenated parameters
  * of all sub-modules in order.
  */
-class axon::Sequential : public Module {
+class axon::nn::Sequential : public Module {
  public:
   /**
    * @brief Constructs a Sequential module from an ordered list of sub-modules.
