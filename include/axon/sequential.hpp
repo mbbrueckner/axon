@@ -1,7 +1,7 @@
 /**
  * @file sequential.hpp
-* @brief Declaration of the axon::nn::Sequential module, a container that chains
- *        a sequence of sub-modules into a single forward pass.
+ * @brief Declaration of the axon::nn::Sequential module, a container that
+ * chains a sequence of sub-modules into a single forward pass.
  * @author Mika Brückner
  * @date 2026-06-19
  */
