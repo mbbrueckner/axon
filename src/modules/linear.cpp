@@ -5,7 +5,7 @@
  * @date 2026-06-17
  */
 
-#include "../../include/axon/modules/linear.hpp"
+#include "axon/modules/linear.hpp"
 
 #include <algorithm>
 #include <cmath>

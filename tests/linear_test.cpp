@@ -5,11 +5,11 @@
  * @date 2026-06-17
  */
 
-#include "../include/axon/modules/linear.hpp"
+#include "axon/modules/linear.hpp"
 
 #include <cmath>
 
-#include "../include/axon/tensor.hpp"
+#include "axon/tensor.hpp"
 #include "catch2/catch_all.hpp"
 
 TEST_CASE("Linear parameters have correct shapes", "[Linear]") {

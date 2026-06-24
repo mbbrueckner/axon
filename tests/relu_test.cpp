@@ -5,11 +5,11 @@
  * @date 2026-06-19
  */
 
-#include "../include/axon/modules/relu.hpp"
+#include "axon/modules/relu.hpp"
 
 #include <cmath>
 
-#include "../include/axon/tensor.hpp"
+#include "axon/tensor.hpp"
 #include "catch2/catch_all.hpp"
 
 TEST_CASE("ReLU forward produces the expected output ", "[ReLU]") {

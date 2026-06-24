@@ -5,7 +5,7 @@
  * @date 2026-06-19
  */
 
-#include "../../include/axon/modules/relu.hpp"
+#include "axon/modules/relu.hpp"
 
 namespace axon::nn {
 

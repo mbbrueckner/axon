@@ -5,8 +5,8 @@
  * @date 2026-06-11
  */
 
-#include "../include/axon/tensor.hpp"
 #include "../src/utils.hpp"
+#include "axon/tensor.hpp"
 #include "catch2/catch_all.hpp"
 
 TEST_CASE("Autograd mul backward", "[AutoGrad]") {
