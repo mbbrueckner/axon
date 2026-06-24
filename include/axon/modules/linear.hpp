@@ -11,7 +11,7 @@
 #include <random>
 
 #include "axon/constants.hpp"
-#include "axon/module.hpp"
+#include "axon/modules/module.hpp"
 #include "axon/tensor.hpp"
 
 namespace axon::nn {

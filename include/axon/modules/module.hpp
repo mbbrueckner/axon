@@ -9,7 +9,7 @@
 #pragma once
 #include <vector>
 
-#include "tensor.hpp"
+#include "axon/tensor.hpp"
 namespace axon::nn {
 class Module;
 }

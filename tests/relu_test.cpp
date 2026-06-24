@@ -5,7 +5,7 @@
  * @date 2026-06-19
  */
 
-#include "../include/axon/relu.hpp"
+#include "../include/axon/modules/relu.hpp"
 
 #include <cmath>
 

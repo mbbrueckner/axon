@@ -5,11 +5,11 @@
  * @date 2026-06-19
  */
 
-#include "../include/axon/sequential.hpp"
+#include "axon/modules/sequential.hpp"
 
-#include "../include/axon/tensor.hpp"
-#include "axon/linear.hpp"
-#include "axon/relu.hpp"
+#include "axon/modules/linear.hpp"
+#include "axon/modules/relu.hpp"
+#include "axon/tensor.hpp"
 #include "catch2/catch_all.hpp"
 
 TEST_CASE("Sequential forward produces the expected output shape",

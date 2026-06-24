@@ -1,5 +1,5 @@
 
-#include "axon/sequential.hpp"
+#include "../../include/axon/modules/sequential.hpp"
 
 namespace axon::nn {
 

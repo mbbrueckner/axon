@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "axon/module.hpp"
+#include "module.hpp"
 
 namespace axon::nn {
 class ReLU;

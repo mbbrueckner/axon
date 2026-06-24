@@ -11,14 +11,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_library(axon STATIC
         src/tensor.cpp
         src/autograd/autograd.cpp
-        src/linear.cpp
+        src/modules/linear.cpp
         src/autograd/autograd.hpp
-        include/axon/module.hpp
-        include/axon/linear.hpp
-        include/axon/relu.hpp
-        src/relu.cpp
-        include/axon/sequential.hpp
-        src/sequential.cpp
+        src/modules/relu.cpp
+        src/modules/sequential.cpp
+        src/functional.cpp
+        include/axon/modules/module.hpp
+        include/axon/modules/linear.hpp
+        include/axon/modules/relu.hpp
+        include/axon/modules/sequential.hpp
         include/axon/functional.hpp
         src/functional.cpp
 )

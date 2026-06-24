@@ -9,7 +9,7 @@
 #pragma once
 #include <vector>
 
-#include "tensor.hpp"
+#include "../tensor.hpp"
 
 namespace axon::optimizer {
 class Optimizer;

@@ -11,8 +11,8 @@
 #include <memory>
 #include <vector>
 
-#include "axon/module.hpp"
 #include "axon/tensor.hpp"
+#include "module.hpp"
 
 namespace axon::nn {
 class Sequential;
