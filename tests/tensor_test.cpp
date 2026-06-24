@@ -638,3 +638,59 @@ TEST_CASE("Tensor item method", "[Tensor]") {
     REQUIRE_THROWS_AS(t.item(), std::runtime_error);
   }
 }
+
+TEST_CASE("Tensor data", "[Tensor]") {
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+
+  SECTION("returns a flat copy of all elements") {
+    const std::vector<float> expected = {1, 2, 3, 4, 5, 6};
+    REQUIRE(t.data() == expected);
+    REQUIRE(t.data().size() == t.num_elements());
+  }
+
+  SECTION("returns a copy that does not alias the storage") {
+    std::vector<float> copy = t.data();
+    copy.at(0) = 42.0f;
+    REQUIRE(t.at({0, 0}) == 1.0f);
+  }
+}
+
+TEST_CASE("Tensor set_data", "[Tensor]") {
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+
+  SECTION("overwrites the elements in-place") {
+    t.set_data({6, 5, 4, 3, 2, 1});
+    REQUIRE(t.at({0, 0}) == 6.0f);
+    REQUIRE(t.at({0, 1}) == 5.0f);
+    REQUIRE(t.at({0, 2}) == 4.0f);
+    REQUIRE(t.at({1, 0}) == 3.0f);
+    REQUIRE(t.at({1, 1}) == 2.0f);
+    REQUIRE(t.at({1, 2}) == 1.0f);
+
+    const std::vector<float> expected = {6, 5, 4, 3, 2, 1};
+    REQUIRE(t.data() == expected);
+  }
+
+  SECTION("does not change shape or rank") {
+    t.set_data({6, 5, 4, 3, 2, 1});
+    REQUIRE(t.num_elements() == 6);
+    REQUIRE(t.num_dim() == 2);
+    const std::vector<axon::idx_t> expected_shape = {2, 3};
+    REQUIRE(t.shape() == expected_shape);
+  }
+
+  SECTION("is visible through copies sharing the same storage") {
+    const axon::Tensor copy = t.shared_autograd_copy();
+    t.set_data({6, 5, 4, 3, 2, 1});
+    const std::vector<float> expected = {6, 5, 4, 3, 2, 1};
+    REQUIRE(copy.data() == expected);
+  }
+
+  SECTION("throws on too few elements") {
+    REQUIRE_THROWS_AS(t.set_data({1, 2, 3}), std::out_of_range);
+  }
+
+  SECTION("throws on too many elements") {
+    REQUIRE_THROWS_AS(t.set_data({1, 2, 3, 4, 5, 6, 7}), std::out_of_range);
+  }
+}
