@@ -15,4 +15,10 @@ void SGD::step() {
   }
 }
 
+void SGD::zero_grad() {
+  for (Tensor& param : params_) {
+    param.grad().set_data(Tensor::zeros(param.shape()).data());
+  }
+}
+
 }  // namespace axon::optimizer
