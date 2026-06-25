@@ -7,6 +7,7 @@
  */
 
 #pragma once
+#include <algorithm>
 #include <vector>
 
 #include "../tensor.hpp"
@@ -41,7 +42,13 @@ class axon::optimizer::Optimizer {
    * @param params Trainable tensors to optimize, typically from
    *        @c model.parameters().
    */
-  explicit Optimizer(const std::vector<Tensor>& params) : params_(params) {};
+  explicit Optimizer(const std::vector<Tensor>& params) {
+    params_.reserve(params.size());
+    std::ranges::transform(
+        params, std::back_inserter(params_), [](const Tensor& p) {
+          return p.shared_autograd_copy();
+        });
+  }
 
   /**
    * @brief Updates all parameters according to the optimizer's update rule.
