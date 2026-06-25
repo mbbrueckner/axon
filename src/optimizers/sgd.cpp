@@ -17,7 +17,7 @@ void SGD::step() {
 
 void SGD::zero_grad() {
   for (Tensor& param : params_) {
-    param.grad().set_data(Tensor::zeros(param.shape()).data());
+    param.grad_ref().set_data(Tensor::zeros(param.shape()).data());
   }
 }
 
