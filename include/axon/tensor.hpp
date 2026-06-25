@@ -182,6 +182,19 @@ class axon::Tensor {
   [[nodiscard]] Tensor grad() const;
 
   /**
+   * @brief Returns a mutable reference to the gradient tensor.
+   *
+   * Unlike @c grad(), this returns a direct reference to the gradient held
+   * inside the autograd metadata, allowing in-place modification (e.g. via
+   * @c set_data()). Use this when you need to modify the gradient directly,
+   * such as in @c zero_grad().
+   *
+   * @return A mutable reference to the gradient tensor.
+   * @throws std::runtime_error if this tensor does not track gradients.
+   */
+  [[nodiscard]] Tensor& grad_ref();
+
+  /**
    * @brief Runs the reverse-mode backward pass starting from this tensor.
    *
    * Seeds this tensor's gradient with ones, builds a topological ordering of

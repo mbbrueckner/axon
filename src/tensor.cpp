@@ -162,6 +162,11 @@ Tensor Tensor::grad() const {
   return *autograd_meta_->grad;
 }
 
+Tensor& Tensor::grad_ref() {
+  if (!autograd_meta_) throw std::runtime_error("Tensor has no gradient");
+  return *autograd_meta_->grad;
+}
+
 void Tensor::backward() {
   if (!autograd_meta_)
     throw std::runtime_error("backward() called on tensor without grad");

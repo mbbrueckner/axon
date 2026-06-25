@@ -6,6 +6,7 @@ add_executable(axon_tests
         relu_test.cpp
         sequential_test.cpp
         functional_test.cpp
+        sgd_test.cpp
 )
 
 target_link_libraries(axon_tests PRIVATE
