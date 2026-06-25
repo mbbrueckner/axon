@@ -7,8 +7,8 @@ A neural network library from scratch in C++.
 - [X] Tensor class
 - [X] Autograd
 - [X] basic Modules
+- [X] Optimzers (SGD) 
 - [ ] Model
-- [ ] Optimizers
 - [ ] Training loop
 - [ ] Benchmarks
 - [ ] Code optimization
