@@ -7,6 +7,8 @@
 
 #include "axon/optimizers/sgd.hpp"
 
+#include <iostream>
+
 #include "axon/tensor.hpp"
 #include "catch2/catch_all.hpp"
 
@@ -17,7 +19,11 @@ TEST_CASE("SGD step updates parameters along the negative gradient", "[SGD]") {
   axon::Tensor loss = p.sum();
   loss.backward();  // grad is all ones
 
-  axon::optimizer::SGD optimizer({p}, 0.1f);
+  std::vector<axon::Tensor> params;
+  params.push_back(p.shared_autograd_copy());
+  axon::optimizer::SGD optimizer(params, 0.1f);
+  std::cout << "p.requires_grad: " << p.requires_grad() << std::endl;
+  std::cout << "p grad sum: " << p.grad().sum().item() << std::endl;
   optimizer.step();
 
   REQUIRE(p.at({0, 0}) == Catch::Approx(0.9f));
@@ -34,7 +40,9 @@ TEST_CASE("SGD step scales the update by the learning rate", "[SGD]") {
   axon::Tensor loss = (p * p).sum();
   loss.backward();
 
-  axon::optimizer::SGD optimizer({p}, 0.5f);
+  std::vector<axon::Tensor> params;
+  params.push_back(p.shared_autograd_copy());
+  axon::optimizer::SGD optimizer(params, 0.5f);
   optimizer.step();
 
   // p - 0.5 * 2p = p - p == {0, 0}
@@ -49,7 +57,9 @@ TEST_CASE("SGD uses a default learning rate of 0.01", "[SGD]") {
   axon::Tensor loss = p.sum();
   loss.backward();  // grad is all ones
 
-  axon::optimizer::SGD optimizer({p});
+  std::vector<axon::Tensor> params;
+  params.push_back(p.shared_autograd_copy());
+  axon::optimizer::SGD optimizer(params);
   optimizer.step();
 
   REQUIRE(p.at({0}) == Catch::Approx(0.99f));
@@ -63,7 +73,9 @@ TEST_CASE("SGD step applies repeatedly", "[SGD]") {
   axon::Tensor loss = p.sum();
   loss.backward();  // grad is all ones, unchanged across steps
 
-  axon::optimizer::SGD optimizer({p}, 0.1f);
+  std::vector<axon::Tensor> params;
+  params.push_back(p.shared_autograd_copy());
+  axon::optimizer::SGD optimizer(params, 0.1f);
   optimizer.step();
   optimizer.step();
 
@@ -80,7 +92,11 @@ TEST_CASE("SGD optimizes multiple parameters", "[SGD]") {
   a.sum().backward();
   b.sum().backward();
 
-  axon::optimizer::SGD optimizer({a, b}, 0.1f);
+  std::vector<axon::Tensor> params;
+  params.push_back(a.shared_autograd_copy());
+  params.push_back(b.shared_autograd_copy());
+
+  axon::optimizer::SGD optimizer(params, 0.1f);
   optimizer.step();
 
   REQUIRE(a.at({0}) == Catch::Approx(0.9f));
@@ -95,8 +111,9 @@ TEST_CASE("SGD zero_grad resets gradients to zero", "[SGD]") {
 
   axon::Tensor loss = p.sum();
   loss.backward();  // grad is all ones
-
-  axon::optimizer::SGD optimizer({p}, 0.1f);
+  std::vector<axon::Tensor> params;
+  params.push_back(p.shared_autograd_copy());
+  axon::optimizer::SGD optimizer(params, 0.1f);
   optimizer.zero_grad();
 
   axon::Tensor grad = p.grad();
