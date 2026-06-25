@@ -109,6 +109,28 @@ TEST_CASE("Gradient check", "[GradCheck]") {
     auto f = [](axon::Tensor x) { return x.relu(); };
     REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
   }
+  SECTION("sub") {
+    const axon::Tensor b = axon::Tensor::from_data({3.0f, 4.0f}, {2});
+    auto f = [b](axon::Tensor x) { return x - b; };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
+  SECTION("div") {
+    const axon::Tensor b = axon::Tensor::from_data({3.0f, 4.0f}, {2});
+    auto f = [b](axon::Tensor x) { return x / b; };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
+  SECTION("negate") {
+    auto f = [](axon::Tensor x) { return -x; };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
+  SECTION("sum") {
+    auto f = [](axon::Tensor x) { return x.sum(); };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
+  SECTION("mean") {
+    auto f = [](axon::Tensor x) { return x.mean(); };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
   SECTION("sum(dim)") {
     axon::Tensor x2 = axon::Tensor::from_data({1.0f, 2.0f, 3.0f, 4.0f}, {2, 2});
     auto f = [](axon::Tensor x) { return x.sum(1, true); };
