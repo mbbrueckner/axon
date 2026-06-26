@@ -50,4 +50,9 @@ Tensor mse_loss(const Tensor& logits, const Tensor& targets) {
   const Tensor squared_error = error * error;
   return squared_error.mean();
 }
+
+Tensor accuracy(const Tensor& predictions, const Tensor& targets) {
+  return 1.0f - (predictions - targets).abs().gt(0.5f).sum() /
+                    static_cast<float>(predictions.num_elements());
+}
 }  // namespace axon
