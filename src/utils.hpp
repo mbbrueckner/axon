@@ -36,6 +36,17 @@ std::string vector_to_string(const std::vector<T>& vec) {
   return vec_string;
 }
 
+/**
+ * @brief Converts a flat row-major index into per-dimension indices.
+ *
+ * Decomposes @p flat into one index per dimension of @p shape, assuming a
+ * contiguous row-major layout. The inverse of collapsing multi-dimensional
+ * indices into a single offset.
+ *
+ * @param flat The flat element index in row-major order.
+ * @param shape Size along each dimension.
+ * @return One index per dimension, in order.
+ */
 inline std::vector<idx_t> flat_to_indices(idx_t flat,
                                           const std::vector<idx_t>& shape) {
   std::vector<idx_t> indices(shape.size());

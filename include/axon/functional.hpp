@@ -62,4 +62,19 @@ Tensor cross_entropy_loss(const Tensor& logits, const Tensor& targets);
  */
 Tensor mse_loss(const Tensor& logits, const Tensor& targets);
 
+/**
+ * @brief Computes the fraction of predictions that match their targets.
+ *
+ * A prediction counts as correct when it lies within 0.5 of the target
+ * value, i.e. @c |prediction - target| <= 0.5. The result is the mean
+ * over all elements:
+ * @f[ \mathrm{acc} = 1 - \frac{1}{N}
+ *     \sum_{i} \mathbb{1}\big[\,|p_i - t_i| > 0.5\,\big] @f]
+ *
+ * @param logits Predicted values.
+ * @param targets Ground-truth values of the same shape as @p logits.
+ * @return Scalar tensor in @c [0, 1] holding the accuracy.
+ */
+Tensor accuracy(const Tensor& logits, const Tensor& targets);
+
 }  // namespace axon
