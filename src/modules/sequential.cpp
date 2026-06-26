@@ -17,7 +17,10 @@ std::vector<Tensor> Sequential::parameters() {
   std::vector<Tensor> result;
   for (const std::unique_ptr<Module>& module : modules_) {
     std::vector<Tensor> module_params = module->parameters();
-    result.insert(result.end(), module_params.begin(), module_params.end());
+
+    result.insert(result.end(),
+                  std::make_move_iterator(module_params.begin()),
+                  std::make_move_iterator(module_params.end()));
   }
   return result;
 }
