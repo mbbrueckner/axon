@@ -328,8 +328,6 @@ class axon::Tensor {
   /// @return The float-value of zero-dimensional Tensor.
   [[nodiscard]] float item() const;
 
-  [[nodiscard]] Tensor where() const;
-
   /**
    * @brief Returns a boolean mask tensor with 1.0 where elements are strictly
    *        greater than the corresponding elements of @p other, 0.0 elsewhere.
@@ -403,6 +401,21 @@ class axon::Tensor {
    */
   friend bool operator==(const Tensor& lhs, const Tensor& rhs);
 
+  /**
+   * @brief Broadcasts two tensors to a common shape for elementwise ops.
+   *
+   * Aligns the shapes of @p a and @p b from the trailing dimension following
+   * NumPy-style broadcasting rules: dimensions of size 1 are stretched to
+   * match the other operand by setting their stride to 0, and missing leading
+   * dimensions are treated as size 1. Both results share storage with their
+   * respective inputs; no data is copied.
+   *
+   * @param a The first operand.
+   * @param b The second operand.
+   * @return A pair of views over @p a and @p b, both with the common
+   *         broadcast shape.
+   * @throws std::out_of_range if the shapes are not broadcastable.
+   */
   friend std::pair<Tensor, Tensor> broadcast(const Tensor& a, const Tensor& b);
 
   /**
