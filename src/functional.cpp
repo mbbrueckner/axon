@@ -1,3 +1,10 @@
+/**
+ * @file functional.cpp
+ * @brief Implementation of axon's stateless activation and loss functions.
+ * @author Mika Brückner
+ * @date 2026-06-20
+ */
+
 #include "axon/functional.hpp"
 
 namespace axon {
@@ -38,4 +45,9 @@ Tensor cross_entropy_loss(const Tensor& logits, const Tensor& targets) {
   return -(targets * log_softmax(logits)).sum(1, false).mean();
 }
 
+Tensor mse_loss(const Tensor& logits, const Tensor& targets) {
+  const Tensor error = (logits - targets);
+  const Tensor squared_error = error * error;
+  return squared_error.mean();
+}
 }  // namespace axon
