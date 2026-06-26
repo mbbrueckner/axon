@@ -54,3 +54,6 @@ FetchContent_MakeAvailable(Catch2)
 # Tests
 include(CTest)
 add_subdirectory(tests)
+
+# Examples
+add_subdirectory(examples)
