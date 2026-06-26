@@ -75,6 +75,6 @@ Tensor mse_loss(const Tensor& logits, const Tensor& targets);
  * @param targets Ground-truth values of the same shape as @p logits.
  * @return Scalar tensor in @c [0, 1] holding the accuracy.
  */
-Tensor accuracy(const Tensor& logits, const Tensor& targets);
+Tensor accuracy(const Tensor& predictions, const Tensor& targets);
 
 }  // namespace axon
