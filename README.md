@@ -21,11 +21,16 @@ the mean squared error.
 
 ```
 ./build/examples/xor
-Epoch: 0;   loss: 0.522413;    acc.: 0.5
-Epoch: 100; loss: 0.0178309;   acc.: 1
-Epoch: 200; loss: 0.000173242; acc.: 1
-...
-Epoch: 900; loss: 3.23491e-13; acc.: 1
+Epoch: 0; loss:0.522413; acc.:0.5
+Epoch: 100; loss:0.0178309; acc.:1
+Epoch: 200; loss:0.000173242; acc.:1
+Epoch: 300; loss:1.57907e-06; acc.:1
+Epoch: 400; loss:1.41426e-08; acc.:1
+Epoch: 500; loss:1.26356e-10; acc.:1
+Epoch: 600; loss:1.56431e-12; acc.:1
+Epoch: 700; loss:6.14889e-13; acc.:1
+Epoch: 800; loss:4.01639e-13; acc.:1
+Epoch: 900; loss:3.23491e-13; acc.:1
 ```
 
 **Interpretation:**
