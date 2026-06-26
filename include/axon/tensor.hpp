@@ -328,11 +328,38 @@ class axon::Tensor {
   /// @return The float-value of zero-dimensional Tensor.
   [[nodiscard]] float item() const;
 
+  [[nodiscard]] Tensor where() const;
+
+  /**
+   * @brief Returns a boolean mask tensor with 1.0 where elements are strictly
+   *        greater than the corresponding elements of @p other, 0.0 elsewhere.
+   *
+   * Supports broadcasting between @c this and @p other.
+   *
+   * @param other The right-hand operand to compare against.
+   * @return A tensor of the same shape as the broadcast result, containing
+   *         1.0 or 0.0.
+   * @throws std::out_of_range if the shapes are not broadcastable.
+   */
+  [[nodiscard]] Tensor gt(const Tensor& other) const;
+
+  /**
+   * @brief Returns a boolean mask tensor with 1.0 where elements are strictly
+   *        greater than @p threshold, 0.0 elsewhere.
+   *
+   * @param threshold The scalar threshold to compare against.
+   * @return A tensor of the same shape as @c this, containing 1.0 or 0.0.
+   */
+  [[nodiscard]] Tensor gt(float threshold) const {
+    return gt(Tensor::from_data({threshold}, {1}));
+  };
+
   /**
    * @brief Tests whether @p lhs is elementwise strictly less than @p rhs.
    * @param lhs The left-hand operand.
    * @param rhs The right-hand operand.
-   * @return @c true if @c lhs[i] < @c rhs[i] holds for every element, otherwise
+   * @return @c true if @c lhs[i] < @c rhs[i] holds for every element,
+   * otherwise
    *         @c false.
    * @throws std::out_of_range if the shapes differ.
    */
@@ -350,7 +377,8 @@ class axon::Tensor {
    * @brief Tests whether @p lhs is elementwise strictly greater than @p rhs.
    * @param lhs The left-hand operand.
    * @param rhs The right-hand operand.
-   * @return @c true if @c lhs[i] > @c rhs[i] holds for every element, otherwise
+   * @return @c true if @c lhs[i] > @c rhs[i] holds for every element,
+   * otherwise
    *         @c false.
    * @throws std::out_of_range if the shapes differ.
    */
@@ -392,7 +420,8 @@ class axon::Tensor {
   }
 
   /**
-   * @brief Elementwise in-place addition of another tensor of identical shape.
+   * @brief Elementwise in-place addition of another tensor of identical
+   * shape.
    * @param other The tensor to add to this one.
    * @return Reference to this tensor after the addition.
    * @throws std::out_of_range if the shapes differ.

@@ -609,6 +609,19 @@ float Tensor::item() const {
   return (*data_)[offset_];
 }
 
+Tensor Tensor::gt(const Tensor& other) const {
+  auto [a, b] = broadcast(*this, other);
+  const idx_t n = a.num_elements();
+  std::vector<float> new_data(n);
+
+  for (idx_t i = 0; i < n; i++) {
+    std::vector<idx_t> idx = utils::flat_to_indices(i, a.shape());
+    new_data[i] = a.at(idx) > b.at(idx) ? 1.0f : 0.0f;
+  }
+
+  return {new_data, a.shape()};
+}
+
 bool operator<(const Tensor& lhs, const Tensor& rhs) {
   if (lhs.shape() != rhs.shape()) {
     throw std::out_of_range(
