@@ -23,6 +23,7 @@ add_library(axon STATIC
         include/axon/modules/sequential.hpp
         include/axon/functional.hpp
         include/axon/optimizers/sgd.hpp
+        include/axon/datasets/dataset.hpp
 )
 
 target_include_directories(axon
