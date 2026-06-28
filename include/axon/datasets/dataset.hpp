@@ -51,7 +51,7 @@ class axon::datasets::Dataset {
    * @brief Returns the total number of samples in the dataset.
    * @return The number of samples.
    */
-  virtual axon::idx_t size() const = 0;
+  [[nodiscard]] virtual axon::idx_t size() const = 0;
 
   /// @brief Virtual destructor to allow safe polymorphic deletion.
   virtual ~Dataset() = default;
