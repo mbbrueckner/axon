@@ -45,16 +45,17 @@ MNIST::MNIST(const std::string& images_path, const std::string& labels_path) {
     throw std::runtime_error("Cannot open file: " + labels_path);
   }
 
-  // read header (1 x 32 bit) and check magic
+  // read header (2 x 32 bit) and check magic (first)
   if (int32_t magic = read_big_endian(label_file); magic != 2049) {
     throw std::invalid_argument(
         std::format("Magic number mismatch, expected 2049, got {}", magic));
   }
-
   int32_t n_labels = read_big_endian(label_file);
+
+  // read data
   std::vector<uint8_t> labels(n_labels);
   label_file.read(reinterpret_cast<char*>(labels.data()), labels.size());
-  
+
   labels_ = std::vector<idx_t>(labels.begin(), labels.end());
 }
 
