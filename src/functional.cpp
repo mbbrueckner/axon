@@ -45,6 +45,18 @@ Tensor cross_entropy_loss(const Tensor& logits, const Tensor& targets) {
   return -(targets * log_softmax(logits)).sum(1, false).mean();
 }
 
+Tensor cross_entropy_loss(const Tensor& logits,
+                          const std::vector<idx_t>& targets) {
+  const idx_t n_samples = logits.shape()[0];
+  const Tensor log_probs = log_softmax(logits);
+  std::vector<float> loss_data(n_samples);
+  for (idx_t i = 0; i < n_samples; i++) {
+    loss_data[i] = -log_probs[i][targets[i]].item();
+  }
+  const Tensor loss = Tensor::from_data(loss_data, {n_samples});
+  return loss.mean();
+}
+
 Tensor mse_loss(const Tensor& logits, const Tensor& targets) {
   const Tensor error = (logits - targets);
   const Tensor squared_error = error * error;

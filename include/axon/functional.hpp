@@ -52,6 +52,24 @@ Tensor log_softmax(const Tensor& logits);
 Tensor cross_entropy_loss(const Tensor& logits, const Tensor& targets);
 
 /**
+ * @brief Computes the sparse cross-entropy loss between logits and integer
+ *        class indices.
+ *
+ * Equivalent to @c cross_entropy_loss(logits, one_hot(targets)) but more
+ * memory-efficient. For each sample, only the log-probability of the true
+ * class is used.
+ *
+ * @param logits Unnormalized class scores of shape @c [batch, num_classes].
+ * @param targets Integer class indices of length @c batch, where each value
+ *        is in @c [0, num_classes).
+ * @return A scalar tensor containing the mean cross-entropy loss.
+ * @throws std::out_of_range if @p targets.size() != logits.shape()[0] or
+ *         any index is out of @c [0, num_classes).
+ */
+Tensor cross_entropy_loss(const Tensor& logits,
+                          const std::vector<idx_t>& targets);
+
+/**
  * @brief Computes the mean squared error between @p logits and @p targets.
  *
  * @f[ \mathcal{L} = \big(\mathrm{mean}(x - t)\big)^2 @f]
