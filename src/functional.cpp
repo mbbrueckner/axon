@@ -48,13 +48,16 @@ Tensor cross_entropy_loss(const Tensor& logits, const Tensor& targets) {
 Tensor cross_entropy_loss(const Tensor& logits,
                           const std::vector<idx_t>& targets) {
   const idx_t n_samples = logits.shape()[0];
-  const Tensor log_probs = log_softmax(logits);
-  std::vector<float> loss_data(n_samples);
+  const idx_t n_classes = logits.shape()[1];
+
+  // TODO find better way to keep gradient
+  std::vector<float> one_hot_data(n_samples * n_classes, 0.0f);
   for (idx_t i = 0; i < n_samples; i++) {
-    loss_data[i] = -log_probs[i][targets[i]].item();
+    one_hot_data[i * n_classes + targets[i]] = 1.0f;
   }
-  const Tensor loss = Tensor::from_data(loss_data, {n_samples});
-  return loss.mean();
+  Tensor one_hot = Tensor::from_data(one_hot_data, {n_samples, n_classes});
+
+  return cross_entropy_loss(logits, one_hot);
 }
 
 Tensor mse_loss(const Tensor& logits, const Tensor& targets) {
