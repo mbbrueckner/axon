@@ -22,8 +22,6 @@ TEST_CASE("SGD step updates parameters along the negative gradient", "[SGD]") {
   std::vector<axon::Tensor> params;
   params.push_back(p.shared_autograd_copy());
   axon::optimizer::SGD optimizer(params, 0.1f);
-  std::cout << "p.requires_grad: " << p.requires_grad() << std::endl;
-  std::cout << "p grad sum: " << p.grad().sum().item() << std::endl;
   optimizer.step();
 
   REQUIRE(p.at({0, 0}) == Catch::Approx(0.9f));
