@@ -1,3 +1,12 @@
+/**
+ * @file mnist.cpp
+ * @brief Implementation of the axon::datasets::MNIST dataset class,
+ *        which loads and provides access to the MNIST handwritten digit
+ *        dataset from IDX binary files.
+ * @author Mika Brückner
+ * @date 2026-06-29
+ */
+
 #include "axon/datasets/mnist.hpp"
 
 #include <algorithm>
