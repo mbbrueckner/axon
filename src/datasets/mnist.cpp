@@ -1,7 +1,9 @@
 #include "axon/datasets/mnist.hpp"
 
+#include <algorithm>
+#include <format>
 #include <fstream>
-
+#include <stdexcept>
 namespace {
 int32_t read_big_endian(std::ifstream& file) {
   uint8_t bytes[4];

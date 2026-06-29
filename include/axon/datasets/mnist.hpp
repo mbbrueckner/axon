@@ -9,7 +9,9 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
+#include <vector>
 
 #include "axon/constants.hpp"
 #include "axon/tensor.hpp"
