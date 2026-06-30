@@ -71,4 +71,8 @@ MNIST::MNIST(const std::string& images_path, const std::string& labels_path) {
   labels_ = Tensor::from_data(label_data, {n_labels});
 }
 
+Sample MNIST::operator[](idx_t idx) const {
+  return {images_.value()[idx], labels_.value()[idx]};
+}
+
 }  // namespace axon::datasets
