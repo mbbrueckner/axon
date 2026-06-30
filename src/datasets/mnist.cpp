@@ -75,4 +75,6 @@ Sample MNIST::operator[](idx_t idx) const {
   return {images_.value()[idx], labels_.value()[idx]};
 }
 
+idx_t MNIST::size() const { return images_.value().shape()[0]; }
+
 }  // namespace axon::datasets
