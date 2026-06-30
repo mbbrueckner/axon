@@ -66,8 +66,7 @@ Tensor cross_entropy_loss(const Tensor& logits, const Tensor& targets);
  * @throws std::out_of_range if @p targets.size() != logits.shape()[0] or
  *         any index is out of @c [0, num_classes).
  */
-Tensor cross_entropy_loss(const Tensor& logits,
-                          const std::vector<idx_t>& targets);
+Tensor cross_entropy_loss_sparse(const Tensor& logits, const Tensor& targets);
 
 /**
  * @brief Computes the mean squared error between @p logits and @p targets.

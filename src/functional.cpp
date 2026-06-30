@@ -45,18 +45,15 @@ Tensor cross_entropy_loss(const Tensor& logits, const Tensor& targets) {
   return -(targets * log_softmax(logits)).sum(1, false).mean();
 }
 
-Tensor cross_entropy_loss(const Tensor& logits,
-                          const std::vector<idx_t>& targets) {
+Tensor cross_entropy_loss_sparse(const Tensor& logits, const Tensor& targets) {
   const idx_t n_samples = logits.shape()[0];
   const idx_t n_classes = logits.shape()[1];
-
-  // TODO find better way to keep gradient
   std::vector<float> one_hot_data(n_samples * n_classes, 0.0f);
   for (idx_t i = 0; i < n_samples; i++) {
-    one_hot_data[i * n_classes + targets[i]] = 1.0f;
+    idx_t class_idx = static_cast<idx_t>(targets.at({i}));
+    one_hot_data[i * n_classes + class_idx] = 1.0f;
   }
   Tensor one_hot = Tensor::from_data(one_hot_data, {n_samples, n_classes});
-
   return cross_entropy_loss(logits, one_hot);
 }
 
