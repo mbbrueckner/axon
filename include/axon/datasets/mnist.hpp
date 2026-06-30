@@ -50,9 +50,9 @@ class axon::datasets::MNIST : public Dataset {
    * Reads both files completely into memory, normalizes pixel values
    * to [0, 1] and keeps the labels sparse.
    *
-   * @param images_path Path to the IDX image file (e.g.
+   * @param images_path Path to the IDX image file (e.g.,
    *        @c train-images-idx3-ubyte).
-   * @param labels_path Path to the IDX label file (e.g.
+   * @param labels_path Path to the IDX label file (e.g.,
    *        @c train-labels-idx1-ubyte).
    * @throws std::runtime_error if either file cannot be opened or the
    *         magic number is invalid.
