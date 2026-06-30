@@ -41,7 +41,7 @@ class axon::datasets::MNIST : public Dataset {
   std::optional<Tensor> images_;
 
   /// @brief All labels, shape [n, 10], one-hot encoded.
-  std::optional<std::vector<axon::idx_t>> labels_;
+  std::optional<Tensor> labels_;
 
  public:
   /**

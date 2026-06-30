@@ -67,7 +67,8 @@ MNIST::MNIST(const std::string& images_path, const std::string& labels_path) {
   std::vector<uint8_t> labels(n_labels);
   label_file.read(reinterpret_cast<char*>(labels.data()), labels.size());
 
-  labels_ = std::vector<idx_t>(labels.begin(), labels.end());
+  std::vector<float> label_data(labels.begin(), labels.end());
+  labels_ = Tensor::from_data(label_data, {n_labels});
 }
 
 }  // namespace axon::datasets
