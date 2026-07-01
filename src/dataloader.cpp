@@ -8,6 +8,8 @@
 
 #include "axon/dataloader.hpp"
 
+#include <algorithm>
+
 namespace axon {
 
 DataLoader::DataLoader(const datasets::Dataset& dataset,
@@ -25,6 +27,8 @@ DataLoader::Iterator DataLoader::begin() {
 
   return Iterator{this, 0};
 }
-void DataLoader::shuffle_indices() { std::ranges::shuffle(indices_, rng_); }
+void DataLoader::shuffle_indices() {
+  std::shuffle(indices_.begin(), indices_.end(), rng_);
+}
 
 }  // namespace axon
