@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <random>
 #include <vector>
 
 #include "axon/constants.hpp"
@@ -101,4 +102,15 @@ class axon::DataLoader {
   bool shuffle_;
   /// @brief Permuted sample indices used for shuffling.
   std::vector<idx_t> indices_;
+  /// @brief Mersenne Twister random number generator for shuffling.
+  ///        Stored as a member so the sequence differs across epochs.
+  std::mt19937 rng_;
+
+  /**
+   * @brief Randomly permutes @c indices_ using @c rng_.
+   *
+   * Called by @c begin() at the start of each epoch when shuffling is
+   * enabled.
+   */
+  void shuffle_indices();
 };
