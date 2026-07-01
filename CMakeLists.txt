@@ -27,6 +27,7 @@ add_library(axon STATIC
         include/axon/datasets/mnist.hpp
         src/datasets/mnist.cpp
         include/axon/dataloader.hpp
+        src/dataloader.cpp
 )
 
 target_include_directories(axon
