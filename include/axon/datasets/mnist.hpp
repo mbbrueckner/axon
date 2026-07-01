@@ -38,10 +38,10 @@ class MNIST;
 class axon::datasets::MNIST : public Dataset {
  private:
   /// @brief All images, shape [n, 784], normalized to [0, 1].
-  std::optional<Tensor> images_;
+  Tensor images_;
 
-  /// @brief All labels, shape [n], sparse.
-  std::optional<Tensor> labels_;
+  /// @brief All labels, shape [n, 10], one-hot encoded.
+  Tensor labels_;
 
  public:
   /**

@@ -23,7 +23,8 @@ int32_t read_big_endian(std::ifstream& file) {
 
 namespace axon::datasets {
 
-MNIST::MNIST(const std::string& images_path, const std::string& labels_path) {
+MNIST::MNIST(const std::string& images_path, const std::string& labels_path)
+    : images_(Tensor::zeros({1})), labels_(Tensor::zeros({1})) {
   std::ifstream images_file(images_path, std::ios::binary);
   if (!images_file.is_open()) {
     throw std::runtime_error("Cannot open file: " + images_path);
@@ -75,9 +76,9 @@ MNIST::MNIST(const std::string& images_path, const std::string& labels_path) {
 }
 
 Sample MNIST::operator[](idx_t idx) const {
-  return {images_.value()[idx], labels_.value()[idx]};
+  return {images_[idx], labels_[idx]};
 }
 
-idx_t MNIST::size() const { return images_.value().shape()[0]; }
+idx_t MNIST::size() const { return images_.shape()[0]; }
 
 }  // namespace axon::datasets
