@@ -26,7 +26,7 @@ class MNIST;
  *
  * Loads images and labels from IDX binary files into memory on construction.
  * Images are normalized to [0, 1] and flattened to shape [n, 784].
- * Labels are kept sparse, shape [n].
+ * Labels are one-hot encoded to shape [n, 10].
  *
  * Typical usage:
  * @code
@@ -48,7 +48,7 @@ class axon::datasets::MNIST : public Dataset {
    * @brief Loads MNIST images and labels from IDX binary files.
    *
    * Reads both files completely into memory, normalizes pixel values
-   * to [0, 1] and keeps the labels sparse.
+   * to [0, 1] and one-hot encodes the labels.
    *
    * @param images_path Path to the IDX image file (e.g.,
    *        @c train-images-idx3-ubyte).

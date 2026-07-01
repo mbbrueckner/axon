@@ -67,8 +67,11 @@ MNIST::MNIST(const std::string& images_path, const std::string& labels_path) {
   std::vector<uint8_t> labels(n_labels);
   label_file.read(reinterpret_cast<char*>(labels.data()), labels.size());
 
-  std::vector<float> label_data(labels.begin(), labels.end());
-  labels_ = Tensor::from_data(label_data, {n_labels});
+  std::vector<float> label_data(n_labels * 10, 0.0f);
+  for (idx_t i = 0; i < n_labels; i++) {
+    label_data[i * 10 + labels[i]] = 1.0f;
+  }
+  labels_ = Tensor::from_data(label_data, {n_labels, 10});
 }
 
 Sample MNIST::operator[](idx_t idx) const {
