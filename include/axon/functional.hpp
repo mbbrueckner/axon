@@ -94,4 +94,19 @@ Tensor mse_loss(const Tensor& logits, const Tensor& targets);
  */
 Tensor accuracy(const Tensor& predictions, const Tensor& targets);
 
+/**
+ * @brief Stacks a sequence of tensors along a new first dimension.
+ *
+ * All tensors must have identical shapes. The result has one additional
+ * leading dimension of size @c tensors.size():
+ * @code
+ * // tensors: n tensors of shape [784]
+ * // result:  shape [n, 784]
+ * @endcode
+ *
+ * @param tensors Non-empty list of tensors with identical shapes.
+ * @return A tensor with shape @c [tensors.size(), tensors[0].shape()...].
+ * @throws std::invalid_argument if @p tensors is empty or shapes differ.
+ */
+Tensor stack(const std::vector<Tensor>& tensors);
 }  // namespace axon

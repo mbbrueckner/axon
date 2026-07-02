@@ -67,4 +67,25 @@ Tensor accuracy(const Tensor& predictions, const Tensor& targets) {
   return 1.0f - (predictions - targets).abs().gt(0.5f).sum() /
                     static_cast<float>(predictions.num_elements());
 }
+
+Tensor stack(const std::vector<Tensor>& tensors) {
+  if (tensors.empty()) {
+    throw std::invalid_argument("Cannot stack empty list of tensors.");
+  }
+  const std::vector<idx_t> first_shape = tensors[0].shape();
+
+  std::vector<float> new_data;
+  new_data.reserve(tensors.size() * tensors[0].num_elements());
+  for (const Tensor& tensor : tensors) {
+    if (tensor.shape() != first_shape)
+      throw std::out_of_range("Cannot stack tensors with different shapes");
+    new_data.insert(new_data.end(), tensor.data().begin(), tensor.data().end());
+  }
+
+  std::vector<idx_t> new_shape(first_shape.size() + 1);
+  new_shape[0] = static_cast<idx_t>(tensors.size());
+  std::copy(first_shape.begin(), first_shape.end(), new_shape.begin() + 1);
+
+  return Tensor::from_data(new_data, new_shape);
+}
 }  // namespace axon
