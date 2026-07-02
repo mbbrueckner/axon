@@ -79,7 +79,8 @@ Tensor stack(const std::vector<Tensor>& tensors) {
   for (const Tensor& tensor : tensors) {
     if (tensor.shape() != first_shape)
       throw std::out_of_range("Cannot stack tensors with different shapes");
-    new_data.insert(new_data.end(), tensor.data().begin(), tensor.data().end());
+    std::vector<float> tensor_data = tensor.data();
+    new_data.insert(new_data.end(), tensor_data.begin(), tensor_data.end());
   }
 
   std::vector<idx_t> new_shape(first_shape.size() + 1);
