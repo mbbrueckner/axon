@@ -107,3 +107,29 @@ TEST_CASE("Cross entropy loss", "[Functional]") {
     REQUIRE(loss.item() == Catch::Approx(std::log(3.0f)).margin(0.001f));
   }
 }
+
+TEST_CASE("stack tensors", "[Functional]") {
+  const axon::Tensor t1 = axon::Tensor::from_data({1, 2, 3}, {3});
+
+  SECTION("stack produces expected output") {
+    const axon::Tensor t2 = axon::Tensor::from_data({4, 5, 6}, {3});
+
+    const axon::Tensor t_stacked =
+        axon::stack(std::vector<axon::Tensor>{t1, t2});
+
+    const axon::Tensor t_expected =
+        axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+
+    REQUIRE(t_stacked.shape() == t_expected.shape());
+    axon::idx_t num_elements{t_expected.num_elements()};
+    for (axon::idx_t i{}; i < num_elements; i++) {
+      REQUIRE(t_stacked.data()[i] == t_expected.data()[i]);
+    }
+  }
+
+  SECTION("attempting stack with different tensor shapes throws out_of_range") {
+    const axon::Tensor t2 = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+    const std::vector<axon::Tensor> tensors{t1, t2};
+    REQUIRE_THROWS_AS(axon::stack(tensors), std::out_of_range);
+  }
+}
