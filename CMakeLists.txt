@@ -28,6 +28,8 @@ add_library(axon STATIC
         src/datasets/mnist.cpp
         include/axon/dataloader.hpp
         src/dataloader.cpp
+        include/axon/early_stopping.hpp
+        src/early_stopping.cpp
 )
 
 target_include_directories(axon
