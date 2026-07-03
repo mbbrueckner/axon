@@ -16,8 +16,18 @@
 #include "axon/tensor.hpp"
 
 namespace axon {
+/**
+ * @brief A batch of stacked (input, target) tensors.
+ *
+ * Unlike @c datasets::Sample, which holds a single example, a Batch holds
+ * @c batch_size stacked examples: the input has shape
+ * @c [batch_size, ...] and the target has shape @c [batch_size, ...].
+ * Produced by @c DataLoader::Iterator::operator*() via @c stack().
+ */
+using Batch = std::pair<Tensor, Tensor>;
+
 class DataLoader;
-}
+}  // namespace axon
 
 /**
  * @brief Wraps a Dataset and provides batched, optionally shuffled iteration.
@@ -62,7 +72,7 @@ class axon::DataLoader {
      * @brief Returns the current batch as a (input, target) pair.
      * @return Pair of tensors with shape @c [batch_size, ...].
      */
-    datasets::Sample operator*() const;
+    Batch operator*() const;
 
     /// @brief Advances to the next batch.
     Iterator& operator++();
