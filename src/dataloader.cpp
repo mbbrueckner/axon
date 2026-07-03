@@ -61,9 +61,11 @@ DataLoader::Iterator DataLoader::begin() {
   return Iterator{this, 0};
 }
 
-DataLoader::Iterator& DataLoader::Iterator::operator++() {
-  batch_idx_++;
-  return *this;
+DataLoader::Iterator DataLoader::end() {
+  idx_t n_batches = drop_last_
+                        ? dataset_.size() / batch_size_
+                        : (dataset_.size() + batch_size_ - 1) / batch_size_;
+  return Iterator{this, n_batches};
 }
 
 void DataLoader::shuffle_indices() { std::ranges::shuffle(indices_, rng_); }
