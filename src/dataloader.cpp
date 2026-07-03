@@ -54,4 +54,8 @@ DataLoader::Iterator& DataLoader::Iterator::operator++() {
   return *this;
 }
 
+bool DataLoader::Iterator::operator!=(const Iterator& other) const {
+  return batch_idx_ != other.batch_idx_;
+}
+
 }  // namespace axon
