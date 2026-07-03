@@ -11,6 +11,7 @@ A neural network library from scratch in C++.
 - [X] first test - model (XOR)
 - [ ] MNIST benchmarks
 - [ ] Code optimization
+- [ ] Code parallelization 
 - [ ] addition of more modules
 
 ## XOR (`examples/xor_demo.cpp`) results
