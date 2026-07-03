@@ -49,4 +49,9 @@ Batch DataLoader::Iterator::operator*() const {
   return {stack(feat_tensors), stack(label_tensors)};
 }
 
+DataLoader::Iterator& DataLoader::Iterator::operator++() {
+  batch_idx_++;
+  return *this;
+}
+
 }  // namespace axon
