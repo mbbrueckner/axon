@@ -1,35 +1,101 @@
 name: axon
+
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
   schedule:
-    - cron: 0 0 * * *
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
 
-      - name: Dependencies
+      - name: Install cppcheck
         run: |
           sudo apt-get update
-          sudo apt-get install -y valgrind cppcheck
+          sudo apt-get install -y cppcheck
 
       - name: Static Code Analysis
         run: cppcheck src/ --template=gcc --force --error-exitcode=1
 
-      - name: Build (Debug)
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Debug && cmake --build build
+  build:
+    name: build (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-gcc
+            os: ubuntu-latest
+            cc: gcc
+            cxx: g++
+          - name: linux-clang
+            os: ubuntu-latest
+            cc: clang
+            cxx: clang++
+          - name: macos-clang
+            os: macos-latest
+            cc: clang
+            cxx: clang++
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+    steps:
+      - uses: actions/checkout@v6
 
-      - name: Test (ASan/UBSan)
-        run: cd build && ctest --output-on-failure
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ${{ matrix.name }}
+
+      - name: Build (Debug, ASan/UBSan)
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          cmake --build build --parallel
+
+      - name: Test (Debug)
+        run: ctest --test-dir build --output-on-failure
 
       - name: Build (Release)
-        run: cmake -B build-release -DCMAKE_BUILD_TYPE=Release && cmake --build build-release
+        run: |
+          cmake -B build-release -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          cmake --build build-release --parallel
+
+      - name: Test (Release)
+        run: ctest --test-dir build-release --output-on-failure
+
+  valgrind:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install valgrind
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y valgrind
+
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: valgrind
+
+      - name: Build (RelWithDebInfo)
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          cmake --build build --parallel
 
       - name: Valgrind
         run: |
@@ -37,4 +103,4 @@ jobs:
             --leak-check=full \
             --error-exitcode=1 \
             --track-origins=yes \
-            ./build-release/tests/axon_tests
+            ./build/tests/axon_tests
