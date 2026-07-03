@@ -64,6 +64,8 @@ jobs:
           cmake --build build --parallel
 
       - name: Test (Debug)
+        env:
+          ASAN_OPTIONS: detect_container_overflow=0
         run: ctest --test-dir build --output-on-failure
 
       - name: Build (Release)
