@@ -15,26 +15,23 @@
 namespace axon {
 
 DataLoader::DataLoader(const datasets::Dataset& dataset,
-                       idx_t batch_size,
-                       bool shuffle)
+                       const idx_t batch_size,
+                       const bool shuffle,
+                       const bool drop_last)
     : dataset_(dataset),
       batch_size_(batch_size),
       shuffle_(shuffle),
+      drop_last_(drop_last),
       indices_(dataset.size()) {
   std::iota(indices_.begin(), indices_.end(), 0);
 }
 
-DataLoader::Iterator DataLoader::begin() {
-  if (shuffle_) shuffle_indices();
-
-  return Iterator{this, 0};
-}
-
-void DataLoader::shuffle_indices() { std::ranges::shuffle(indices_, rng_); }
-
 Batch DataLoader::Iterator::operator*() const {
-  const idx_t batch_size = loader_->batch_size_;
-  const auto batch_begin = loader_->indices_.begin() + batch_idx_ * batch_size;
+  const idx_t total_size = loader_->dataset_.size();
+  const idx_t start = batch_idx_ * loader_->batch_size_;
+  const idx_t batch_size = std::min(loader_->batch_size_, total_size - start);
+
+  const auto batch_begin = loader_->indices_.begin() + start;
   const std::span<idx_t> sample_indices(batch_begin, batch_begin + batch_size);
 
   std::vector<Tensor> feat_tensors, label_tensors;
@@ -57,5 +54,18 @@ DataLoader::Iterator& DataLoader::Iterator::operator++() {
 bool DataLoader::Iterator::operator!=(const Iterator& other) const {
   return batch_idx_ != other.batch_idx_;
 }
+
+DataLoader::Iterator DataLoader::begin() {
+  if (shuffle_) shuffle_indices();
+
+  return Iterator{this, 0};
+}
+
+DataLoader::Iterator& DataLoader::Iterator::operator++() {
+  batch_idx_++;
+  return *this;
+}
+
+void DataLoader::shuffle_indices() { std::ranges::shuffle(indices_, rng_); }
 
 }  // namespace axon

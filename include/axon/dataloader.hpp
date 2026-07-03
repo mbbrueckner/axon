@@ -54,10 +54,13 @@ class axon::DataLoader {
    * @param batch_size Number of samples per batch.
    * @param shuffle    If @c true, the sample order is randomized at the
    *                   start of each epoch via @c begin().
+   * @param drop_last  If @c true, the last (potentially) smaller batch will be
+   *                   dropped.
    */
   DataLoader(const datasets::Dataset& dataset,
              idx_t batch_size,
-             bool shuffle = true);
+             bool shuffle = true,
+             bool drop_last = true);
 
   /**
    * @brief A forward iterator over batches.
@@ -110,6 +113,8 @@ class axon::DataLoader {
   idx_t batch_size_;
   /// @brief Whether to shuffle sample order each epoch.
   bool shuffle_;
+  /// @brief Whether to drop the last (potentially) smaller batch.
+  bool drop_last_;
   /// @brief Permuted sample indices used for shuffling.
   std::vector<idx_t> indices_;
   /// @brief Mersenne Twister random number generator for shuffling.
