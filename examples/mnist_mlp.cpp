@@ -94,7 +94,6 @@ int main(int argc, char *argv[]) {
 
     // validation
     float val_loss_sum = 0.0f;
-    float val_acc_sum = 0.0f;
     axon::idx_t n_val_batches = 0;
     for (auto [input, target] : val_loader) {
       axon::Tensor output = model.forward(input);
@@ -109,7 +108,7 @@ int main(int argc, char *argv[]) {
     // early stop if no improvement for 5 epochs
     if (early_stop.should_stop(val_loss, model.parameters())) {
       std::cout << "Early stop at epoch " << epoch << "; val_loss: " << val_loss
-                << "; val_acc: " << val_acc << std::endl;
+                << std::endl;
       break;
     }
   }
