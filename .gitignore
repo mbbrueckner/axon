@@ -70,3 +70,6 @@ Testing/
 
 # IntelliJ IDEA
 .idea/
+
+# demo data
+data/
