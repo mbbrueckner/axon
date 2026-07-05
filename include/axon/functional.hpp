@@ -80,16 +80,16 @@ Tensor cross_entropy_loss_sparse(const Tensor& logits, const Tensor& targets);
 Tensor mse_loss(const Tensor& logits, const Tensor& targets);
 
 /**
- * @brief Computes the fraction of predictions that match their targets.
+ * @brief Computes the fraction of samples whose predicted class matches
+ *        the target class.
  *
- * A prediction counts as correct when it lies within 0.5 of the target
- * value, i.e. @c |prediction - target| <= 0.5. The result is the mean
- * over all elements:
- * @f[ \mathrm{acc} = 1 - \frac{1}{N}
- *     \sum_{i} \mathbb{1}\big[\,|p_i - t_i| > 0.5\,\big] @f]
+ * Both @p predictions and @p targets are treated as class scores of shape
+ * @c (batch, num_classes); the predicted and target class for each sample
+ * is taken via @c argmax along dimension 1, and accuracy is the fraction
+ * of samples where these indices agree.
  *
- * @param logits Predicted values.
- * @param targets Ground-truth values of the same shape as @p logits.
+ * @param predictions Predicted class scores of shape (batch, num_classes).
+ * @param targets Ground-truth class scores of shape (batch, num_classes).
  * @return Scalar tensor in @c [0, 1] holding the accuracy.
  */
 Tensor accuracy(const Tensor& predictions, const Tensor& targets);
