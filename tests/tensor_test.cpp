@@ -473,6 +473,99 @@ TEST_CASE("Tensor sum(dim, keep_dim) returns expected output", "[Tensor]") {
   }
 }
 
+TEST_CASE("Tensor argmax(dim, keep_dim) returns expected output", "[Tensor]") {
+  const axon::Tensor t =
+      axon::Tensor::from_data({1, 5, 3, 4, 2, 6}, {2, 3});
+
+  SECTION("dim = 1, keep_dim = true") {
+    const axon::Tensor result = t.argmax(1, true);
+    const std::vector<axon::idx_t> expected_shape{2, 1};
+    REQUIRE(result.shape() == expected_shape);
+    REQUIRE(result.at({0, 0}) == 1.0f);
+    REQUIRE(result.at({1, 0}) == 2.0f);
+  }
+
+  SECTION("dim = 1, keep_dim = false") {
+    const axon::Tensor result = t.argmax(1, false);
+    const std::vector<axon::idx_t> expected_shape{2};
+    REQUIRE(result.shape() == expected_shape);
+    REQUIRE(result.at({0}) == 1.0f);
+    REQUIRE(result.at({1}) == 2.0f);
+  }
+
+  SECTION("dim = 0, keep_dim = true") {
+    const axon::Tensor result = t.argmax(0, true);
+    const std::vector<axon::idx_t> expected_shape{1, 3};
+    REQUIRE(result.shape() == expected_shape);
+    REQUIRE(result.at({0, 0}) == 1.0f);
+    REQUIRE(result.at({0, 1}) == 0.0f);
+    REQUIRE(result.at({0, 2}) == 1.0f);
+  }
+
+  SECTION("dim = 0, keep_dim = false") {
+    const axon::Tensor result = t.argmax(0, false);
+    const std::vector<axon::idx_t> expected_shape{3};
+    REQUIRE(result.shape() == expected_shape);
+    REQUIRE(result.at({0}) == 1.0f);
+    REQUIRE(result.at({1}) == 0.0f);
+    REQUIRE(result.at({2}) == 1.0f);
+  }
+}
+
+TEST_CASE("Tensor argmax defaults to keep_dim = true", "[Tensor]") {
+  const axon::Tensor t = axon::Tensor::from_data({1, 5, 3, 4, 2, 6}, {2, 3});
+
+  const axon::Tensor result = t.argmax(1);
+  const std::vector<axon::idx_t> expected_shape{2, 1};
+  REQUIRE(result.shape() == expected_shape);
+  REQUIRE(result.at({0, 0}) == 1.0f);
+  REQUIRE(result.at({1, 0}) == 2.0f);
+}
+
+TEST_CASE("Tensor argmax with negative values", "[Tensor]") {
+  const axon::Tensor t =
+      axon::Tensor::from_data({-1, -5, -3, -4, -2, -6}, {2, 3});
+
+  const axon::Tensor result = t.argmax(1, false);
+  const std::vector<axon::idx_t> expected_shape{2};
+  REQUIRE(result.shape() == expected_shape);
+  REQUIRE(result.at({0}) == 0.0f);
+  REQUIRE(result.at({1}) == 1.0f);
+}
+
+TEST_CASE("Tensor argmax breaks ties with the first occurrence", "[Tensor]") {
+  SECTION("tie at the start") {
+    const axon::Tensor t = axon::Tensor::from_data({3, 3, 1}, {3});
+    REQUIRE(t.argmax(0, false).at({}) == 0.0f);
+  }
+  SECTION("tie later in the tensor") {
+    const axon::Tensor t = axon::Tensor::from_data({1, 3, 3}, {3});
+    REQUIRE(t.argmax(0, false).at({}) == 1.0f);
+  }
+}
+
+TEST_CASE("Tensor argmax on a 1D tensor reduces to a scalar", "[Tensor]") {
+  const axon::Tensor t = axon::Tensor::from_data({1, 5, 3, 4, 2, 6}, {6});
+
+  SECTION("keep_dim = false") {
+    const axon::Tensor result = t.argmax(0, false);
+    REQUIRE(result.num_dim() == 0);
+    REQUIRE(result.item() == 5.0f);
+  }
+  SECTION("keep_dim = true") {
+    const axon::Tensor result = t.argmax(0, true);
+    const std::vector<axon::idx_t> expected_shape{1};
+    REQUIRE(result.shape() == expected_shape);
+    REQUIRE(result.at({0}) == 5.0f);
+  }
+}
+
+TEST_CASE("Tensor argmax with dim out of range throws", "[Tensor]") {
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  REQUIRE_THROWS_AS(t.argmax(2), std::out_of_range);
+  REQUIRE_THROWS_AS(t.argmax(-1), std::out_of_range);
+}
+
 TEST_CASE("Tensor mean", "[Tensor]") {
   const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   REQUIRE(t.mean().at({0}) == 3.5f);
