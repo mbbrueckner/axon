@@ -64,8 +64,10 @@ Tensor mse_loss(const Tensor& logits, const Tensor& targets) {
 }
 
 Tensor accuracy(const Tensor& predictions, const Tensor& targets) {
-  return 1.0f - (predictions - targets).abs().gt(0.5f).sum() /
-                    static_cast<float>(predictions.num_elements());
+  const Tensor correct = predictions.argmax(1).eq(targets.argmax(1)).sum();
+  const float batches = static_cast<float>(predictions.shape()[0]);
+
+  return correct / batches;
 }
 
 Tensor stack(const std::vector<Tensor>& tensors) {
