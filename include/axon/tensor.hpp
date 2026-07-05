@@ -309,8 +309,21 @@ class axon::Tensor {
 
   /// @return The smallest element value in the tensor.
   [[nodiscard]] float min() const;
+  
   /// @return The largest element value in the tensor.
   [[nodiscard]] float max() const;
+
+  /**
+   * @brief Returns the index of the maximum value along a dimension.
+   *
+   * @param dim Dimension along which to find the argmax.
+   * @param keep_dim If true, the reduced dimension is kept with size 1;
+   *        otherwise it is removed from the result shape.
+   * @return A tensor with @p dim reduced, holding the argmax indices.
+   * @throws std::out_of_range if @p dim is out of range for this tensor's rank.
+   */
+  [[nodiscard]] Tensor argmax(idx_t dim, bool keep_dim = true) const;
+
   /// @return The sum of all element values.
   [[nodiscard]] Tensor sum() const;
 
