@@ -94,21 +94,26 @@ int main(int argc, char *argv[]) {
 
     // validation
     float val_loss_sum = 0.0f;
+    float val_acc_sum = 0.0f;
     axon::idx_t n_val_batches = 0;
     for (auto [input, target] : val_loader) {
       axon::Tensor output = model.forward(input);
       axon::Tensor loss = axon::cross_entropy_loss(output, target);
+      axon::Tensor acc = axon::accuracy(output, target);
       val_loss_sum += loss.item();
+      val_acc_sum += acc.item();
       n_val_batches++;
     }
     float val_loss = val_loss_sum / static_cast<float>(n_val_batches);
+    float val_acc = val_acc_sum / static_cast<float>(n_val_batches);
     // if (epoch % 100 == 0)
-    std::cout << "Epoch: " << epoch << "; val_loss: " << val_loss << std::endl;
+    std::cout << "Epoch: " << epoch << "; val_loss: " << val_loss
+              << "; val_acc: " << val_acc << std::endl;
 
     // early stop if no improvement for 5 epochs
     if (early_stop.should_stop(val_loss, model.parameters())) {
       std::cout << "Early stop at epoch " << epoch << "; val_loss: " << val_loss
-                << std::endl;
+                << "; val_acc: " << val_acc << std::endl;
       break;
     }
   }
