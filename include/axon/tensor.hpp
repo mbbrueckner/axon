@@ -309,7 +309,7 @@ class axon::Tensor {
 
   /// @return The smallest element value in the tensor.
   [[nodiscard]] float min() const;
-  
+
   /// @return The largest element value in the tensor.
   [[nodiscard]] float max() const;
 
@@ -364,6 +364,19 @@ class axon::Tensor {
   [[nodiscard]] Tensor gt(float threshold) const {
     return gt(Tensor::from_data({threshold}, {1}));
   };
+
+  /**
+   * @brief Returns a boolean mask tensor with 1.0 where elements are equal
+   *        to the corresponding elements of @p other, 0.0 elsewhere.
+   *
+   * Supports broadcasting between @c this and @p other.
+   *
+   * @param other The right-hand operand to compare against.
+   * @return A tensor of the same shape as the broadcast result, containing
+   *         1.0 or 0.0.
+   * @throws std::out_of_range if the shapes are not broadcastable.
+   */
+  [[nodiscard]] Tensor eq(const Tensor& other) const;
 
   /**
    * @brief Tests whether @p lhs is elementwise strictly less than @p rhs.

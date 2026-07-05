@@ -549,7 +549,7 @@ Tensor Tensor::argmax(const idx_t dim, const bool keep_dim) const {
     } else {
       output_idx.erase(output_idx.begin() + dim);
     }
-    
+
     idx_t output_flat = std::inner_product(
         output_idx.begin(), output_idx.end(), output_stride.begin(), idx_t{0});
 
@@ -661,6 +661,19 @@ Tensor Tensor::gt(const Tensor& other) const {
   for (idx_t i = 0; i < n; i++) {
     std::vector<idx_t> idx = utils::flat_to_indices(i, a.shape());
     new_data[i] = a.at(idx) > b.at(idx) ? 1.0f : 0.0f;
+  }
+
+  return {new_data, a.shape()};
+}
+
+Tensor Tensor::eq(const Tensor& other) const {
+  auto [a, b] = broadcast(*this, other);
+  const idx_t n = a.num_elements();
+  std::vector<float> new_data(n);
+
+  for (idx_t i = 0; i < n; i++) {
+    std::vector<idx_t> idx = utils::flat_to_indices(i, a.shape());
+    new_data[i] = a.at(idx) == b.at(idx) ? 1.0f : 0.0f;
   }
 
   return {new_data, a.shape()};
