@@ -108,6 +108,47 @@ TEST_CASE("Cross entropy loss", "[Functional]") {
   }
 }
 
+TEST_CASE("Accuracy", "[Functional]") {
+  SECTION("Output is scalar") {
+    axon::Tensor predictions =
+        axon::Tensor::from_data({2.0f, 1.0f, 0.1f, 0.2f, 0.5f, 5.0f}, {2, 3});
+    axon::Tensor targets =
+        axon::Tensor::from_data({1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f}, {2, 3});
+    axon::Tensor acc = axon::accuracy(predictions, targets);
+    REQUIRE(acc.num_elements() == 1);
+  }
+
+  SECTION("All predicted classes match the targets") {
+    // argmax(predictions) = [0, 2]; argmax(targets) = [0, 2]
+    axon::Tensor predictions =
+        axon::Tensor::from_data({2.0f, 1.0f, 0.1f, 0.2f, 0.5f, 5.0f}, {2, 3});
+    axon::Tensor targets =
+        axon::Tensor::from_data({1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f}, {2, 3});
+    axon::Tensor acc = axon::accuracy(predictions, targets);
+    REQUIRE(acc.item() == Catch::Approx(1.0f));
+  }
+
+  SECTION("No predicted classes match the targets") {
+    // argmax(predictions) = [0, 2]; argmax(targets) = [2, 0]
+    axon::Tensor predictions =
+        axon::Tensor::from_data({2.0f, 1.0f, 0.1f, 0.2f, 0.5f, 5.0f}, {2, 3});
+    axon::Tensor targets =
+        axon::Tensor::from_data({0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f}, {2, 3});
+    axon::Tensor acc = axon::accuracy(predictions, targets);
+    REQUIRE(acc.item() == Catch::Approx(0.0f));
+  }
+
+  SECTION("Some predicted classes match the targets") {
+    // argmax(predictions) = [0, 2]; argmax(targets) = [0, 0]
+    axon::Tensor predictions =
+        axon::Tensor::from_data({2.0f, 1.0f, 0.1f, 0.2f, 0.5f, 5.0f}, {2, 3});
+    axon::Tensor targets =
+        axon::Tensor::from_data({1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f}, {2, 3});
+    axon::Tensor acc = axon::accuracy(predictions, targets);
+    REQUIRE(acc.item() == Catch::Approx(0.5f));
+  }
+}
+
 TEST_CASE("stack tensors", "[Functional]") {
   const axon::Tensor t1 = axon::Tensor::from_data({1, 2, 3}, {3});
 
