@@ -525,6 +525,15 @@ float Tensor::max() const {
 }
 
 Tensor Tensor::argmax(const idx_t dim, const bool keep_dim) const {
+  if (dim < 0 || dim >= num_dim()) {
+    throw std::out_of_range(
+        std::format("Cannot compute argmax: dimension {} out of range for "
+                    "tensor with {} dimensions (valid range: 0 to {})",
+                    dim,
+                    num_dim(),
+                    num_dim() - 1));
+  }
+
   std::vector<idx_t> output_shape = shape_;
   if (keep_dim)
     output_shape[dim] = 1;
