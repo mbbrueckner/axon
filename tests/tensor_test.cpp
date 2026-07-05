@@ -710,6 +710,50 @@ TEST_CASE("Tensor equality comparison", "[Tensor]") {
   }
 }
 
+TEST_CASE("Tensor eq produces an elementwise mask", "[Tensor]") {
+  const axon::Tensor t_l = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_r = axon::Tensor::from_data({1, 9, 3, 9, 5, 9}, {2, 3});
+
+  const axon::Tensor mask = t_l.eq(t_r);
+
+  SECTION("shape matches the input shape") {
+    REQUIRE(mask.shape() == t_l.shape());
+  }
+
+  SECTION("mask holds 1.0 where equal and 0.0 elsewhere") {
+    REQUIRE(mask.at({0, 0}) == 1.0f);
+    REQUIRE(mask.at({0, 1}) == 0.0f);
+    REQUIRE(mask.at({0, 2}) == 1.0f);
+    REQUIRE(mask.at({1, 0}) == 0.0f);
+    REQUIRE(mask.at({1, 1}) == 1.0f);
+    REQUIRE(mask.at({1, 2}) == 0.0f);
+  }
+}
+
+TEST_CASE("Tensor eq broadcasts against a smaller operand", "[Tensor]") {
+  const axon::Tensor t = axon::Tensor::from_data({1, 2, 3, 1, 2, 9}, {2, 3});
+  const axon::Tensor row = axon::Tensor::from_data({1, 2, 3}, {1, 3});
+
+  const axon::Tensor mask = t.eq(row);
+
+  const std::vector<axon::idx_t> expected_shape{2, 3};
+  REQUIRE(mask.shape() == expected_shape);
+  REQUIRE(mask.at({0, 0}) == 1.0f);
+  REQUIRE(mask.at({0, 1}) == 1.0f);
+  REQUIRE(mask.at({0, 2}) == 1.0f);
+  REQUIRE(mask.at({1, 0}) == 1.0f);
+  REQUIRE(mask.at({1, 1}) == 1.0f);
+  REQUIRE(mask.at({1, 2}) == 0.0f);
+}
+
+TEST_CASE("Tensor eq with non-broadcastable shapes throws", "[Tensor]") {
+  const axon::Tensor t_l = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  const axon::Tensor t_r =
+      axon::Tensor::from_data({1, 2, 3, 4, 5, 6, 7, 8, 9}, {3, 3});
+
+  REQUIRE_THROWS_AS(t_l.eq(t_r), std::out_of_range);
+}
+
 TEST_CASE("Tensor comparison with non-matching shapes", "[Tensor]") {
   const axon::Tensor t_l = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   const axon::Tensor t_r = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {3, 2});
