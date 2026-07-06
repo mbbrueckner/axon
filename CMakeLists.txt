@@ -17,6 +17,10 @@ add_library(axon STATIC
         src/modules/sequential.cpp
         src/functional.cpp
         src/optimizers/sgd.cpp
+        src/datasets/mnist.cpp
+        src/dataloader.cpp
+        src/early_stopping.cpp
+        src/summary.cpp
         include/axon/modules/module.hpp
         include/axon/modules/linear.hpp
         include/axon/modules/relu.hpp
@@ -25,11 +29,9 @@ add_library(axon STATIC
         include/axon/optimizers/sgd.hpp
         include/axon/datasets/dataset.hpp
         include/axon/datasets/mnist.hpp
-        src/datasets/mnist.cpp
-        include/axon/dataloader.hpp
-        src/dataloader.cpp
         include/axon/early_stopping.hpp
-        src/early_stopping.cpp
+        include/axon/dataloader.hpp
+        include/axon/summary.hpp
 )
 
 target_include_directories(axon
