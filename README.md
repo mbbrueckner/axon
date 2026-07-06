@@ -9,9 +9,10 @@ A neural network library from scratch in C++.
 - [X] basic Modules
 - [X] Optimzers (SGD)
 - [X] first test - model (XOR)
-- [ ] MNIST benchmarks
+- [X] first real model MNIST
+- [ ] performance benchmarks
 - [ ] Code optimization
-- [ ] Code parallelization 
+- [ ] Code parallelization
 - [ ] addition of more modules
 
 ## XOR (`examples/xor_demo.cpp`) results
