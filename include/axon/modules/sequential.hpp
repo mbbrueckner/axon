@@ -54,6 +54,14 @@ class axon::nn::Sequential : public Module {
    */
   void set_parameters(std::vector<Tensor> params) override;
 
+  /**
+   * @brief Returns a description listing all sub-modules in order.
+   *
+   * @return A multi-line string naming each sub-module by index and
+   *         its own to_string().
+   */
+  std::string to_string() const override;
+
  private:
   /// Sub-modules executed in order during forward().
   std::vector<std::unique_ptr<Module>> modules_;

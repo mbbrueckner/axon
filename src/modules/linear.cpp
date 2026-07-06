@@ -78,5 +78,13 @@ void Linear::set_parameters(std::vector<Tensor> params) {
   }
   bias_ = params[1];
 }
+std::string Linear::to_string() const {
+  const std::vector<idx_t> weights_shape = weights_.shape();
+  const idx_t in_features = weights_shape[0];
+  const idx_t out_features = weights_shape[1];
+  return std::format("Linear(in_features = {},  out_features = {})",
+                     in_features,
+                     out_features);
+}
 
 }  // namespace axon::nn

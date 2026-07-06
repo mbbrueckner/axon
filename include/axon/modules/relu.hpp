@@ -39,4 +39,11 @@ class axon::nn::ReLU : public Module {
    * @throws std::logic_error if params is non-empty.
    */
   void set_parameters(std::vector<Tensor> params) override;
+
+  /**
+   * @brief Returns a description of the activation.
+   *
+   * @return The string "ReLU()".
+   */
+  std::string to_string() const override;
 };

@@ -60,6 +60,13 @@ class axon::nn::Linear : public Module {
    */
   void set_parameters(std::vector<Tensor> params) override;
 
+  /**
+   * @brief Returns a description including input/output feature sizes.
+   *
+   * @return A string of the form "Linear(in_features=.., out_features=..)".
+   */
+  std::string to_string() const override;
+
  private:
   Tensor weights_;  ///< Learnable weight matrix of shape [in_features,
                     ///< out_features].

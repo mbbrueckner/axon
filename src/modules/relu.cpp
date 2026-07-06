@@ -18,5 +18,6 @@ void ReLU::set_parameters(std::vector<Tensor> params) {
     throw std::logic_error("ReLU has no parameters to be set");
   }
 }
+std::string ReLU::to_string() const { return "ReLU()"; }
 
 }  // namespace axon::nn

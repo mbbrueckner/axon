@@ -47,6 +47,14 @@ class axon::nn::Module {
    */
   virtual void set_parameters(std::vector<Tensor> params) = 0;
 
+  /**
+   * @brief Returns a human-readable description of the module.
+   *
+   * @return A string describing the module's type and configuration,
+   *         e.g. for printing a model's architecture.
+   */
+  virtual std::string to_string() const = 0;
+
   /// @brief Virtual destructor to allow safe polymorphic deletion.
   virtual ~Module() = default;
 };

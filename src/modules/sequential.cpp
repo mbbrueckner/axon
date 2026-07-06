@@ -52,4 +52,19 @@ void Sequential::set_parameters(std::vector<Tensor> params) {
     offset += module_params_size;
   }
 }
+std::string Sequential::to_string() const {
+  std::string setup{"Sequential\n"};
+  const idx_t num_modules = modules_.size();
+  const idx_t last_module_idx = num_modules - 1;
+  if (num_modules > 1) {
+    for (idx_t i{0}; i < last_module_idx; i++) {
+      setup +=
+          std::format("\u251c\u2500 ({}): {}\n", i, modules_[i]->to_string());
+    }
+  }
+  setup += std::format("\u2514\u2500 ({}): {}",
+                       last_module_idx,
+                       modules_[last_module_idx]->to_string());
+  return setup;
+}
 }  // namespace axon::nn
