@@ -45,6 +45,15 @@ class axon::nn::Sequential : public Module {
   /// @return The concatenated parameters of all sub-modules, in order.
   std::vector<Tensor> parameters() override;
 
+  /**
+   * @brief Distributes the given parameters across all sub-modules, in order.
+   *
+   * @param params A flat list of tensors, matching parameters() in count
+   *        and order.
+   * @throws std::out_of_range if the total count doesn't match.
+   */
+  void set_parameters(std::vector<Tensor> params) override;
+
  private:
   /// Sub-modules executed in order during forward().
   std::vector<std::unique_ptr<Module>> modules_;

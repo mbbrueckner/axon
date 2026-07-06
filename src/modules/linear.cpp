@@ -9,7 +9,10 @@
 
 #include <algorithm>
 #include <cmath>
+#include <format>
 #include <random>
+
+#include "utils.hpp"
 
 namespace axon::nn {
 Linear::Linear(idx_t in_features, idx_t out_features, unsigned seed)
@@ -40,6 +43,40 @@ std::vector<Tensor> Linear::parameters() {
   params.push_back(weights_.shared_autograd_copy());
   params.push_back(bias_.shared_autograd_copy());
   return params;
+}
+
+void Linear::set_parameters(std::vector<Tensor> params) {
+  const idx_t params_size = params.size();
+  if (params_size != 2) {
+    throw std::out_of_range(std::format(
+        "cannot set parameters because too many parameter-tensors were "
+        "given: expected: 2 (weights, bias), got {}",
+        params_size));
+  }
+
+  const std::vector<idx_t> first_shape = params[0].shape();
+  const std::vector<idx_t> weight_shape = weights_.shape();
+
+  if (first_shape != weight_shape) {
+    throw std::out_of_range(
+        std::format("cannot set parameters because weight shape"
+                    "does not fit: expected: {}, got {}",
+                    utils::vector_to_string(weight_shape),
+                    utils::vector_to_string(first_shape)));
+  }
+  weights_ = params[0];
+
+  const std::vector<idx_t> second_shape = params[1].shape();
+  const std::vector<idx_t> bias_shape = bias_.shape();
+
+  if (second_shape != bias_shape) {
+    throw std::out_of_range(
+        std::format("cannot set parameters because bias shape"
+                    "does not fit: expected: {}, got {}",
+                    utils::vector_to_string(bias_shape),
+                    utils::vector_to_string(second_shape)));
+  }
+  bias_ = params[1];
 }
 
 }  // namespace axon::nn

@@ -39,6 +39,14 @@ class axon::nn::Module {
    */
   virtual std::vector<Tensor> parameters() = 0;
 
+  /**
+   * @brief Sets the module's trainable parameters.
+   *
+   * @param params A list of tensors to replace the module's parameters,
+   *        in the same order as returned by parameters().
+   */
+  virtual void set_parameters(std::vector<Tensor> params) = 0;
+
   /// @brief Virtual destructor to allow safe polymorphic deletion.
   virtual ~Module() = default;
 };

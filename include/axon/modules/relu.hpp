@@ -31,4 +31,12 @@ class axon::nn::ReLU : public Module {
 
   /// @return An empty vector, since ReLU has no learnable parameters.
   std::vector<Tensor> parameters() override;
+
+  /**
+   * @brief No-op setter, since ReLU has no learnable parameters.
+   *
+   * @param params Must be empty.
+   * @throws std::logic_error if params is non-empty.
+   */
+  void set_parameters(std::vector<Tensor> params) override;
 };

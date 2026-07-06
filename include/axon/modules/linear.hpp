@@ -52,6 +52,14 @@ class axon::nn::Linear : public Module {
    */
   std::vector<Tensor> parameters() override;
 
+  /**
+   * @brief Sets the layer's weight and bias tensors.
+   *
+   * @param params Exactly two tensors: [weights, bias].
+   * @throws std::out_of_range if the count or shapes don't match.
+   */
+  void set_parameters(std::vector<Tensor> params) override;
+
  private:
   Tensor weights_;  ///< Learnable weight matrix of shape [in_features,
                     ///< out_features].
