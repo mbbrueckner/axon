@@ -37,7 +37,8 @@ void Sequential::set_parameters(std::vector<Tensor> params) {
     throw std::out_of_range(std::format(
         "cannot set parameters because the number of given parameter-tensors "
         "does not match: expected {}, got {}",
-        total_size, params.size()));
+        total_size,
+        params.size()));
   }
 
   idx_t offset = 0;

@@ -115,8 +115,7 @@ TEST_CASE("Linear forward applies the affine transformation", "[Linear]") {
   }
 }
 
-TEST_CASE("Linear set_parameters replaces weights and bias",
-          "[Linear]") {
+TEST_CASE("Linear set_parameters replaces weights and bias", "[Linear]") {
   axon::nn::Linear layer(3, 2);
 
   axon::Tensor new_weights =
@@ -130,8 +129,7 @@ TEST_CASE("Linear set_parameters replaces weights and bias",
   REQUIRE(params[1] == new_bias);
 }
 
-TEST_CASE("Linear set_parameters throws on wrong parameter count",
-          "[Linear]") {
+TEST_CASE("Linear set_parameters throws on wrong parameter count", "[Linear]") {
   axon::nn::Linear layer(3, 2);
 
   axon::Tensor weights = axon::Tensor::zeros({3, 2});
@@ -139,34 +137,31 @@ TEST_CASE("Linear set_parameters throws on wrong parameter count",
 
   REQUIRE_THROWS_AS(layer.set_parameters({weights}), std::out_of_range);
   REQUIRE_THROWS_AS(layer.set_parameters({weights, bias, bias}),
-                     std::out_of_range);
+                    std::out_of_range);
   REQUIRE_THROWS_AS(layer.set_parameters({}), std::out_of_range);
 }
 
-TEST_CASE("Linear set_parameters throws on wrong weight shape",
-          "[Linear]") {
+TEST_CASE("Linear set_parameters throws on wrong weight shape", "[Linear]") {
   axon::nn::Linear layer(3, 2);
 
   axon::Tensor wrong_weights = axon::Tensor::zeros({2, 2});
   axon::Tensor bias = axon::Tensor::zeros({2});
 
   REQUIRE_THROWS_AS(layer.set_parameters({wrong_weights, bias}),
-                     std::out_of_range);
+                    std::out_of_range);
 }
 
-TEST_CASE("Linear set_parameters throws on wrong bias shape",
-          "[Linear]") {
+TEST_CASE("Linear set_parameters throws on wrong bias shape", "[Linear]") {
   axon::nn::Linear layer(3, 2);
 
   axon::Tensor weights = axon::Tensor::zeros({3, 2});
   axon::Tensor wrong_bias = axon::Tensor::zeros({3});
 
   REQUIRE_THROWS_AS(layer.set_parameters({weights, wrong_bias}),
-                     std::out_of_range);
+                    std::out_of_range);
 }
 
-TEST_CASE("Linear set_parameters is reflected in forward",
-          "[Linear]") {
+TEST_CASE("Linear set_parameters is reflected in forward", "[Linear]") {
   constexpr axon::idx_t batch = 1;
   constexpr axon::idx_t in_features = 2;
   constexpr axon::idx_t out_features = 1;

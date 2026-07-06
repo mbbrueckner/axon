@@ -125,8 +125,8 @@ TEST_CASE("Sequential set_parameters distributes parameters to submodules",
 
   axon::Tensor first_weights = axon::Tensor::zeros({2, 4});
   axon::Tensor first_bias = axon::Tensor::zeros({4});
-  axon::Tensor second_weights = axon::Tensor::from_data(
-      {1.0f, 2.0f, 3.0f, 4.0f}, {4, 1});
+  axon::Tensor second_weights =
+      axon::Tensor::from_data({1.0f, 2.0f, 3.0f, 4.0f}, {4, 1});
   axon::Tensor second_bias = axon::Tensor::from_data({5.0f}, {1});
 
   sequential.set_parameters(
@@ -176,8 +176,7 @@ TEST_CASE("Sequential set_parameters throws when given too few parameters",
   REQUIRE_THROWS_AS(sequential.set_parameters(too_few), std::out_of_range);
 }
 
-TEST_CASE("Sequential set_parameters is reflected in forward",
-          "[Sequential]") {
+TEST_CASE("Sequential set_parameters is reflected in forward", "[Sequential]") {
   std::vector<std::unique_ptr<axon::nn::Module>> modules;
   modules.push_back(std::make_unique<axon::nn::Linear>(2, 1));
   axon::nn::Sequential sequential(std::move(modules));

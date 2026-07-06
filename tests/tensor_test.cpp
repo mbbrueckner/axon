@@ -474,8 +474,7 @@ TEST_CASE("Tensor sum(dim, keep_dim) returns expected output", "[Tensor]") {
 }
 
 TEST_CASE("Tensor argmax(dim, keep_dim) returns expected output", "[Tensor]") {
-  const axon::Tensor t =
-      axon::Tensor::from_data({1, 5, 3, 4, 2, 6}, {2, 3});
+  const axon::Tensor t = axon::Tensor::from_data({1, 5, 3, 4, 2, 6}, {2, 3});
 
   SECTION("dim = 1, keep_dim = true") {
     const axon::Tensor result = t.argmax(1, true);
