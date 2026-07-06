@@ -27,3 +27,18 @@ TEST_CASE("ReLU forward produces the expected output ", "[ReLU]") {
   REQUIRE(output.at({2}) == 0.0f);
   REQUIRE(output.at({3}) == 4.0f);
 }
+
+TEST_CASE("ReLU set_parameters accepts an empty vector", "[ReLU]") {
+  axon::nn::ReLU layer{};
+
+  REQUIRE_NOTHROW(layer.set_parameters({}));
+  REQUIRE(layer.parameters().empty());
+}
+
+TEST_CASE("ReLU set_parameters throws when given parameters", "[ReLU]") {
+  axon::nn::ReLU layer{};
+
+  axon::Tensor tensor = axon::Tensor::zeros({2});
+
+  REQUIRE_THROWS_AS(layer.set_parameters({tensor}), std::logic_error);
+}

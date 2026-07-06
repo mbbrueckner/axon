@@ -115,3 +115,81 @@ TEST_CASE("Sequential backward propagates gradients through all modules",
       axon::Tensor::zeros(linear_second_w_grad.shape());
   REQUIRE(linear_second_w_grad != comp_second);
 }
+
+TEST_CASE("Sequential set_parameters distributes parameters to submodules",
+          "[Sequential]") {
+  std::vector<std::unique_ptr<axon::nn::Module>> modules;
+  modules.push_back(std::make_unique<axon::nn::Linear>(2, 4));
+  modules.push_back(std::make_unique<axon::nn::Linear>(4, 1));
+  axon::nn::Sequential sequential(std::move(modules));
+
+  axon::Tensor first_weights = axon::Tensor::zeros({2, 4});
+  axon::Tensor first_bias = axon::Tensor::zeros({4});
+  axon::Tensor second_weights = axon::Tensor::from_data(
+      {1.0f, 2.0f, 3.0f, 4.0f}, {4, 1});
+  axon::Tensor second_bias = axon::Tensor::from_data({5.0f}, {1});
+
+  sequential.set_parameters(
+      {first_weights, first_bias, second_weights, second_bias});
+
+  std::vector<axon::Tensor> params = sequential.parameters();
+  REQUIRE(params.size() == 4);
+  REQUIRE(params[0] == first_weights);
+  REQUIRE(params[1] == first_bias);
+  REQUIRE(params[2] == second_weights);
+  REQUIRE(params[3] == second_bias);
+}
+
+TEST_CASE(
+    "Sequential without modules accepts an empty vector on set_parameters",
+    "[Sequential]") {
+  std::vector<std::unique_ptr<axon::nn::Module>> modules;
+  axon::nn::Sequential sequential(std::move(modules));
+
+  REQUIRE_NOTHROW(sequential.set_parameters({}));
+}
+
+TEST_CASE("Sequential set_parameters throws when given too many parameters",
+          "[Sequential]") {
+  std::vector<std::unique_ptr<axon::nn::Module>> modules;
+  modules.push_back(std::make_unique<axon::nn::Linear>(2, 4));
+  axon::nn::Sequential sequential(std::move(modules));
+
+  std::vector<axon::Tensor> too_many;
+  too_many.push_back(axon::Tensor::zeros({2, 4}));
+  too_many.push_back(axon::Tensor::zeros({4}));
+  too_many.push_back(axon::Tensor::zeros({4}));
+
+  REQUIRE_THROWS_AS(sequential.set_parameters(too_many), std::out_of_range);
+}
+
+TEST_CASE("Sequential set_parameters throws when given too few parameters",
+          "[Sequential]") {
+  std::vector<std::unique_ptr<axon::nn::Module>> modules;
+  modules.push_back(std::make_unique<axon::nn::Linear>(2, 4));
+  modules.push_back(std::make_unique<axon::nn::Linear>(4, 1));
+  axon::nn::Sequential sequential(std::move(modules));
+
+  std::vector<axon::Tensor> too_few;
+  too_few.push_back(axon::Tensor::zeros({2, 4}));
+
+  REQUIRE_THROWS_AS(sequential.set_parameters(too_few), std::out_of_range);
+}
+
+TEST_CASE("Sequential set_parameters is reflected in forward",
+          "[Sequential]") {
+  std::vector<std::unique_ptr<axon::nn::Module>> modules;
+  modules.push_back(std::make_unique<axon::nn::Linear>(2, 1));
+  axon::nn::Sequential sequential(std::move(modules));
+
+  axon::Tensor weights = axon::Tensor::from_data({1.0f, 2.0f}, {2, 1});
+  axon::Tensor bias = axon::Tensor::from_data({0.5f}, {1});
+  sequential.set_parameters({weights, bias});
+
+  const std::vector<axon::idx_t> input_shape{1, 2};
+  axon::Tensor input = axon::Tensor::from_data({3.0f, 4.0f}, input_shape);
+
+  axon::Tensor output = sequential.forward(input);
+
+  REQUIRE(output.at({0, 0}) == Catch::Approx(3.0f * 1.0f + 4.0f * 2.0f + 0.5f));
+}
