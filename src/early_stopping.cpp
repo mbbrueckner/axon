@@ -9,6 +9,7 @@
 #include "axon/early_stopping.hpp"
 
 #include <cfloat>
+#include <format>
 
 #include "axon/tensor.hpp"
 
@@ -45,4 +46,10 @@ bool axon::EarlyStopping::should_stop(
 }
 std::vector<axon::Tensor> axon::EarlyStopping::best_params() {
   return best_params_;
+}
+std::string axon::EarlyStopping::to_string() const {
+  return std::format("EarlyStopping(patience={}, min_delta={}, mode={})",
+                     patience_,
+                     min_delta_,
+                     mode_ == Mode::Minimize ? "min" : "max");
 }

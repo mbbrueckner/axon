@@ -65,6 +65,12 @@ class axon::optimizer::Optimizer {
    */
   virtual void zero_grad() = 0;
 
+  /**
+   * @brief Returns a human-readable description of the optimizer.
+   * @return A string describing the optimizer's type and hyperparameters.
+   */
+  virtual std::string to_string() const = 0;
+
   /// @brief Virtual destructor to allow safe polymorphic deletion.
   virtual ~Optimizer() = default;
 };

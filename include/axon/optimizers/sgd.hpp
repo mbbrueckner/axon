@@ -48,6 +48,9 @@ class axon::optimizer::SGD : public Optimizer {
    */
   void step() override;
 
+  /// @copydoc axon::optimizer::Optimizer::to_string()
+  std::string to_string() const override;
+  
   /// @copydoc axon::optimizer::Optimizer::zero_grad
   void zero_grad() override;
 };

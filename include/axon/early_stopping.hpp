@@ -80,6 +80,12 @@ class axon::EarlyStopping {
    */
   std::vector<Tensor> best_params();
 
+  /**
+   * @brief Returns a human-readable description of the early-stopping config.
+   * @return A string describing patience, min_delta, and mode.
+   */
+  [[nodiscard]] std::string to_string() const;
+
  private:
   /// @brief Epochs to tolerate without improvement before stopping.
   idx_t patience_;
