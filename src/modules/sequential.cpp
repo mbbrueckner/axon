@@ -28,6 +28,18 @@ std::vector<Tensor> Sequential::parameters() {
 }
 
 void Sequential::set_parameters(std::vector<Tensor> params) {
+  idx_t total_size = 0;
+  for (const std::unique_ptr<Module>& module : modules_) {
+    total_size += static_cast<idx_t>(module->parameters().size());
+  }
+
+  if (total_size != static_cast<idx_t>(params.size())) {
+    throw std::out_of_range(std::format(
+        "cannot set parameters because the number of given parameter-tensors "
+        "does not match: expected {}, got {}",
+        total_size, params.size()));
+  }
+
   idx_t offset = 0;
   for (const std::unique_ptr<Module>& module : modules_) {
     std::vector<Tensor> module_params = module->parameters();
@@ -37,11 +49,6 @@ void Sequential::set_parameters(std::vector<Tensor> params) {
         params.begin() + offset, params.begin() + offset + module_params_size));
 
     offset += module_params_size;
-  }
-
-  if (offset != static_cast<idx_t>(params.size())) {
-    throw std::out_of_range(
-        "set_parameters: number of parameters does not match");
   }
 }
 }  // namespace axon::nn
