@@ -23,6 +23,7 @@
 #include "axon/modules/relu.hpp"
 #include "axon/modules/sequential.hpp"
 #include "axon/optimizers/sgd.hpp"
+#include "axon/summary.hpp"
 
 constexpr std::string_view TRAIN_IMAGES_PATH =
     "data/mnist/train-images.idx3-ubyte";
@@ -74,12 +75,9 @@ int main(int argc, char *argv[]) {
 
   // initialize early stop with patience 5 and shuffle
   axon::EarlyStopping early_stop(5);
+
   std::cout << "> start running training-loop with Setup:" << std::endl;
-  std::cout << "+--------------------------------------------+" << std::endl;
-  std::cout << "| Linear(784, 128) -> ReLU -> Linear(128,10) |" << std::endl;
-  std::cout << "| Optimizer: SGD                             |" << std::endl;
-  std::cout << "| Early-stop: 5 epochs patience              |" << std::endl;
-  std::cout << "+--------------------------------------------+" << std::endl;
+  std::cout << axon::summary(model, optimizer, early_stop);
 
   // Training loop
   for (axon::idx_t epoch = 0; epoch < EPOCHS; epoch++) {
