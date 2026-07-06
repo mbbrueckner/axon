@@ -50,7 +50,7 @@ class axon::optimizer::SGD : public Optimizer {
 
   /// @copydoc axon::optimizer::Optimizer::to_string()
   std::string to_string() const override;
-  
+
   /// @copydoc axon::optimizer::Optimizer::zero_grad
   void zero_grad() override;
 };
