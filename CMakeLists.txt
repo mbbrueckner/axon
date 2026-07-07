@@ -66,3 +66,6 @@ add_subdirectory(tests)
 
 # Examples
 add_subdirectory(examples)
+
+# Benchmarks
+add_subdirectory(benchmarks)
