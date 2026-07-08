@@ -52,3 +52,54 @@ Epoch: 900; loss:3.23491e-13; acc.:1
   samples and no train/test split, the network simply memorizes the truth table.
   Measuring real generalization is what the MNIST roadmap item is for.
 
+## MNIST - Performance benchmark
+
+**Setup:**
+
+Sequetial model: Linear(784, 128) -> ReLU -> Linear (128,10)
+Optimizer: SGD
+
+| Metric                                    | Value                     |
+|-------------------------------------------|---------------------------|
+| Parameters                                | 101,770                   |
+| Training images                           | 60,000 (28×28)            |
+| Batch size                                | 32 → 1,875 batches/epoch  |
+| FLOPs per sample (fwd+bwd)                | ≈ 0.61 MFLOP              |
+| FLOPs per epoch                           | ≈ 36.6 GFLOP              |
+| FLOPs per run (5 epochs)                  | ≈ 183 GFLOP               |
+| Total FLOPs (5 runs + warmup)             | ≈ 952 GFLOP (~0.95 TFLOP) |
+| Throughput (unoptimized, single-threaded) | ≈ 13.5 MFLOP/s            |
+
+*FLOPs estimated using the standard approximation for fully-connected
+layers: forward ≈ 2·B·in·out (+ bias), backward ≈ 4·B·in·out
+(grad_input + grad_weight, + bias gradient); ReLU/loss are negligible.*
+
+**unoptimized baseline:**
+
+TODO: add new benchmakr data with 5 x 5 runs
+
+```
+#################################
+#                               #
+#            AXON               #
+#-------------------------------#
+#      MNIST - Benchmark        #
+#                               #
+#################################
+> loading data...
+> finished loading data
+> initialized data-loaders
+> running warmup
+> finished warmup
+> running measurements
+run: 0, epoch: 0, time (ms): 2.71331e+06
+run: 0, epoch: 1, time (ms): 2.7163e+06
+run: 0, epoch: 2, time (ms): 2.72321e+06
+run: 0, epoch: 3, time (ms): 2.72678e+06
+run: 0, epoch: 4, time (ms): 2.73908e+06
+run: 0, epoch: 5, time (ms): 2.73491e+06
+run: 0, epoch: 6, time (ms): 2.73619e+06
+run: 0, epoch: 7, time (ms): 2.73972e+06
+run: 0, epoch: 8, time (ms): 2.74348e+06
+run: 0, epoch: 9, time (ms): 2.74676e+06
+```
