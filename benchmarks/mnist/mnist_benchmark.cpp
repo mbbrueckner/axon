@@ -33,8 +33,8 @@ constexpr std::string_view TRAIN_IMAGES_PATH =
 constexpr std::string_view TRAIN_LABELS_PATH =
     "data/mnist/train-labels.idx1-ubyte";
 
-constexpr axon::idx_t NUM_RUNS = 10;
-constexpr axon::idx_t NUM_EPOCHS = 10;
+constexpr axon::idx_t NUM_RUNS = 5;
+constexpr axon::idx_t NUM_EPOCHS = 5;
 constexpr axon::idx_t SEED = 42;
 
 int main() {
