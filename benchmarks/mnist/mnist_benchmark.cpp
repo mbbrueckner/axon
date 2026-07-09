@@ -11,7 +11,9 @@
  * @date 2026-07-07
  */
 
+#include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -36,6 +38,49 @@ constexpr std::string_view TRAIN_LABELS_PATH =
 constexpr axon::idx_t NUM_RUNS = 5;
 constexpr axon::idx_t NUM_EPOCHS = 5;
 constexpr axon::idx_t SEED = 42;
+
+/// A helper method that returns the mean of a double vector
+double mean(std::vector<double> v) {
+  return std::accumulate(v.begin(), v.end(), 0.0) / v.size();
+}
+
+/// A helper method that returns the median of a double vector
+double median(std::vector<double> v) {
+  if (v.empty()) return 0.0;
+
+  size_t n = v.size() / 2;
+
+  std::nth_element(v.begin(), v.begin() + n, v.end());
+
+  if (v.size() % 2 != 0) {
+    return v[n];
+  } else {
+    auto max_it = std::max_element(v.begin(), v.begin() + n);
+    return (*max_it + v[n]) / 2.0;
+  }
+}
+
+/// A helper method that returns the maximum element of a double vector
+double max(std::vector<double> v) {
+  return *std::ranges::max_element(v.begin(), v.end());
+}
+
+/// A helper method that returns the minimum element of a double vector
+double min(std::vector<double> v) {
+  return *std::ranges::min_element(v.begin(), v.end());
+}
+
+/// A helper method that returns the (sample) standard deviation of a double
+/// vector
+double stddev(const std::vector<double>& v) {
+  if (v.size() < 2) return 0.0;
+  const double m = mean(v);
+  const double sq_sum =
+      std::accumulate(v.begin(), v.end(), 0.0, [m](double acc, double x) {
+        return acc + (x - m) * (x - m);
+      });
+  return std::sqrt(sq_sum / static_cast<double>(v.size() - 1));
+}
 
 int main() {
   std::cout << "#################################" << std::endl;
@@ -79,22 +124,37 @@ int main() {
   }
   std::cout << "> finished warmup " << std::endl;
 
-  const std::string csv_path{
-      std::format("results/mnist_benchmark_{:%FT%TZ}.csv",
-                  std::chrono::system_clock::now())};
+  const std::string base_path{std::format("results/mnist_benchmark_{:%FT%TZ}",
+                                          std::chrono::system_clock::now())};
 
-  const std::filesystem::path path_obj{csv_path};
+  const std::string raw_csv_path{std::format("{}/raw.csv", base_path)};
 
-  if (const std::filesystem::path dir = path_obj.parent_path();
+  const std::filesystem::path raw_path_obj{raw_csv_path};
+  if (const std::filesystem::path dir = raw_path_obj.parent_path();
       !dir.empty() && !std::filesystem::exists(dir)) {
     std::filesystem::create_directories(dir);
   }
 
-  std::ofstream csv_file(csv_path);
-  if (!csv_file.is_open()) {
-    throw std::runtime_error(std::format("Cannot open file: '{}'", csv_path));
+  std::ofstream raw_file(raw_csv_path);
+  if (!raw_file.is_open()) {
+    throw std::runtime_error(
+        std::format("Cannot open file: '{}'", raw_csv_path));
   }
-  csv_file << "run,epoch,time_ms\n";
+  raw_file << "run,epoch,time_ms\n";
+
+  const std::string summary_csv_path{std::format("{}/summary.csv", base_path)};
+  const std::filesystem::path summary_path_obj{raw_csv_path};
+  if (const std::filesystem::path dir = summary_path_obj.parent_path();
+      !dir.empty() && !std::filesystem::exists(dir)) {
+    std::filesystem::create_directories(dir);
+  }
+
+  std::ofstream summary_file(summary_csv_path);
+  if (!summary_file.is_open()) {
+    throw std::runtime_error(
+        std::format("Cannot open file: '{}'", raw_csv_path));
+  }
+  summary_file << "scope,n,mean_ms,median_ms,min_ms,max_ms,stddev_ms\n";
 
   std::cout << "> running measurements " << std::endl;
   // measurement loop
@@ -112,6 +172,9 @@ int main() {
     // initialize new optimizer
     axon::optimizer::SGD optimizer(model.parameters(), 0.1f);
 
+    // initialize measurements-vector for summary
+    std::vector<double> measurements{NUM_EPOCHS};
+
     for (axon::idx_t epoch = 0; epoch < NUM_EPOCHS; epoch++) {
       // start measurement
       auto start = std::chrono::steady_clock::now();
@@ -128,15 +191,31 @@ int main() {
 
       // write to CSV
       const std::chrono::duration<double, std::milli> time = end - start;
-      csv_file << run << "," << epoch << "," << time.count() << "\n";
-      csv_file.flush();
+
+      raw_file << run << "," << epoch << "," << time.count() << "\n";
+      raw_file.flush();
 
       std::cout << "run: " << run << ", epoch: " << epoch
                 << ", time (ms): " << time.count() << std::endl;
+
+      measurements[epoch] = time.count();
     }
+
+    // write run summary
+    summary_file << std::format("run_{},{},{},{},{},{},{}\n",
+                                run,
+                                NUM_EPOCHS,
+                                mean(measurements),
+                                median(measurements),
+                                min(measurements),
+                                max(measurements),
+                                stddev(measurements));
   }
   std::cout << "> finished measurements " << std::endl;
-  csv_file.close();
-  std::cout << "> wrote results to: " << csv_path << std::endl;
+  raw_file.close();
+  std::cout << "> wrote raw results to: " << raw_csv_path << std::endl;
+
+  summary_file.close();
+  std::cout << "> wrote summary results to: " << summary_csv_path << std::endl;
   return 0;
 }
