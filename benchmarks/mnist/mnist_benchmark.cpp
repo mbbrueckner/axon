@@ -148,7 +148,7 @@ int main() {
   raw_file << "run,epoch,time_ms\n";
 
   const std::string summary_csv_path{std::format("{}/summary.csv", base_path)};
-  const std::filesystem::path summary_path_obj{raw_csv_path};
+  const std::filesystem::path summary_path_obj{summary_csv_path};
   if (const std::filesystem::path dir = summary_path_obj.parent_path();
       !dir.empty() && !std::filesystem::exists(dir)) {
     std::filesystem::create_directories(dir);
@@ -157,7 +157,7 @@ int main() {
   std::ofstream summary_file(summary_csv_path);
   if (!summary_file.is_open()) {
     throw std::runtime_error(
-        std::format("Cannot open file: '{}'", raw_csv_path));
+        std::format("Cannot open file: '{}'", summary_csv_path));
   }
   summary_file << "scope,n,mean_ms,median_ms,min_ms,max_ms,stddev_ms\n";
 
