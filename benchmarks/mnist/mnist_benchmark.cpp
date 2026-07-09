@@ -201,16 +201,33 @@ int main() {
       measurements[epoch] = time.count();
     }
 
+    double run_mean = mean(measurements);
+    double run_median = median(measurements);
+    double run_min = min(measurements);
+    double run_max = max(measurements);
+    double run_stddev = stddev(measurements);
+
     // write run summary
     summary_file << std::format("run_{},{},{},{},{},{},{}\n",
                                 run,
                                 NUM_EPOCHS,
-                                mean(measurements),
-                                median(measurements),
-                                min(measurements),
-                                max(measurements),
-                                stddev(measurements));
+                                run_mean,
+                                run_median,
+                                run_min,
+                                run_max,
+                                run_stddev);
+
     summary_file.flush();
+
+    std::cout << std::format(
+        "Run-{} summary: mean(ms): {},  median(ms): {}, min(ms): {}, max(ms): "
+        "{}, stddev: {}",
+        run,
+        run_mean,
+        run_median,
+        run_min,
+        run_max,
+        run_stddev);
   }
   std::cout << "> finished measurements " << std::endl;
   raw_file.close();
