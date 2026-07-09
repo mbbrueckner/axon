@@ -12,6 +12,9 @@ execute_process(
         OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+        "${CMAKE_SOURCE_DIR}/.git/logs/HEAD")
+
 target_compile_definitions(mnist_benchmark PRIVATE
         GIT_SHA="${GIT_SHA}"
         BUILD_TYPE="$<CONFIG>"
