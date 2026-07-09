@@ -124,9 +124,13 @@ int main() {
   }
   std::cout << "> finished warmup " << std::endl;
 
-  const std::string base_path{
-      std::format("benchmarks/mnist/results/mnist_benchmark_{:%FT%TZ}",
-                  std::chrono::system_clock::now())};
+  const auto timestamp = std::chrono::floor<std::chrono::seconds>(
+      std::chrono::system_clock::now());
+
+  const std::string base_path{std::format(
+      "benchmarks/mnist/results/mnist_benchmark_{0}_{1:%F}T{1:%H-%M-%S}",
+      GIT_SHA,
+      timestamp)};
 
   const std::string raw_csv_path{std::format("{}/raw.csv", base_path)};
 
