@@ -128,7 +128,7 @@ int main() {
       std::chrono::system_clock::now());
 
   const std::string base_path{std::format(
-      "benchmarks/mnist/results/mnist_benchmark_{0}_{1:%F}T{1:%H-%M-%S}",
+      "benchmarks/mnist/results/mnist_benchmark_{0}_{1:%F}T{1:%H:%M:%S}",
       GIT_SHA,
       timestamp)};
 
