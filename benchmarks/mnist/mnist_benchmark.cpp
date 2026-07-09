@@ -35,9 +35,9 @@ constexpr std::string_view TRAIN_IMAGES_PATH =
 constexpr std::string_view TRAIN_LABELS_PATH =
     "data/mnist/train-labels.idx1-ubyte";
 
-constexpr axon::idx_t NUM_RUNS = 5;
-constexpr axon::idx_t NUM_EPOCHS = 5;
-constexpr axon::idx_t SEED = 42;
+constexpr axon::idx_t NUM_RUNS = 10;
+constexpr axon::idx_t NUM_EPOCHS = 10;
+constexpr axon::idx_t BASE_SEED = 42;
 
 /// A helper method that returns the mean of a double vector
 double mean(std::vector<double> v) {
@@ -105,9 +105,9 @@ int main() {
   {
     // build warmup  model: Linear(784, 128) -> ReLU -> Linear(128,10)
     std::vector<std::unique_ptr<axon::nn::Module>> modules;
-    modules.push_back(std::make_unique<axon::nn::Linear>(784, 128, SEED));
+    modules.push_back(std::make_unique<axon::nn::Linear>(784, 128, BASE_SEED));
     modules.push_back(std::make_unique<axon::nn::ReLU>());
-    modules.push_back(std::make_unique<axon::nn::Linear>(128, 10, SEED));
+    modules.push_back(std::make_unique<axon::nn::Linear>(128, 10, BASE_SEED));
     axon::nn::Sequential model(std::move(modules));
 
     // initialize warmup SGD optimizer
@@ -160,7 +160,7 @@ int main() {
   // measurement loop
   for (axon::idx_t run = 0; run < NUM_RUNS; run++) {
     // generate new seed
-    axon::idx_t seed = SEED + run;
+    axon::idx_t seed = BASE_SEED + run;
 
     // build new model: Linear(784, 128) -> ReLU -> Linear(128,10)
     std::vector<std::unique_ptr<axon::nn::Module>> modules;
