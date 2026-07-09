@@ -210,6 +210,7 @@ int main() {
                                 min(measurements),
                                 max(measurements),
                                 stddev(measurements));
+    summary_file.flush();
   }
   std::cout << "> finished measurements " << std::endl;
   raw_file.close();
