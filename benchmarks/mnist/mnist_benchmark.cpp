@@ -173,7 +173,7 @@ int main() {
     axon::optimizer::SGD optimizer(model.parameters(), 0.1f);
 
     // initialize measurements-vector for summary
-    std::vector<double> measurements{NUM_EPOCHS};
+    std::vector<double> measurements(NUM_EPOCHS);
 
     for (axon::idx_t epoch = 0; epoch < NUM_EPOCHS; epoch++) {
       // start measurement
