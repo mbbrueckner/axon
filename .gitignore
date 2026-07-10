@@ -73,3 +73,9 @@ Testing/
 
 # demo data
 data/
+
+# macOS
+.DS_Store
+
+# benchmark results
+benchmarks/mnist/results/
