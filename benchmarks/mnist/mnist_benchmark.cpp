@@ -232,7 +232,7 @@ int main() {
         run_median,
         run_min,
         run_max,
-        run_stddev);
+        run_stddev) << std::endl;
   }
   std::cout << "> finished measurements " << std::endl;
   raw_file.close();
