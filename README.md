@@ -77,3 +77,14 @@ layers: forward ≈ 2·B·in·out (+ bias), backward ≈ 4·B·in·out
 **unoptimized baseline:**
 
 <img src="benchmarks/mnist/plots/mnist_benchmark_3bb5b8e_2026-07-09T19:59:18.png" width="700"/>
+
+The plot clearly shows that the current warm-up phase is insufficient: runs 0 and 1
+are both noticeably slower (≈90 s and ≈84 s mean epoch time) and more variable
+(larger stddev) than runs 2–9, which settle into a stable ≈81 s baseline.
+
+**Conclusion:** The first one to two runs are still affected by cold-start
+effects (e.g. cache warming, allocator/OS paging, CPU frequency scaling) and
+should be discarded rather than included in the reported average. Future
+benchmark runs should either extend the warm-up phase to at least 2 runs or
+exclude runs 0 and 1 from the aggregated statistics to get a representative
+throughput number.
