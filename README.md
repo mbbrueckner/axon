@@ -82,9 +82,26 @@ The plot clearly shows that the current warm-up phase is insufficient: runs 0 an
 are both noticeably slower (≈90 s and ≈84 s mean epoch time) and more variable
 (larger stddev) than runs 2–9, which settle into a stable ≈81 s baseline.
 
-**Conclusion:** The first one to two runs are still affected by cold-start
-effects (e.g. cache warming, allocator/OS paging, CPU frequency scaling) and
-should be discarded rather than included in the reported average. Future
-benchmark runs should either extend the warm-up phase to at least 2 runs or
-exclude runs 0 and 1 from the aggregated statistics to get a representative
-throughput number.
+Looking at the per-epoch trace, the anomaly is *not* a simple monotonic
+cold-cache warm-up: epoch 0 of run 0 (≈82 s) is actually among the fastest
+epochs measured, times then climb to ≈95 s over the rest of run 0, stay
+elevated through the first two epochs of run 1, and only then drop sharply to
+the stable ≈81 s baseline that holds for the remaining ~8 runs. That
+fast → slow → stable shape points less at classic cache/allocator warm-up
+and more at CPU power-state transients (e.g. an initial turbo-boost burst
+followed by thermal throttling under sustained load, before the clock settles
+into a steady state) — the anomaly spans roughly 13 epochs, i.e. ~19 minutes
+of continuous load, which lines up with typical laptop thermal ramp-up time.
+
+**Conclusion:** The single untimed warm-up epoch is nowhere near enough to
+reach steady state, and a fixed "discard N runs" rule is a rough
+approximation since the transition doesn't align cleanly with a run boundary.
+For now, excluding runs 0 and 1 from the aggregated statistics is a
+reasonable and simple correction to get a representative throughput number.
+Longer term, the warm-up should be convergence-based (run until several
+consecutive epochs land within a small tolerance of each other, e.g. ±2%)
+rather than a fixed epoch count, and it would be worth logging CPU
+frequency/temperature (e.g. via `powermetrics` on macOS) alongside the
+timings to confirm the throttling hypothesis. Pinning the benchmark process
+to performance cores or disabling frequency scaling would also make
+before/after comparisons from future optimization work less noisy.
