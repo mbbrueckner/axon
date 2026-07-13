@@ -3,9 +3,11 @@
  * @brief Timing harness: measures per-epoch training time on MNIST
  *        across multiple independent runs, exported as CSV.
  *
- * Runs one untimed warmup epoch, then NUM_RUNS independent training
- * runs (fresh model + optimizer per run, distinct reproducible seeds)
- * of NUM_EPOCHS epochs each, recording wall-clock time per epoch.
+ * Runs an adaptive warmup phase (trains until WARMUP_WINDOW consecutive
+ * epoch times land within WARMUP_TOLERANCE of each other, capped at
+ * MAX_WARMUP_EPOCHS, logged to warmup.csv), then NUM_RUNS independent
+ * training runs (fresh model + optimizer per run, distinct reproducible
+ * seeds) of NUM_EPOCHS epochs each, recording wall-clock time per epoch.
  *
  * @author Mika Brückner
  * @date 2026-07-07
@@ -38,6 +40,10 @@ constexpr std::string_view TRAIN_LABELS_PATH =
 constexpr axon::idx_t NUM_RUNS = 10;
 constexpr axon::idx_t NUM_EPOCHS = 10;
 constexpr axon::idx_t BASE_SEED = 42;
+
+constexpr axon::idx_t WARMUP_WINDOW = 3;
+constexpr double WARMUP_TOLERANCE = 0.02;
+constexpr axon::idx_t MAX_WARMUP_EPOCHS = 30;
 
 /// A helper method that returns the mean of a double vector
 double mean(std::vector<double> v) {
@@ -100,29 +106,6 @@ int main() {
   // initialize data loaders
   axon::DataLoader train_loader(training_data, 32);
   std::cout << "> initialized data-loaders" << std::endl;
-  std::cout << "> running warmup " << std::endl;
-  // warmup
-  {
-    // build warmup  model: Linear(784, 128) -> ReLU -> Linear(128,10)
-    std::vector<std::unique_ptr<axon::nn::Module>> modules;
-    modules.push_back(std::make_unique<axon::nn::Linear>(784, 128, BASE_SEED));
-    modules.push_back(std::make_unique<axon::nn::ReLU>());
-    modules.push_back(std::make_unique<axon::nn::Linear>(128, 10, BASE_SEED));
-    axon::nn::Sequential model(std::move(modules));
-
-    // initialize warmup SGD optimizer
-    axon::optimizer::SGD optimizer(model.parameters(), 0.1f);
-
-    // run warmup epoch
-    for (auto [input, target] : train_loader) {
-      optimizer.zero_grad();
-      axon::Tensor output = model.forward(input);
-      axon::Tensor loss = axon::cross_entropy_loss(output, target);
-      loss.backward();
-      optimizer.step();
-    }
-  }
-  std::cout << "> finished warmup " << std::endl;
 
   const auto timestamp = std::chrono::floor<std::chrono::seconds>(
       std::chrono::system_clock::now());
@@ -132,14 +115,20 @@ int main() {
       GIT_SHA,
       timestamp)};
 
-  const std::string raw_csv_path{std::format("{}/raw.csv", base_path)};
-
-  const std::filesystem::path raw_path_obj{raw_csv_path};
-  if (const std::filesystem::path dir = raw_path_obj.parent_path();
-      !dir.empty() && !std::filesystem::exists(dir)) {
+  if (const std::filesystem::path dir{base_path};
+      !std::filesystem::exists(dir)) {
     std::filesystem::create_directories(dir);
   }
 
+  const std::string warmup_csv_path{std::format("{}/warmup.csv", base_path)};
+  std::ofstream warmup_file(warmup_csv_path);
+  if (!warmup_file.is_open()) {
+    throw std::runtime_error(
+        std::format("Cannot open file: '{}'", warmup_csv_path));
+  }
+  warmup_file << "epoch,time_ms\n";
+
+  const std::string raw_csv_path{std::format("{}/raw.csv", base_path)};
   std::ofstream raw_file(raw_csv_path);
   if (!raw_file.is_open()) {
     throw std::runtime_error(
@@ -148,18 +137,76 @@ int main() {
   raw_file << "run,epoch,time_ms\n";
 
   const std::string summary_csv_path{std::format("{}/summary.csv", base_path)};
-  const std::filesystem::path summary_path_obj{summary_csv_path};
-  if (const std::filesystem::path dir = summary_path_obj.parent_path();
-      !dir.empty() && !std::filesystem::exists(dir)) {
-    std::filesystem::create_directories(dir);
-  }
-
   std::ofstream summary_file(summary_csv_path);
   if (!summary_file.is_open()) {
     throw std::runtime_error(
         std::format("Cannot open file: '{}'", summary_csv_path));
   }
   summary_file << "scope,n,mean_ms,median_ms,min_ms,max_ms,stddev_ms\n";
+
+  std::cout << "> running warmup " << std::endl;
+  // keep training until last WARMUP_WINDOW epoch times land within
+  // WARMUP_TOLERANCE of each other, capped at MAX_WARMUP_EPOCHS
+  {
+    // build warmup model: Linear(784, 128) -> ReLU -> Linear(128,10)
+    std::vector<std::unique_ptr<axon::nn::Module>> modules;
+    modules.push_back(std::make_unique<axon::nn::Linear>(784, 128, BASE_SEED));
+    modules.push_back(std::make_unique<axon::nn::ReLU>());
+    modules.push_back(std::make_unique<axon::nn::Linear>(128, 10, BASE_SEED));
+    axon::nn::Sequential model(std::move(modules));
+
+    // initialize warmup SGD optimizer
+    axon::optimizer::SGD optimizer(model.parameters(), 0.1f);
+
+    std::vector<double> warmup_times;
+
+    for (axon::idx_t epoch = 0; epoch < MAX_WARMUP_EPOCHS; epoch++) {
+      auto start = std::chrono::steady_clock::now();
+      for (auto [input, target] : train_loader) {
+        optimizer.zero_grad();
+        axon::Tensor output = model.forward(input);
+        axon::Tensor loss = axon::cross_entropy_loss(output, target);
+        loss.backward();
+        optimizer.step();
+      }
+      auto end = std::chrono::steady_clock::now();
+
+      const std::chrono::duration<double, std::milli> time = end - start;
+      warmup_times.push_back(time.count());
+
+      warmup_file << epoch << "," << time.count() << "\n";
+      warmup_file.flush();
+
+      std::cout << "warmup epoch: " << epoch << ", time (ms): " << time.count()
+                << std::endl;
+
+      if (static_cast<axon::idx_t>(warmup_times.size()) >= WARMUP_WINDOW) {
+        const std::vector<double> window(warmup_times.end() - WARMUP_WINDOW,
+                                         warmup_times.end());
+        const double spread = (max(window) - min(window)) / mean(window);
+
+        if (spread <= WARMUP_TOLERANCE) {
+          std::cout
+              << std::format(
+                     "> warmup converged after {} epochs (spread: {:.4f})",
+                     warmup_times.size(),
+                     spread)
+              << std::endl;
+          break;
+        }
+      }
+
+      if (epoch == MAX_WARMUP_EPOCHS - 1) {
+        std::cout << std::format(
+                         "> warmup did not converge within {} epochs, "
+                         "proceeding anyway",
+                         MAX_WARMUP_EPOCHS)
+                  << std::endl;
+      }
+    }
+  }
+  warmup_file.close();
+  std::cout << "> finished warmup " << std::endl;
 
   std::cout << "> running measurements " << std::endl;
   // measurement loop
@@ -225,14 +272,16 @@ int main() {
     summary_file.flush();
 
     std::cout << std::format(
-        "Run-{} summary: mean(ms): {},  median(ms): {}, min(ms): {}, max(ms): "
-        "{}, stddev: {}",
-        run,
-        run_mean,
-        run_median,
-        run_min,
-        run_max,
-        run_stddev) << std::endl;
+                     "Run-{} summary: mean(ms): {},  median(ms): {}, min(ms): "
+                     "{}, max(ms): "
+                     "{}, stddev: {}",
+                     run,
+                     run_mean,
+                     run_median,
+                     run_min,
+                     run_max,
+                     run_stddev)
+              << std::endl;
   }
   std::cout << "> finished measurements " << std::endl;
   raw_file.close();
