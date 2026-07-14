@@ -3,11 +3,12 @@
  * @brief Timing harness: measures per-epoch training time on MNIST
  *        across multiple independent runs, exported as CSV.
  *
- * Runs an adaptive warmup phase (trains until WARMUP_WINDOW consecutive
- * epoch times land within WARMUP_TOLERANCE of each other, capped at
- * MAX_WARMUP_EPOCHS, logged to warmup.csv), then NUM_RUNS independent
- * training runs (fresh model + optimizer per run, distinct reproducible
- * seeds) of NUM_EPOCHS epochs each, recording wall-clock time per epoch.
+ * Runs an adaptive warmup phase (trains at least MIN_WARMUP_EPOCHS epochs,
+ * then keeps going until WARMUP_WINDOW consecutive epoch times land within
+ * WARMUP_TOLERANCE of each other, capped at MAX_WARMUP_EPOCHS, logged to
+ * warmup.csv), then NUM_RUNS independent training runs (fresh model +
+ * optimizer per run, distinct reproducible seeds) of NUM_EPOCHS epochs each,
+ * recording wall-clock time per epoch.
  *
  * @author Mika Brückner
  * @date 2026-07-07
@@ -41,8 +42,9 @@ constexpr axon::idx_t NUM_RUNS = 10;
 constexpr axon::idx_t NUM_EPOCHS = 10;
 constexpr axon::idx_t BASE_SEED = 42;
 
-constexpr axon::idx_t WARMUP_WINDOW = 3;
+constexpr axon::idx_t WARMUP_WINDOW = 5;
 constexpr double WARMUP_TOLERANCE = 0.02;
+constexpr axon::idx_t MIN_WARMUP_EPOCHS = 12;
 constexpr axon::idx_t MAX_WARMUP_EPOCHS = 30;
 
 /// A helper method that returns the mean of a double vector
@@ -180,7 +182,8 @@ int main() {
       std::cout << "warmup epoch: " << epoch << ", time (ms): " << time.count()
                 << std::endl;
 
-      if (static_cast<axon::idx_t>(warmup_times.size()) >= WARMUP_WINDOW) {
+      if (static_cast<axon::idx_t>(warmup_times.size()) >= MIN_WARMUP_EPOCHS &&
+          static_cast<axon::idx_t>(warmup_times.size()) >= WARMUP_WINDOW) {
         const std::vector<double> window(warmup_times.end() - WARMUP_WINDOW,
                                          warmup_times.end());
         const double spread = (max(window) - min(window)) / mean(window);
