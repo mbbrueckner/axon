@@ -209,6 +209,7 @@ int main() {
     }
   }
   warmup_file.close();
+  std::cout << "> wrote warmup results to: " << warmup_csv_path << std::endl;
   std::cout << "> finished warmup " << std::endl;
 
   std::cout << "> running measurements " << std::endl;
