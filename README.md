@@ -7,7 +7,7 @@ A neural network library from scratch in C++.
 - [X] Tensor class
 - [X] Autograd
 - [X] basic Modules
-- [X] Optimzers (SGD)
+- [X] Optimizers (SGD)
 - [X] first test - model (XOR)
 - [X] first real model MNIST
 - [ ] performance benchmarks
@@ -19,7 +19,7 @@ A neural network library from scratch in C++.
 
 **Setup:** A 2-4-1 MLP (`Linear(2,4) → ReLU → Linear(4,1)`) trained on all four
 XOR samples (full-batch) for 1000 epochs with SGD (learning rate 0.1) against
-the mean squared error.
+the mean-squared error.
 
 ```
 ./build/examples/xor
@@ -47,16 +47,16 @@ Epoch: 900; loss:3.23491e-13; acc.:1
 **Caveats:**
 
 - Weights are initialized from `std::random_device` (see `Linear`), so the exact
-  loss values vary between runs; the convergence behaviour does not.
+  loss values vary between runs; the convergence behavior does not.
 - This is a **correctness check, not a generalization benchmark**: with only four
   samples and no train/test split, the network simply memorizes the truth table.
   Measuring real generalization is what the MNIST roadmap item is for.
 
-## MNIST - Performance benchmark
+## MNIST – Performance benchmark
 
 **Setup:**
 
-Sequetial model: Linear(784, 128) -> ReLU -> Linear (128,10)
+Sequential model: Linear(784, 128) -> ReLU -> Linear (128,10)
 Optimizer: SGD
 
 | Metric                                    | Value                     |
@@ -70,15 +70,15 @@ Optimizer: SGD
 | Total FLOPs (5 runs + warmup)             | ≈ 952 GFLOP (~0.95 TFLOP) |
 | Throughput (unoptimized, single-threaded) | ≈ 13.5 MFLOP/s            |
 
-*FLOPs estimated using the standard approximation for fully-connected
+*FLOPs estimated using the standard approximation for fully connected
 layers: forward ≈ 2·B·in·out (+ bias), backward ≈ 4·B·in·out
 (grad_input + grad_weight, + bias gradient); ReLU/loss are negligible.*
 
 **unoptimized baseline:**
 
-<img src="benchmarks/mnist/plots/mnist_benchmark_3bb5b8e_2026-07-09T19:59:18.png" width="700"/>
+<img src="benchmarks/mnist/plots/mnist_benchmark_3bb5b8e_2026-07-09T19:59:18.png" width="700" alt="mnist_benchmark_3bb5b8e_2026-07-09T19:59:18"/>
 
-The plot clearly shows that the current warm-up phase is insufficient: runs 0 and 1
+The plot clearly shows that the current warm-up phase is not enough: runs 0 and 1
 are both noticeably slower (≈90 s and ≈84 s mean epoch time) and more variable
 (larger stddev) than runs 2–9, which settle into a stable ≈81 s baseline.
 
@@ -88,31 +88,31 @@ epochs measured, times then climb to ≈95 s over the rest of run 0, stay
 elevated through the first two epochs of run 1, and only then drop sharply to
 the stable ≈81 s baseline that holds for the remaining ~8 runs. That
 fast → slow → stable shape points less at classic cache/allocator warm-up
-and more at CPU power-state transients (e.g. an initial turbo-boost burst
+and more at CPU power-state transients (e.g., an initial turboboost burst
 followed by thermal throttling under sustained load, before the clock settles
 into a steady state) — the anomaly spans roughly 13 epochs, i.e. ~19 minutes
 of continuous load, which lines up with typical laptop thermal ramp-up time.
 
 **Conclusion:** The single untimed warm-up epoch is nowhere near enough to
-reach steady state, and a fixed "discard N runs" rule is a rough
+reach a steady state, and a fixed "discard N runs" rule is a rough
 approximation since the transition doesn't align cleanly with a run boundary.
 For now, excluding runs 0 and 1 from the aggregated statistics is a
 reasonable and simple correction to get a representative throughput number.
 Longer term, the warm-up should be convergence-based (run until several
-consecutive epochs land within a small tolerance of each other, e.g. ±2%)
-rather than a fixed epoch count, and it would be worth logging CPU
-frequency/temperature (e.g. via `powermetrics` on macOS) alongside the
+consecutive epochs land within a small tolerance of each other, e.g., ±2%)
+rather than a fixed epoch count. It would be worth logging CPU
+frequency/temperature (e.g., via `powermetrics` on macOS) alongside the
 timings to confirm the throttling hypothesis. Pinning the benchmark process
 to performance cores or disabling frequency scaling would also make
-before/after comparisons from future optimization work less noisy.
+comparisons from future optimization before/after work less noisy.
 
 **adaptive Warmup:**
 
-<img src="benchmarks/mnist/plots/mnist_benchmark_12094ac_2026-07-13T20:44:38Z.png" width="700"/>
+<img src="benchmarks/mnist/plots/mnist_benchmark_12094ac_2026-07-13T20:44:38Z.png" width="700" alt="mnist_benchmark_12094ac_2026-07-13T20:44:38Z"/>
 
-The runtime graph of the first run with adaptive warmup points out well, that the warmup still didn't fix the problem.
+The runtime graph of the first run with adaptive warmup points out well that the warmup still didn't fix the problem.
 It appears that the warm-up phase converged on a coincidental early plateau
-rather than the true steady state: `warmup.csv` shows only 3 epochs
+rather than the true steady state: `warmup.csv` shows only three epochs
 (≈81.4 s, ≈81.5 s, ≈81.5 s — a spread of ~0.13 %, well inside the ±2 %
 tolerance) before the convergence check declared the system stable. The
 measured runs that follow tell a different story: run 0 stays low for its
