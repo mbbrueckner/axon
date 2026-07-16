@@ -133,3 +133,6 @@ below which convergence isn't checked at all, and the window was widened
 from 3 to 5 epochs to make a coincidental plateau less likely to trigger a
 false positive. This should be re-validated with another overnight run
 before being trusted as the final warm-up strategy.
+
+**fixed adaptive Warmup with MIN_WARMUP_EPOCHS**
+<img src ="benchmarks/mnist/plots/mnist_benchmark_3b9e3ec_2026-07-15T19:39:17Z.png" width="700"/> 
