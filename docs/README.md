@@ -14,3 +14,4 @@ plot), interpretation, conclusion/next steps. Template:
 | # | Period | Topic | Summary |
 |---|--------|-------|---------|
 | [001](devlog/001-mnist-warmup-calibration.md) | 2026-07-09 – 2026-07-15 | MNIST benchmark: warmup calibration | Established a reliable baseline measurement methodology (accounting for CPU thermal warm-up) before starting code optimization. |
+| [002](devlog/002-matmul-at-hotspot.md) | 2026-07-18 | Profiling: identifying the matmul/at() hotspot | Sampling-profiler evidence that ~76% of runtime is spent in `Tensor::at()`, called from `matmul`'s naive triple loop. |
