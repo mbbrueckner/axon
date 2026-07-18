@@ -79,3 +79,7 @@ data/
 
 # benchmark results
 benchmarks/mnist/results/
+
+# profiling traces
+benchmarks/mnist/profiles/*
+!benchmarks/mnist/profiles/.gitkeep
