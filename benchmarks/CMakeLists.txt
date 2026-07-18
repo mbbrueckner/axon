@@ -4,6 +4,12 @@ add_executable(mnist_benchmark
 target_link_libraries(mnist_benchmark PRIVATE
         axon
 )
+add_executable(mnist_profile
+        mnist/mnist_profile.cpp
+)
+target_link_libraries(mnist_profile PRIVATE
+        axon
+)
 
 execute_process(
         COMMAND git rev-parse --short HEAD
