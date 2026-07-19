@@ -10,6 +10,7 @@ Usage:
 
 import argparse
 import os
+import subprocess
 
 import matplotlib
 matplotlib.use("Agg")
@@ -96,6 +97,7 @@ def main() -> None:
 
     out_path = plot_benchmark(args.run_dir, args.title)
     print(f"Saved plot to {out_path}")
+    subprocess.run(["open", out_path], check=False)
 
 
 if __name__ == "__main__":
