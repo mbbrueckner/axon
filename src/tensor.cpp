@@ -350,11 +350,18 @@ Tensor Tensor::matmul(const Tensor& other) const {
   const idx_t rows = shape_[0];
   const idx_t inner = shape_[1];
   const idx_t cols = other.shape()[1];
+
+  const float* lhs_data = data_->data() + offset_;
+  const float* rhs_data = other.data_->data() + other.offset();
+  const idx_t ls0 = stride_[0], ls1 = stride_[1];
+  const idx_t rs0 = other.stride()[0], rs1 = other.stride()[1];
+
   Tensor result = zeros({rows, cols});
   for (idx_t i{}; i < rows; i++) {
     for (idx_t j{}; j < cols; j++) {
       for (idx_t k{}; k < inner; k++) {
-        (*result.data_)[i * cols + j] += at({i, k}) * other.at({k, j});
+        (*result.data_)[i * cols + j] +=
+            lhs_data[i * ls0 + k * ls1] * rhs_data[k * rs0 + j * rs1];
       }
     }
   }
