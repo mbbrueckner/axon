@@ -36,6 +36,41 @@ axon::Tensor reduce_grad_to_shape(
 
   return grad;
 }
+
+template <typename BinOp>
+std::vector<float> elementwise_binary(const float* a_data,
+                                      const std::vector<axon::idx_t>& strides_a,
+                                      const float* b_data,
+                                      const std::vector<axon::idx_t>& strides_b,
+                                      const std::vector<axon::idx_t>& shape,
+                                      BinOp op) {
+  axon::idx_t offset_a{0};
+  axon::idx_t offset_b{0};
+
+  const axon::idx_t rank(shape.size());
+  const axon::idx_t num_elements(std::accumulate(
+      shape.begin(), shape.end(), axon::idx_t{1}, std::multiplies<>()));
+  std::vector<float> new_data(num_elements);
+
+  std::vector<axon::idx_t> idx(rank, 0);
+  for (axon::idx_t i = 0; i < num_elements; i++) {
+    new_data[i] = op(a_data[offset_a], b_data[offset_b]);
+
+    for (axon::idx_t d = rank; d-- > 0;) {
+      idx[d]++;
+      offset_a += strides_a[d];
+      offset_b += strides_b[d];
+
+      if (idx[d] < shape[d]) break;
+
+      idx[d] = 0;
+      offset_a -= strides_a[d] * shape[d];
+      offset_b -= strides_b[d] * shape[d];
+    }
+  }
+  return new_data;
+}
+
 }  // namespace
 
 namespace axon {
@@ -812,16 +847,16 @@ std::pair<Tensor, Tensor> broadcast(const Tensor& a, const Tensor& b) {
 Tensor operator+(const Tensor& lhs, const Tensor& rhs) {
   auto [a, b] = broadcast(lhs, rhs);
 
-  const idx_t num_elements = a.num_elements();
-  const std::vector<idx_t> out_shape = a.shape();
-  std::vector<float> new_data(num_elements);
+  const std::vector<idx_t> shape = a.shape();
+  const float* a_data = a.data_->data() + a.offset();
+  const std::vector<idx_t> a_strides = a.stride();
+  const float* b_data = b.data_->data() + b.offset();
+  const std::vector<idx_t> b_strides = b.stride();
 
-  for (idx_t i = 0; i < num_elements; i++) {
-    std::vector<idx_t> idx = utils::flat_to_indices(i, out_shape);
-    new_data[i] = a.at(idx) + b.at(idx);
-  }
+  std::vector<float> new_data = elementwise_binary(
+      a_data, a_strides, b_data, b_strides, shape, std::plus<>{});
 
-  Tensor result{new_data, out_shape};
+  Tensor result{new_data, shape};
   auto lhs_meta = lhs.autograd_meta_;
   auto rhs_meta = rhs.autograd_meta_;
   if (lhs_meta != nullptr || rhs_meta != nullptr) {
