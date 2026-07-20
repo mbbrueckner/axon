@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cmath>
 #include <format>
+#include <functional>
 #include <limits>
 #include <ranges>
 #include <stdexcept>
@@ -881,16 +882,16 @@ Tensor operator+(const Tensor& lhs, const Tensor& rhs) {
 Tensor operator-(const Tensor& lhs, const Tensor& rhs) {
   auto [a, b] = broadcast(lhs, rhs);
 
-  const idx_t num_elements = a.num_elements();
-  const std::vector<idx_t> out_shape = a.shape();
-  std::vector<float> new_data(num_elements);
+  const std::vector<idx_t> shape = a.shape();
+  const float* a_data = a.data_->data() + a.offset();
+  const std::vector<idx_t> a_strides = a.stride();
+  const float* b_data = b.data_->data() + b.offset();
+  const std::vector<idx_t> b_strides = b.stride();
 
-  for (idx_t i = 0; i < num_elements; i++) {
-    std::vector<idx_t> idx = utils::flat_to_indices(i, out_shape);
-    new_data[i] = a.at(idx) - b.at(idx);
-  }
+  std::vector<float> new_data = elementwise_binary(
+      a_data, a_strides, b_data, b_strides, shape, std::minus<>{});
 
-  Tensor result{new_data, out_shape};
+  Tensor result{new_data, shape};
   auto lhs_meta = lhs.autograd_meta_;
   auto rhs_meta = rhs.autograd_meta_;
   if (lhs_meta != nullptr || rhs_meta != nullptr) {
@@ -943,16 +944,16 @@ Tensor Tensor::operator-() const {
 Tensor operator*(const Tensor& lhs, const Tensor& rhs) {
   auto [a, b] = broadcast(lhs, rhs);
 
-  const idx_t num_elements = a.num_elements();
-  const std::vector<idx_t> out_shape = a.shape();
-  std::vector<float> new_data(num_elements);
+  const std::vector<idx_t> shape = a.shape();
+  const float* a_data = a.data_->data() + a.offset();
+  const std::vector<idx_t> a_strides = a.stride();
+  const float* b_data = b.data_->data() + b.offset();
+  const std::vector<idx_t> b_strides = b.stride();
 
-  for (idx_t i = 0; i < num_elements; i++) {
-    std::vector<idx_t> idx = utils::flat_to_indices(i, out_shape);
-    new_data[i] = a.at(idx) * b.at(idx);
-  }
+  std::vector<float> new_data = elementwise_binary(
+      a_data, a_strides, b_data, b_strides, shape, std::multiplies<>{});
 
-  Tensor result{new_data, out_shape};
+  Tensor result{new_data, shape};
   auto lhs_meta = lhs.autograd_meta_;
   auto rhs_meta = rhs.autograd_meta_;
   if (lhs_meta != nullptr || rhs_meta != nullptr) {
@@ -978,16 +979,16 @@ Tensor operator*(const Tensor& lhs, const Tensor& rhs) {
 Tensor operator/(const Tensor& lhs, const Tensor& rhs) {
   auto [a, b] = broadcast(lhs, rhs);
 
-  const idx_t num_elements = a.num_elements();
-  const std::vector<idx_t> out_shape = a.shape();
-  std::vector<float> new_data(num_elements);
+  const std::vector<idx_t> shape = a.shape();
+  const float* a_data = a.data_->data() + a.offset();
+  const std::vector<idx_t> a_strides = a.stride();
+  const float* b_data = b.data_->data() + b.offset();
+  const std::vector<idx_t> b_strides = b.stride();
 
-  for (idx_t i = 0; i < num_elements; i++) {
-    std::vector<idx_t> idx = utils::flat_to_indices(i, out_shape);
-    new_data[i] = a.at(idx) / b.at(idx);
-  }
+  std::vector<float> new_data = elementwise_binary(
+      a_data, a_strides, b_data, b_strides, shape, std::divides<>{});
 
-  Tensor result{new_data, out_shape};
+  Tensor result{new_data, shape};
   auto lhs_meta = lhs.autograd_meta_;
   auto rhs_meta = rhs.autograd_meta_;
   if (lhs_meta != nullptr || rhs_meta != nullptr) {
