@@ -393,15 +393,25 @@ Tensor Tensor::matmul(const Tensor& other) const {
   const idx_t rs0 = other.stride()[0], rs1 = other.stride()[1];
 
   Tensor result = zeros({rows, cols});
-  for (idx_t i{}; i < rows; i++) {
-    for (idx_t j{}; j < cols; j++) {
-      for (idx_t k{}; k < inner; k++) {
-        (*result.data_)[i * cols + j] +=
-            lhs_data[i * ls0 + k * ls1] * rhs_data[k * rs0 + j * rs1];
+  if (rs1 == 1) {
+    for (idx_t r{}; r < rows; r++) {
+      for (idx_t i{}; i < inner; i++) {
+        const float lhs_ri = lhs_data[r * ls0 + i * ls1];
+        for (idx_t c{}; c < cols; c++) {
+          (*result.data_)[r * cols + c] += lhs_ri * rhs_data[i * rs0 + c * rs1];
+        }
+      }
+    }
+  } else {
+    for (idx_t r{}; r < rows; r++) {
+      for (idx_t c{}; c < cols; c++) {
+        for (idx_t i{}; i < inner; i++) {
+          (*result.data_)[r * cols + c] +=
+              lhs_data[r * ls0 + i * ls1] * rhs_data[i * rs0 + c * rs1];
+        }
       }
     }
   }
-
   auto lhs_meta = autograd_meta_;
   auto rhs_meta = other.autograd_meta_;
   if (lhs_meta != nullptr || rhs_meta != nullptr) {
