@@ -22,6 +22,9 @@
 #include "utils.hpp"
 
 namespace {
+// matmul cache-tiling block size, tuned for this machine's L1D (128 KiB).
+constexpr axon::idx_t MATMUL_BLOCK = 128;
+
 axon::Tensor reduce_grad_to_shape(
     axon::Tensor grad, const std::vector<axon::idx_t>& target_shape) {
   while (grad.num_dim() > static_cast<axon::idx_t>(target_shape.size())) {
@@ -394,11 +397,16 @@ Tensor Tensor::matmul(const Tensor& other) const {
 
   Tensor result = zeros({rows, cols});
   if (rs1 == 1) {
-    for (idx_t r{}; r < rows; r++) {
-      for (idx_t i{}; i < inner; i++) {
-        const float lhs_ri = lhs_data[r * ls0 + i * ls1];
-        for (idx_t c{}; c < cols; c++) {
-          (*result.data_)[r * cols + c] += lhs_ri * rhs_data[i * rs0 + c * rs1];
+    for (idx_t c0 = 0; c0 < cols; c0 += MATMUL_BLOCK) {
+      for (idx_t i0 = 0; i0 < inner; i0 += MATMUL_BLOCK) {
+        for (idx_t r = 0; r < rows; r++) {
+          for (idx_t i = i0; i < std::min(i0 + MATMUL_BLOCK, inner); i++) {
+            const float lhs_ri = lhs_data[r * ls0 + i * ls1];
+            for (idx_t c = c0; c < std::min(c0 + MATMUL_BLOCK, cols); c++) {
+              (*result.data_)[r * cols + c] +=
+                  lhs_ri * rhs_data[i * rs0 + c * rs1];
+            }
+          }
         }
       }
     }
