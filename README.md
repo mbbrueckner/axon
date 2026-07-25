@@ -10,8 +10,8 @@ A neural network library from scratch in C++.
 - [X] Optimizers (SGD)
 - [X] first test - model (XOR)
 - [X] first real model MNIST
-- [ ] performance benchmarks
-- [ ] Code optimization
+- [X] performance benchmarks 
+- [ ] Code optimization - WIP([`docs/`](docs/README.md))
 - [ ] Code parallelization
 - [ ] addition of more modules
 
