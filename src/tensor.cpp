@@ -47,7 +47,8 @@ std::vector<float> elementwise_binary(const float* a_data,
                                       const float* b_data,
                                       const std::vector<axon::idx_t>& strides_b,
                                       const std::vector<axon::idx_t>& shape,
-                                      BinOp op) {
+                                      BinOp op,
+                                      const bool fast_path = false) {
   axon::idx_t offset_a{0};
   axon::idx_t offset_b{0};
 
@@ -56,22 +57,29 @@ std::vector<float> elementwise_binary(const float* a_data,
       shape.begin(), shape.end(), axon::idx_t{1}, std::multiplies<>()));
   std::vector<float> new_data(num_elements);
 
-  std::vector<axon::idx_t> idx(rank, 0);
-  for (axon::idx_t i = 0; i < num_elements; i++) {
-    new_data[i] = op(a_data[offset_a], b_data[offset_b]);
+  if (fast_path) {
+    for (axon::idx_t i = 0; i < num_elements; i++) {
+      new_data[i] = op(a_data[i], b_data[i]);
+    }
+  } else {
+    std::vector<axon::idx_t> idx(rank, 0);
+    for (axon::idx_t i = 0; i < num_elements; i++) {
+      new_data[i] = op(a_data[offset_a], b_data[offset_b]);
 
-    for (axon::idx_t d = rank; d-- > 0;) {
-      idx[d]++;
-      offset_a += strides_a[d];
-      offset_b += strides_b[d];
+      for (axon::idx_t d = rank; d-- > 0;) {
+        idx[d]++;
+        offset_a += strides_a[d];
+        offset_b += strides_b[d];
 
-      if (idx[d] < shape[d]) break;
+        if (idx[d] < shape[d]) break;
 
-      idx[d] = 0;
-      offset_a -= strides_a[d] * shape[d];
-      offset_b -= strides_b[d] * shape[d];
+        idx[d] = 0;
+        offset_a -= strides_a[d] * shape[d];
+        offset_b -= strides_b[d] * shape[d];
+      }
     }
   }
+
   return new_data;
 }
 
@@ -864,6 +872,9 @@ std::pair<Tensor, Tensor> broadcast(const Tensor& a, const Tensor& b) {
 }
 
 Tensor operator+(const Tensor& lhs, const Tensor& rhs) {
+  const bool fast_path =
+      lhs.is_contiguous() && rhs.is_contiguous() && rhs.shape() == lhs.shape();
+
   auto [a, b] = broadcast(lhs, rhs);
 
   const std::vector<idx_t> shape = a.shape();
@@ -873,7 +884,7 @@ Tensor operator+(const Tensor& lhs, const Tensor& rhs) {
   const std::vector<idx_t> b_strides = b.stride();
 
   std::vector<float> new_data = elementwise_binary(
-      a_data, a_strides, b_data, b_strides, shape, std::plus<>{});
+      a_data, a_strides, b_data, b_strides, shape, std::plus<>{}, fast_path);
 
   Tensor result{new_data, shape};
   auto lhs_meta = lhs.autograd_meta_;
@@ -898,6 +909,9 @@ Tensor operator+(const Tensor& lhs, const Tensor& rhs) {
 }
 
 Tensor operator-(const Tensor& lhs, const Tensor& rhs) {
+  const bool fast_path =
+      lhs.is_contiguous() && rhs.is_contiguous() && rhs.shape() == lhs.shape();
+
   auto [a, b] = broadcast(lhs, rhs);
 
   const std::vector<idx_t> shape = a.shape();
@@ -907,7 +921,7 @@ Tensor operator-(const Tensor& lhs, const Tensor& rhs) {
   const std::vector<idx_t> b_strides = b.stride();
 
   std::vector<float> new_data = elementwise_binary(
-      a_data, a_strides, b_data, b_strides, shape, std::minus<>{});
+      a_data, a_strides, b_data, b_strides, shape, std::minus<>{}, fast_path);
 
   Tensor result{new_data, shape};
   auto lhs_meta = lhs.autograd_meta_;
@@ -960,6 +974,9 @@ Tensor Tensor::operator-() const {
 }
 
 Tensor operator*(const Tensor& lhs, const Tensor& rhs) {
+  const bool fast_path =
+      lhs.is_contiguous() && rhs.is_contiguous() && rhs.shape() == lhs.shape();
+
   auto [a, b] = broadcast(lhs, rhs);
 
   const std::vector<idx_t> shape = a.shape();
@@ -968,8 +985,13 @@ Tensor operator*(const Tensor& lhs, const Tensor& rhs) {
   const float* b_data = b.data_->data() + b.offset();
   const std::vector<idx_t> b_strides = b.stride();
 
-  std::vector<float> new_data = elementwise_binary(
-      a_data, a_strides, b_data, b_strides, shape, std::multiplies<>{});
+  std::vector<float> new_data = elementwise_binary(a_data,
+                                                   a_strides,
+                                                   b_data,
+                                                   b_strides,
+                                                   shape,
+                                                   std::multiplies<>{},
+                                                   fast_path);
 
   Tensor result{new_data, shape};
   auto lhs_meta = lhs.autograd_meta_;
@@ -995,6 +1017,9 @@ Tensor operator*(const Tensor& lhs, const Tensor& rhs) {
 }
 
 Tensor operator/(const Tensor& lhs, const Tensor& rhs) {
+  const bool fast_path =
+      lhs.is_contiguous() && rhs.is_contiguous() && rhs.shape() == lhs.shape();
+
   auto [a, b] = broadcast(lhs, rhs);
 
   const std::vector<idx_t> shape = a.shape();
@@ -1004,7 +1029,7 @@ Tensor operator/(const Tensor& lhs, const Tensor& rhs) {
   const std::vector<idx_t> b_strides = b.stride();
 
   std::vector<float> new_data = elementwise_binary(
-      a_data, a_strides, b_data, b_strides, shape, std::divides<>{});
+      a_data, a_strides, b_data, b_strides, shape, std::divides<>{}, fast_path);
 
   Tensor result{new_data, shape};
   auto lhs_meta = lhs.autograd_meta_;
