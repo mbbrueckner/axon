@@ -686,21 +686,39 @@ Tensor Tensor::sum(idx_t dim, bool keep_dim) const {
       output_shape.begin(), output_shape.end(), idx_t{1}, std::multiplies<>());
   std::vector<float> new_data(output_elements, 0.0f);
 
-  for (idx_t i = 0; i < num_elements(); i++) {
-    std::vector<idx_t> idx = utils::flat_to_indices(i, shape_);
+  if (is_contiguous()) {
+    const idx_t outer = std::accumulate(
+        shape_.begin(), shape_.begin() + dim, idx_t{1}, std::multiplies<>());
+    const idx_t reduce = shape_[dim];
+    const idx_t inner = std::accumulate(
+        shape_.begin() + dim + 1, shape_.end(), idx_t{1}, std::multiplies<>());
+    const float* data = data_->data() + offset_;
 
-    std::vector<idx_t> output_idx = idx;
-    if (keep_dim) {
-      output_idx[dim] = 0;
-    } else {
-      output_idx.erase(output_idx.begin() + dim);
+    for (idx_t o = 0; o < outer; o++) {
+      float* out_row = &new_data[o * inner];
+      for (idx_t r = 0; r < reduce; r++) {
+        const float* in_row = data + o * reduce * inner + r * inner;
+        for (idx_t k = 0; k < inner; k++) {
+          out_row[k] += in_row[k];
+        }
+      }
     }
+  } else {
+    for (idx_t i = 0; i < num_elements(); i++) {
+      std::vector<idx_t> idx = utils::flat_to_indices(i, shape_);
 
-    idx_t output_flat = std::inner_product(
-        output_idx.begin(), output_idx.end(), output_stride.begin(), 0.0);
-    new_data[output_flat] += at(idx);
+      std::vector<idx_t> output_idx = idx;
+      if (keep_dim) {
+        output_idx[dim] = 0;
+      } else {
+        output_idx.erase(output_idx.begin() + dim);
+      }
+
+      idx_t output_flat = std::inner_product(
+          output_idx.begin(), output_idx.end(), output_stride.begin(), 0.0);
+      new_data[output_flat] += at(idx);
+    }
   }
-
   Tensor result(new_data, output_shape);
   auto input_meta = autograd_meta_;
   if (input_meta != nullptr) {
