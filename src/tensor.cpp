@@ -83,6 +83,33 @@ std::vector<float> elementwise_binary(const float* a_data,
   return new_data;
 }
 
+template <typename BinOp>
+std::vector<float> elementwise_scalar(const float* data,
+                                      bool contiguous,
+                                      const std::vector<axon::idx_t>& shape,
+                                      const std::vector<axon::idx_t>& strides,
+                                      float scalar,
+                                      BinOp op) {
+  const axon::idx_t num_elements(std::accumulate(
+      shape.begin(), shape.end(), axon::idx_t{1}, std::multiplies<>()));
+  std::vector<float> new_data(num_elements);
+
+  if (contiguous) {
+    std::ranges::transform(
+        data, data + num_elements, new_data.begin(), [scalar, op](float x) {
+          return op(x, scalar);
+        });
+  } else {
+    for (axon::idx_t i = 0; i < num_elements; i++) {
+      std::vector<axon::idx_t> idx = axon::utils::flat_to_indices(i, shape);
+      axon::idx_t idx_flat = std::inner_product(
+          idx.begin(), idx.end(), strides.begin(), axon::idx_t{0});
+      new_data[i] = op(data[idx_flat], scalar);
+    }
+  }
+  return new_data;
+}
+
 }  // namespace
 
 namespace axon {
