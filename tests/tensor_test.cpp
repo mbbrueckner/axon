@@ -239,6 +239,21 @@ TEST_CASE("Scalar Tensor addition", "[Tensor]") {
   REQUIRE(t.at({1, 2}) == Catch::Approx(7.0f));
 }
 
+TEST_CASE("Scalar Tensor addition (scalar first)", "[Tensor]") {
+  const axon::Tensor t_tensor =
+      axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  constexpr float scalar = 1.0f;
+
+  const axon::Tensor t = scalar + t_tensor;
+
+  REQUIRE(t.at({0, 0}) == Catch::Approx(2.0f));
+  REQUIRE(t.at({0, 1}) == Catch::Approx(3.0f));
+  REQUIRE(t.at({0, 2}) == Catch::Approx(4.0f));
+  REQUIRE(t.at({1, 0}) == Catch::Approx(5.0f));
+  REQUIRE(t.at({1, 1}) == Catch::Approx(6.0f));
+  REQUIRE(t.at({1, 2}) == Catch::Approx(7.0f));
+}
+
 TEST_CASE("Elementwise Tensor substraction", "[Tensor]") {
   const axon::Tensor t_l = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   const axon::Tensor t_r = axon::Tensor::from_data({6, 5, 4, 3, 2, 1}, {2, 3});
@@ -277,6 +292,21 @@ TEST_CASE("Scalar Tensor substraction", "[Tensor]") {
   REQUIRE(t.at({1, 2}) == Catch::Approx(5.0f));
 }
 
+TEST_CASE("Scalar Tensor substraction (scalar first)", "[Tensor]") {
+  const axon::Tensor t_tensor =
+      axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  constexpr float scalar = 1.0f;
+
+  const axon::Tensor t = scalar - t_tensor;
+
+  REQUIRE(t.at({0, 0}) == Catch::Approx(0.0f));
+  REQUIRE(t.at({0, 1}) == Catch::Approx(-1.0f));
+  REQUIRE(t.at({0, 2}) == Catch::Approx(-2.0f));
+  REQUIRE(t.at({1, 0}) == Catch::Approx(-3.0f));
+  REQUIRE(t.at({1, 1}) == Catch::Approx(-4.0f));
+  REQUIRE(t.at({1, 2}) == Catch::Approx(-5.0f));
+}
+
 TEST_CASE("Elementwise Tensor multiplication", "[Tensor]") {
   const axon::Tensor t_l = axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
   const axon::Tensor t_r = axon::Tensor::from_data({6, 5, 4, 3, 2, 1}, {2, 3});
@@ -306,6 +336,21 @@ TEST_CASE("Scalar Tensor multiplication", "[Tensor]") {
   constexpr float scalar = 2.0f;
 
   const axon::Tensor t = t_tensor * scalar;
+
+  REQUIRE(t.at({0, 0}) == Catch::Approx(2.0f));
+  REQUIRE(t.at({0, 1}) == Catch::Approx(4.0f));
+  REQUIRE(t.at({0, 2}) == Catch::Approx(6.0f));
+  REQUIRE(t.at({1, 0}) == Catch::Approx(8.0f));
+  REQUIRE(t.at({1, 1}) == Catch::Approx(10.0f));
+  REQUIRE(t.at({1, 2}) == Catch::Approx(12.0f));
+}
+
+TEST_CASE("Scalar Tensor multiplication (scalar first)", "[Tensor]") {
+  const axon::Tensor t_tensor =
+      axon::Tensor::from_data({1, 2, 3, 4, 5, 6}, {2, 3});
+  constexpr float scalar = 2.0f;
+
+  const axon::Tensor t = scalar * t_tensor;
 
   REQUIRE(t.at({0, 0}) == Catch::Approx(2.0f));
   REQUIRE(t.at({0, 1}) == Catch::Approx(4.0f));
@@ -351,6 +396,21 @@ TEST_CASE("Scalar Tensor division", "[Tensor]") {
   REQUIRE(t.at({1, 0}) == Catch::Approx(4.0f));
   REQUIRE(t.at({1, 1}) == Catch::Approx(5.0f));
   REQUIRE(t.at({1, 2}) == Catch::Approx(6.0f));
+}
+
+TEST_CASE("Scalar Tensor division (scalar first)", "[Tensor]") {
+  const axon::Tensor t_tensor =
+      axon::Tensor::from_data({2, 4, 6, 8, 10, 12}, {2, 3});
+  constexpr float scalar = 2.0f;
+
+  const axon::Tensor t = scalar / t_tensor;
+
+  REQUIRE(t.at({0, 0}) == Catch::Approx(1.0f));
+  REQUIRE(t.at({0, 1}) == Catch::Approx(0.5f));
+  REQUIRE(t.at({0, 2}) == Catch::Approx(1.0f / 3.0f));
+  REQUIRE(t.at({1, 0}) == Catch::Approx(0.25f));
+  REQUIRE(t.at({1, 1}) == Catch::Approx(0.2f));
+  REQUIRE(t.at({1, 2}) == Catch::Approx(1.0f / 6.0f));
 }
 
 TEST_CASE("Tensor matrix multiplication", "[Tensor]") {

@@ -119,6 +119,38 @@ TEST_CASE("Gradient check", "[GradCheck]") {
     auto f = [b](axon::Tensor x) { return x / b; };
     REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
   }
+  SECTION("scalar add (tensor + float)") {
+    auto f = [](axon::Tensor x) { return x + 2.0f; };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
+  SECTION("scalar add (float + tensor)") {
+    auto f = [](axon::Tensor x) { return 2.0f + x; };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
+  SECTION("scalar sub (tensor - float)") {
+    auto f = [](axon::Tensor x) { return x - 2.0f; };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
+  SECTION("scalar sub (float - tensor)") {
+    auto f = [](axon::Tensor x) { return 2.0f - x; };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
+  SECTION("scalar mul (tensor * float)") {
+    auto f = [](axon::Tensor x) { return x * 2.0f; };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
+  SECTION("scalar mul (float * tensor)") {
+    auto f = [](axon::Tensor x) { return 2.0f * x; };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
+  SECTION("scalar div (tensor / float)") {
+    auto f = [](axon::Tensor x) { return x / 2.0f; };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
+  SECTION("scalar div (float / tensor)") {
+    auto f = [](axon::Tensor x) { return 2.0f / x; };
+    REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
+  }
   SECTION("negate") {
     auto f = [](axon::Tensor x) { return -x; };
     REQUIRE(grad_check(f, x, 1e-4f, 1e-2f));
