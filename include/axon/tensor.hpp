@@ -504,12 +504,10 @@ class axon::Tensor {
    */
   friend Tensor operator*(const Tensor& lhs, const Tensor& rhs);
   /// @brief Multiplies every element of a tensor by a scalar.
-  friend Tensor operator*(const float sclr, const Tensor& tnsr) {
-    return tnsr * Tensor::from_data({sclr}, {1});
-  }
+  friend Tensor operator*(const float sclr, const Tensor& tnsr);
   /// @brief Multiplies every element of a tensor by a scalar.
   friend Tensor operator*(const Tensor& tnsr, const float sclr) {
-    return Tensor::from_data({sclr}, {1}) * tnsr;
+    return sclr * tnsr;
   }
 
   /**

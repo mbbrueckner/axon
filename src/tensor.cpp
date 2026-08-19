@@ -741,8 +741,10 @@ Tensor Tensor::sum(idx_t dim, bool keep_dim) const {
         output_idx.erase(output_idx.begin() + dim);
       }
 
-      idx_t output_flat = std::inner_product(
-          output_idx.begin(), output_idx.end(), output_stride.begin(), 0.0);
+      idx_t output_flat = std::inner_product(output_idx.begin(),
+                                             output_idx.end(),
+                                             output_stride.begin(),
+                                             idx_t{0});
       new_data[output_flat] += at(idx);
     }
   }
@@ -1056,6 +1058,27 @@ Tensor operator*(const Tensor& lhs, const Tensor& rhs) {
     if (lhs_meta) inputs.push_back(lhs_meta);
     if (rhs_meta) inputs.push_back(rhs_meta);
     meta->grad_fn_->inputs = inputs;
+    result.autograd_meta_ = meta;
+  }
+  return result;
+}
+Tensor operator*(const float sclr, const Tensor& tnsr) {
+  const float* data = tnsr.data_->data() + tnsr.offset();
+  const std::vector<idx_t> shape = tnsr.shape();
+  const std::vector<idx_t> strides = tnsr.stride();
+  const bool contigous = tnsr.is_contiguous();
+  std::vector<float> new_data = elementwise_scalar(
+      data, contigous, shape, strides, sclr, std::multiplies<>{});
+  Tensor result{new_data, shape};
+
+  auto tnsr_meta = tnsr.autograd_meta_;
+  if (tnsr_meta != nullptr) {
+    auto meta = std::make_shared<AutogradMeta>(result.shape());
+    meta->grad_fn_ = std::make_shared<GradFn>();
+    meta->grad_fn_->backward = [tnsr_meta, sclr](const Tensor& grad_output) {
+      if (tnsr_meta) *tnsr_meta->grad += grad_output * sclr;
+    };
+    meta->grad_fn_->inputs = {tnsr_meta};
     result.autograd_meta_ = meta;
   }
   return result;
