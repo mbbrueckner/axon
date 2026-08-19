@@ -450,12 +450,10 @@ class axon::Tensor {
    */
   friend Tensor operator+(const Tensor& lhs, const Tensor& rhs);
   /// @brief Adds a scalar to every element of a tensor.
-  friend Tensor operator+(const float sclr, const Tensor& tnsr) {
-    return tnsr + Tensor::from_data({sclr}, {1});
-  }
+  friend Tensor operator+(const float sclr, const Tensor& tnsr);
   /// @brief Adds a scalar to every element of a tensor.
   friend Tensor operator+(const Tensor& tnsr, const float sclr) {
-    return Tensor::from_data({sclr}, {1}) + tnsr;
+    return sclr + tnsr;
   }
 
   /**
@@ -476,13 +474,9 @@ class axon::Tensor {
    */
   friend Tensor operator-(const Tensor& lhs, const Tensor& rhs);
   /// @brief Subtracts a scalar from every element of a tensor.
-  friend Tensor operator-(const float sclr, const Tensor& tnsr) {
-    return Tensor::from_data({sclr}, {1}) - tnsr;
-  }
+  friend Tensor operator-(const float sclr, const Tensor& tnsr);
   /// @brief Subtracts a scalar from every element of a tensor.
-  friend Tensor operator-(const Tensor& tnsr, const float sclr) {
-    return tnsr - Tensor::from_data({sclr}, {1});
-  }
+  friend Tensor operator-(const Tensor& tnsr, const float sclr);
   /// @brief negates all data elements of a tensor.
   Tensor operator-() const;
 
@@ -516,11 +510,7 @@ class axon::Tensor {
    */
   friend Tensor operator/(const Tensor& lhs, const Tensor& rhs);
   /// @brief Divides a scalar by every element of a tensor.
-  friend Tensor operator/(const float sclr, const Tensor& tnsr) {
-    return Tensor::from_data({sclr}, {1}) / tnsr;
-  }
+  friend Tensor operator/(const float sclr, const Tensor& tnsr);
   /// @brief Divides every element of a tensor by a scalar.
-  friend Tensor operator/(const Tensor& tnsr, const float sclr) {
-    return tnsr / Tensor::from_data({sclr}, {1});
-  }
+  friend Tensor operator/(const Tensor& tnsr, const float sclr);
 };
