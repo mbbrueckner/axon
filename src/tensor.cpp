@@ -7,6 +7,8 @@
 
 #include "axon/tensor.hpp"
 
+#include <arm_neon.h>
+
 #include <algorithm>
 #include <cmath>
 #include <format>
@@ -22,8 +24,6 @@
 #include "utils.hpp"
 
 namespace {
-// matmul cache-tiling block size, tuned for this machine's L1D (128 KiB).
-constexpr axon::idx_t MATMUL_BLOCK = 128;
 
 axon::Tensor reduce_grad_to_shape(
     axon::Tensor grad, const std::vector<axon::idx_t>& target_shape) {
@@ -108,6 +108,39 @@ std::vector<float> elementwise_scalar(const float* data,
     }
   }
   return new_data;
+}
+
+float32x4_t load_n(const float* p, axon::idx_t n) {
+  float32x4_t v = vdupq_n_f32(0.0f);
+  switch (n) {
+    case 4:
+      return vld1q_f32(p);
+    case 3:
+      v = vld1q_lane_f32(p + 2, v, 2);
+      [[fallthrough]];
+    case 2:
+      v = vld1q_lane_f32(p + 1, v, 1);
+      [[fallthrough]];
+    case 1:
+      v = vld1q_lane_f32(p + 0, v, 0);
+  }
+  return v;
+}
+
+void store_n(float* p, float32x4_t v, axon::idx_t n) {
+  switch (n) {
+    case 4:
+      vst1q_f32(p, v);
+      return;
+    case 3:
+      vst1q_lane_f32(p + 2, v, 2);
+      [[fallthrough]];
+    case 2:
+      vst1q_lane_f32(p + 1, v, 1);
+      [[fallthrough]];
+    case 1:
+      vst1q_lane_f32(p + 0, v, 0);
+  }
 }
 
 }  // namespace
@@ -431,17 +464,48 @@ Tensor Tensor::matmul(const Tensor& other) const {
   const idx_t rs0 = other.stride()[0], rs1 = other.stride()[1];
 
   Tensor result = zeros({rows, cols});
+  float* result_data = result.data_->data();
+
   if (rs1 == 1) {
-    for (idx_t c0 = 0; c0 < cols; c0 += MATMUL_BLOCK) {
-      for (idx_t i0 = 0; i0 < inner; i0 += MATMUL_BLOCK) {
-        for (idx_t r = 0; r < rows; r++) {
-          for (idx_t i = i0; i < std::min(i0 + MATMUL_BLOCK, inner); i++) {
-            const float lhs_ri = lhs_data[r * ls0 + i * ls1];
-            for (idx_t c = c0; c < std::min(c0 + MATMUL_BLOCK, cols); c++) {
-              (*result.data_)[r * cols + c] +=
-                  lhs_ri * rhs_data[i * rs0 + c * rs1];
-            }
+    for (idx_t r0 = 0; r0 < rows; r0 += 4) {
+      const idx_t mr = std::min<idx_t>(4, rows - r0);
+      for (idx_t c0 = 0; c0 < cols; c0 += 4) {
+        const idx_t nr = std::min<idx_t>(4, cols - c0);
+
+        if (mr == 4 && nr == 4) {
+          float32x4_t acc0 = vdupq_n_f32(0.0f);
+          float32x4_t acc1 = vdupq_n_f32(0.0f);
+          float32x4_t acc2 = vdupq_n_f32(0.0f);
+          float32x4_t acc3 = vdupq_n_f32(0.0f);
+          for (idx_t k = 0; k < inner; k++) {
+            float32x4_t rhs_vec = vld1q_f32(&rhs_data[k * rs0 + c0 * rs1]);
+            acc0 =
+                vfmaq_n_f32(acc0, rhs_vec, lhs_data[(r0 + 0) * ls0 + k * ls1]);
+            acc1 =
+                vfmaq_n_f32(acc1, rhs_vec, lhs_data[(r0 + 1) * ls0 + k * ls1]);
+            acc2 =
+                vfmaq_n_f32(acc2, rhs_vec, lhs_data[(r0 + 2) * ls0 + k * ls1]);
+            acc3 =
+                vfmaq_n_f32(acc3, rhs_vec, lhs_data[(r0 + 3) * ls0 + k * ls1]);
           }
+
+          vst1q_f32(&result_data[(r0 + 0) * cols + c0], acc0);
+          vst1q_f32(&result_data[(r0 + 1) * cols + c0], acc1);
+          vst1q_f32(&result_data[(r0 + 2) * cols + c0], acc2);
+          vst1q_f32(&result_data[(r0 + 3) * cols + c0], acc3);
+        } else {
+          float32x4_t acc[4] = {vdupq_n_f32(0.0f),
+                                vdupq_n_f32(0.0f),
+                                vdupq_n_f32(0.0f),
+                                vdupq_n_f32(0.0f)};
+          for (idx_t k = 0; k < inner; k++) {
+            float32x4_t rhs_vec = load_n(&rhs_data[k * rs0 + c0 * rs1], nr);
+            for (idx_t i = 0; i < mr; i++)
+              acc[i] = vfmaq_n_f32(
+                  acc[i], rhs_vec, lhs_data[(r0 + i) * ls0 + k * ls1]);
+          }
+          for (idx_t i = 0; i < mr; i++)
+            store_n(&result_data[(r0 + i) * cols + c0], acc[i], nr);
         }
       }
     }
@@ -449,7 +513,7 @@ Tensor Tensor::matmul(const Tensor& other) const {
     for (idx_t r{}; r < rows; r++) {
       for (idx_t c{}; c < cols; c++) {
         for (idx_t i{}; i < inner; i++) {
-          (*result.data_)[r * cols + c] +=
+          result_data[r * cols + c] +=
               lhs_data[r * ls0 + i * ls1] * rhs_data[i * rs0 + c * rs1];
         }
       }
@@ -959,8 +1023,8 @@ Tensor operator+(const float sclr, const Tensor& tnsr) {
   const std::vector<idx_t> shape = tnsr.shape();
   const std::vector<idx_t> strides = tnsr.stride();
   const bool contigous = tnsr.is_contiguous();
-  std::vector<float> new_data = elementwise_scalar(
-      data, contigous, shape, strides, sclr, std::plus<>{});
+  std::vector<float> new_data =
+      elementwise_scalar(data, contigous, shape, strides, sclr, std::plus<>{});
   Tensor result{new_data, shape};
 
   auto tnsr_meta = tnsr.autograd_meta_;
