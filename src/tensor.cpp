@@ -7,7 +7,9 @@
 
 #include "axon/tensor.hpp"
 
+#if defined(__ARM_NEON)
 #include <arm_neon.h>
+#endif
 
 #include <algorithm>
 #include <cmath>
@@ -110,6 +112,7 @@ std::vector<float> elementwise_scalar(const float* data,
   return new_data;
 }
 
+#if defined(__ARM_NEON)
 float32x4_t load_n(const float* p, axon::idx_t n) {
   float32x4_t v = vdupq_n_f32(0.0f);
   switch (n) {
@@ -142,6 +145,7 @@ void store_n(float* p, float32x4_t v, axon::idx_t n) {
       vst1q_lane_f32(p + 0, v, 0);
   }
 }
+#endif  // defined(__ARM_NEON)
 
 }  // namespace
 
@@ -467,6 +471,7 @@ Tensor Tensor::matmul(const Tensor& other) const {
   float* result_data = result.data_->data();
 
   if (rs1 == 1) {
+#if defined(__ARM_NEON)
     for (idx_t r0 = 0; r0 < rows; r0 += 4) {
       const idx_t mr = std::min<idx_t>(4, rows - r0);
       for (idx_t c0 = 0; c0 < cols; c0 += 4) {
@@ -509,6 +514,16 @@ Tensor Tensor::matmul(const Tensor& other) const {
         }
       }
     }
+#else // fallback if no NEON on target:
+    for (idx_t r{}; r < rows; r++) {
+      for (idx_t i{}; i < inner; i++) {
+        const float lhs_ri = lhs_data[r * ls0 + i * ls1];
+        for (idx_t c{}; c < cols; c++) {
+          result_data[r * cols + c] += lhs_ri * rhs_data[i * rs0 + c * rs1];
+        }
+      }
+    }
+#endif  // defined(__ARM_NEON)
   } else {
     for (idx_t r{}; r < rows; r++) {
       for (idx_t c{}; c < cols; c++) {
