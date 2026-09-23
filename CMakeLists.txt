@@ -32,6 +32,7 @@ add_library(axon STATIC
         include/axon/early_stopping.hpp
         include/axon/dataloader.hpp
         include/axon/summary.hpp
+        src/core/tensor_iterator.cpp
 )
 
 target_include_directories(axon
