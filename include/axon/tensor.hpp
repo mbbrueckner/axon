@@ -17,6 +17,9 @@
 namespace axon {
 struct AutogradMeta;
 class Tensor;
+namespace internal {
+class TensorIterator;
+}  // namespace internal
 }  // namespace axon
 
 /**
@@ -33,6 +36,9 @@ class Tensor;
  */
 class axon::Tensor {
  private:
+  /// Grants the iteration plan access to data_ for its base pointers.
+  friend class axon::internal::TensorIterator;
+
   /// Size of the tensor along each dimension.
   std::vector<idx_t> shape_;
   /// Number of flat elements to step over per index in each dimension.
