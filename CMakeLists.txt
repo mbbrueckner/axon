@@ -9,7 +9,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Library
 add_library(axon STATIC
-        src/tensor.cpp
+        src/core/tensor.cpp
         src/autograd/autograd.cpp
         src/modules/linear.cpp
         src/autograd/autograd.hpp
