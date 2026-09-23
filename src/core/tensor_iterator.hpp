@@ -36,6 +36,8 @@ class axon::internal::TensorIterator {
   };
 
  private:
+  TensorIterator(std::vector<idx_t> shape, std::vector<Operand> operands);
+
   /// Shape shared by all operands.
   std::vector<idx_t> shape_;
   /// Output first, then the inputs.
