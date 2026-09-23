@@ -10,6 +10,7 @@ add_executable(axon_tests
         dataloader_test.cpp
         early_stopping_test.cpp
         parallel_test.cpp
+        tensor_iterator_test.cpp
 )
 
 target_link_libraries(axon_tests PRIVATE
