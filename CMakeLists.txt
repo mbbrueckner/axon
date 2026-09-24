@@ -33,6 +33,8 @@ add_library(axon STATIC
         include/axon/dataloader.hpp
         include/axon/summary.hpp
         src/core/tensor_iterator.cpp
+        src/ops/unary.cpp
+        src/ops/cpu/unary_kernel.cpp
 )
 
 target_include_directories(axon
