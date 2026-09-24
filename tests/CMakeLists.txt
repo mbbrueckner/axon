@@ -11,7 +11,10 @@ add_executable(axon_tests
         early_stopping_test.cpp
         parallel_test.cpp
         tensor_iterator_test.cpp
+        cpu_kernel_test.cpp
 )
+
+target_include_directories(axon_tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 target_link_libraries(axon_tests PRIVATE
         axon
