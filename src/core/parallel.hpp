@@ -13,6 +13,8 @@
 /// @brief Internal implementation utilities; not part of the public API.
 namespace axon::internal {
 
+constexpr idx_t GRAIN_SIZE = 32768;
+
 /**
  * @brief Applies @p operation to sub-ranges covering [begin, end).
  *
@@ -28,7 +30,8 @@ namespace axon::internal {
  * @param end One past the last index of the range.
  * @param grain_size Smallest number of indices a sub-range should span for
  *        splitting to pay off.
- * @param operation Invoked as @c operation(sub_begin,sub_end) per sub-range.
+ * @param operation Invoked as @c operation(sub_begin,sub_end) per
+ * sub-range.
  */
 template <typename Op>
 void parallel_for(const idx_t begin,
