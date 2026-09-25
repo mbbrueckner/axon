@@ -1,6 +1,7 @@
 #include "tensor_iterator.hpp"
 
 #include <cassert>
+#include <functional>
 #include <numeric>
 #include <utility>
 

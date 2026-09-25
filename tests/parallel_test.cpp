@@ -7,6 +7,8 @@
 
 #include "../src/core/parallel.hpp"
 
+#include <vector>
+
 #include "axon/constants.hpp"
 #include "catch2/catch_all.hpp"
 

@@ -5,6 +5,8 @@
  * @date 2026-09-25
  */
 
+#include <algorithm>
+#include <memory>
 #include <ranges>
 #include <vector>
 
