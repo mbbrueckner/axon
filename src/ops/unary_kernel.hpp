@@ -14,11 +14,30 @@ class TensorIterator;
 /**
  * @brief Writes the rectified linear unit of operand 1 into operand 0.
  *
- * Declared here so that the op layer can call it without naming a backend;
- * exactly one backend provides the definition.
  *
  * @param iter Plan describing the output and the input.
  */
 void relu_kernel(const TensorIterator& iter);
+
+/**
+ * @brief Writes the log of operand 1 into operand 0.
+ *
+ * @param iter Plan describing the output and the input.
+ */
+void log_kernel(const TensorIterator& iter);
+
+/**
+ * @brief Writes the exp of operand 1 into operand 0.
+ *
+ * @param iter Plan describing the output and the input.
+ */
+void exp_kernel(const TensorIterator& iter);
+
+/**
+ * @brief Writes the exp of operand 1 into operand 0.
+ *
+ * @param iter Plan describing the output and the input.
+ */
+void abs_kernel(const TensorIterator& iter);
 
 }  // namespace axon::internal
